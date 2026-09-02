@@ -25,7 +25,7 @@ const emptyAttrs = { 'data-empty': '', 'data-empty-pal': 'Nothing for AltStore P
     <p class="mt-4 rounded-[20px] bg-surface p-6 text-center t-body text-label-2 lg:rounded-box">No apps yet.</p>
   ) : (
     <div class="mt-4" data-app-list>
-      <div class="grid gap-2.5 lg:grid-cols-2 lg:gap-x-5 lg:gap-y-6 xl:grid-cols-3 2xl:grid-cols-4">
+      <div class="grid gap-2.5 sm:grid-cols-2 lg:grid-cols-2 lg:gap-x-5 lg:gap-y-6 xl:grid-cols-3 2xl:grid-cols-4">
         {apps.map((entry) => <AppRow entry={entry} morph />)}
       </div>
       <p class="hidden py-10 text-center t-body text-label-2" data-empty-search role="status">No apps match.</p>

@@ -97,7 +97,7 @@ const website = meta.website ? meta.website.replace(/^https?:\/\//, '').replace(
   <section class="mt-8" aria-labelledby="apps-h">
     <SectionHeader id="apps-h" title={featured.length ? 'Featured Apps' : 'Apps'} href={`${base}apps/`} linkLabel="View All Apps" />
     <div class="lg:hidden" data-app-list>
-      {rows.length === 0 ? <p class="rounded-[20px] bg-surface p-6 text-center t-body text-label-2">{empty.all}</p> : <div class="grid gap-2.5">{rows.map((entry) => <AppRow entry={entry} />)}</div>}
+      {rows.length === 0 ? <p class="rounded-[20px] bg-surface p-6 text-center t-body text-label-2">{empty.all}</p> : <div class="grid gap-2.5 sm:grid-cols-2">{rows.map((entry) => <AppRow entry={entry} />)}</div>}
       <p class="rounded-[20px] bg-surface p-6 text-center t-body text-label-2" hidden {...emptyAttrs}></p>
     </div>
     <div class="hidden lg:block" data-app-list>

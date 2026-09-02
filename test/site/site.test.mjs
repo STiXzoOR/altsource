@@ -345,3 +345,16 @@ test('no file names anywhere: the footer is desktop-only with one GitHub link, t
   assert.match(html.match(/<aside[\s\S]*?<\/aside>/)[0], /aria-label="Appearance"[\s\S]*?<a class="[^"]*" href="https:\/\/example\.org\/repo" rel="noopener">GitHub<\/a>/, 'sidebar keeps appearance and links GitHub');
   assert.match(html, /<main id="main"[^>]*class="[^"]*pb-\[calc\(100px\+env\(safe-area-inset-bottom\)\)\][^"]*lg:pb-10/, 'main pads for the floating tab bar on phones');
 });
+
+test('native feel CSS: no sideways scroll, controls are not selectable and dim on press, balanced headings', async () => {
+  const css = await allCss();
+  assert.match(css, /html,body\{[^}]*overflow-x:clip/, 'clip horizontal overflow');
+  assert.match(css, /\.approw,\.pill,\.get,\.segment,\.tabbar a,\.sheet-action,\.navbar-back,\.navbar-action,\.today,\.newscard\{[^}]*user-select:none/, 'controls are not selectable');
+  assert.match(css, /\.today:active\{[^}]*opacity:\.85/, 'Today card press state');
+  assert.match(css, /h1,h2,h3\{[^}]*text-wrap:balance/, 'balanced headings');
+});
+
+test('app rows sit in two columns from 640px on Home, Apps and More by', async () => {
+  assert.match(await page('index.html'), /<div class="lg:hidden" data-app-list>[\s\S]*?<div class="grid gap-2\.5 sm:grid-cols-2">/, 'home phone list');
+  assert.match(await page('apps/index.html'), /<div class="grid gap-2\.5 sm:grid-cols-2 lg:grid-cols-2 lg:gap-x-5 lg:gap-y-6 xl:grid-cols-3 2xl:grid-cols-4">/, 'apps index');
+});
