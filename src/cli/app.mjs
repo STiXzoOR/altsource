@@ -3,9 +3,8 @@ import { createInterface } from 'node:readline/promises';
 import { readApp, writeApp, listApps, removeApp, today } from '../lib/content.mjs';
 import { fetchUpstreamApp } from '../lib/upstream.mjs';
 import { fetchRepoInfo } from '../lib/github.mjs';
-import { loadBytes } from '../lib/http.mjs';
-import { inspectIPA } from '../lib/ipa.mjs';
 import { inferKind } from '../lib/kinds.mjs';
+import { ensurePermissions } from '../lib/permissions.mjs';
 import { SOURCE_OPTIONS, resolvePackage, sourceKind, reportFileIssues, UsageError } from './inputs.mjs';
 
 const USAGE = `usage:
@@ -36,20 +35,6 @@ function overrides(values) {
   return m;
 }
 
-async function fillPermissionsFromIPA(app, { cwd, fetch }, notes) {
-  const latest = app.versions?.[0];
-  if (app.appPermissions || !latest || inferKind(latest) !== 'ipa') return app;
-  try {
-    const { buffer } = await loadBytes(latest.downloadURL, { cwd, fetch });
-    const ipa = inspectIPA(buffer);
-    notes.push(`filled appPermissions from ${latest.downloadURL}`);
-    return { ...app, appPermissions: { entitlements: ipa.entitlements, privacy: ipa.privacy } };
-  } catch (e) {
-    notes.push(`could not inspect ${latest.downloadURL} for permissions: ${e.message}`);
-    return app;
-  }
-}
-
 async function buildApp(bundleId, values, ctx) {
   const notes = [];
   const kind = sourceKind(values);
@@ -57,7 +42,9 @@ async function buildApp(bundleId, values, ctx) {
     if (!bundleId) throw new UsageError('bundleId is required with --from-source');
     const { app } = await fetchUpstreamApp(values['from-source'], bundleId, { fetch: ctx.fetch });
     const { $schema, ...rest } = app;
-    let out = await fillPermissionsFromIPA({ ...rest, ...overrides(values) }, ctx, notes);
+    const filled = await ensurePermissions({ ...rest, ...overrides(values) }, ctx);
+    if (filled.note) notes.push(filled.note);
+    let out = filled.app;
     if (values.upstream) out = { ...out, upstream: { type: 'altstore', url: values['from-source'] } };
     return { app: out, notes };
   }
