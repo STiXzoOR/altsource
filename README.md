@@ -137,8 +137,8 @@ package can live on GitHub Releases.
 | `deploy.yml` | every push to `main`, and after the two above | Tests, build, `status.json`, GitHub Pages. |
 
 The status dashboard lives at https://stixzoor.github.io/altsource/status/ (also `npm run serve` → `/status/`): counts,
-QR codes that add the source when scanned, local vs upstream version per app, recent sync activity, broken links, and
-buttons that open the workflow pages.
+QR codes that add the source when scanned, local vs upstream version per app, recent sync activity, and broken links.
+It is public and read-only; maintainer actions live in the GitHub Actions tab, not on the page.
 
 `upstream` keys inside an app file:
 

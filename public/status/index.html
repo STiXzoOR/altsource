@@ -79,9 +79,8 @@
 
   $('meta').textContent = `generated ${fmt(status.generatedAt)}${status.commit ? ` · commit ${status.commit.slice(0, 7)}` : ''}`;
   if (status.repo) {
-    const base = `https://github.com/${status.repo}`;
     $('actions').hidden = false;
-    $('actions').innerHTML = [['Repository', base], ['Run sync', `${base}/actions/workflows/sync.yml`], ['Run link check', `${base}/actions/workflows/links.yml`], ['Deploys', `${base}/actions/workflows/deploy.yml`], ['Publish release', `${base}/actions/workflows/release.yml`]].map(([t, u]) => `<a href="${u}">${t}</a>`).join('');
+    $('actions').innerHTML = `<a href="https://github.com/${status.repo}">Repository</a>`;
   }
   const c = status.counts;
   const behind = status.apps.filter((a) => a.upstream?.state === 'behind').length;
