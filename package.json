@@ -1,0 +1,17 @@
+{
+  "name": "altsource",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "STiX Apps — an AltStore PAL and AltStore Classic source",
+  "bin": { "altsource": "bin/altsource.mjs" },
+  "engines": { "node": ">=24" },
+  "scripts": {
+    "test": "node --test 'test/**/*.test.mjs'",
+    "validate": "node bin/altsource.mjs validate",
+    "build": "node bin/altsource.mjs build",
+    "serve": "node bin/altsource.mjs serve",
+    "assets:placeholder": "node scripts/make-placeholder-assets.mjs"
+  },
+  "dependencies": { "ajv": "^8.17.1" }
+}
