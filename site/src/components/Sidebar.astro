@@ -5,7 +5,7 @@ import StoreSwitch from './StoreSwitch.astro';
 import ThemeToggle from './ThemeToggle.astro';
 import { getSite } from '../lib/data.mjs';
 import { navItems, isCurrent } from '../lib/nav.mjs';
-/** Desktop sidebar (from 1000px): lockup, primary navigation, store switch, appearance, source URLs. */
+/** Desktop sidebar (from 1000px): lockup, primary navigation, store switch, appearance, GitHub link. */
 const site = await getSite();
 const base = import.meta.env.BASE_URL;
 const path = Astro.url.pathname;
@@ -25,9 +25,6 @@ const path = Astro.url.pathname;
   <StoreSwitch variant="rows" class="mt-6 px-[25px]" />
   <div class="mt-auto px-[25px] pb-5">
     <ThemeToggle />
-    <p class="mt-3 flex flex-col gap-1 t-subhead text-label-2">
-      <a class="truncate hover:text-key" href={site.urls.pal}>source.pal.json</a>
-      <a class="truncate hover:text-key" href={site.urls.classic}>source.json</a>
-    </p>
+    {site.meta.website && <p class="mt-3 t-subhead text-label-2"><a class="hover:text-key" href={site.meta.website} rel="noopener">GitHub</a></p>}
   </div>
 </aside>

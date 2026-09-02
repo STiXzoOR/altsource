@@ -322,3 +322,13 @@ test('home: a gear in the bar opens the Settings sheet with appearance, project 
   assert.match(sheet, /AltStore PAL installs notarized apps in the EU, Japan and Brazil\. AltStore Classic and SideStore sideload apps everywhere\./);
   assert.doesNotMatch(await page('apps/index.html'), /data-sheet="settings"/, 'only the home bar has the gear');
 });
+
+test('no file names anywhere: the footer is desktop-only with one GitHub link, the sidebar links GitHub, phones pad for the tab bar', async () => {
+  const html = await page('index.html');
+  assert.match(html, /<footer class="hidden bg-footer[^"]*lg:block">/, 'footer hidden under 1000px');
+  assert.doesNotMatch(html, />source\.pal\.json<|>source\.json<|Source code</, 'no JSON file names or "Source code" labels in text');
+  assert.match(html.match(/<footer[\s\S]*?<\/footer>/)[0], /<a class="[^"]*" href="https:\/\/example\.org\/repo" rel="noopener">GitHub<\/a>/, 'footer GitHub link');
+  assert.doesNotMatch(html.match(/<footer[\s\S]*?<\/footer>/)[0], /aria-label="Appearance"/, 'no theme toggle in the footer');
+  assert.match(html.match(/<aside[\s\S]*?<\/aside>/)[0], /aria-label="Appearance"[\s\S]*?<a class="[^"]*" href="https:\/\/example\.org\/repo" rel="noopener">GitHub<\/a>/, 'sidebar keeps appearance and links GitHub');
+  assert.match(html, /<main id="main"[^>]*class="[^"]*pb-\[calc\(100px\+env\(safe-area-inset-bottom\)\)\][^"]*lg:pb-10/, 'main pads for the floating tab bar on phones');
+});
