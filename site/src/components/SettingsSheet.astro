@@ -1,0 +1,29 @@
+---
+import Sheet from './Sheet.astro';
+import ThemeToggle from './ThemeToggle.astro';
+import Icon from './Icon.astro';
+import { getSite } from '../lib/data.mjs';
+/** Settings bottom sheet for phones and tablets: appearance, project links, the one-line store note. Opened by the gear in the home nav bar. */
+const site = await getSite();
+const website = site.meta.website ? site.meta.website.replace(/\/$/, '') : null;
+const github = website ? /^https:\/\/github\.com\/[^/]+\/[^/]+$/.test(website) : false;
+const rows = [
+  website && { label: github ? 'Source on GitHub' : 'Website', href: website },
+  github && { label: 'Report a problem', href: `${website}/issues` },
+].filter(Boolean);
+---
+<Sheet id="settings" title="Settings" class="lg:hidden">
+  <section aria-labelledby="settings-appearance">
+    <h3 id="settings-appearance" class="mb-2 px-1 t-footnote-em uppercase text-label-2">Appearance</h3>
+    <ThemeToggle />
+  </section>
+  {rows.length > 0 && (
+    <section class="mt-6" aria-labelledby="settings-about">
+      <h3 id="settings-about" class="mb-2 px-1 t-footnote-em uppercase text-label-2">About</h3>
+      <div class="info">
+        {rows.map((r) => <a href={r.href} rel="noopener" class="info-row items-center text-key"><span>{r.label}</span><Icon name="ArrowUpRight01Icon" class="size-4 shrink-0" strokeWidth={2} /></a>)}
+      </div>
+    </section>
+  )}
+  <p class="mt-6 px-1 t-footnote text-label-2">AltStore PAL installs notarized apps in the EU, Japan and Brazil. AltStore Classic and SideStore sideload apps everywhere.</p>
+</Sheet>

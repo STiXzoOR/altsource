@@ -14,6 +14,7 @@ import Text from '../components/Text.astro';
 import ActionSheet from '../components/ActionSheet.astro';
 import Wordmark from '../components/Wordmark.astro';
 import StoreSwitch from '../components/StoreSwitch.astro';
+import SettingsSheet from '../components/SettingsSheet.astro';
 import { getSite, universalLink, formatDate } from '../lib/data.mjs';
 const site = await getSite();
 const base = import.meta.env.BASE_URL;
@@ -39,12 +40,13 @@ const emptyAttrs = { 'data-empty': '', 'data-empty-pal': empty.pal, 'data-empty-
 const website = meta.website ? meta.website.replace(/^https?:\/\//, '').replace(/\/$/, '') : null;
 ---
 <Base width="wide" flush>
-  <NavBar slot="nav" icon={meta.iconURL}>
+  <NavBar slot="nav" icon={meta.iconURL} tinted>
     <Wordmark slot="title" name={meta.name} class="truncate text-[1.05em]" />
     <span slot="trailing" class="contents">
       <Pill label="Add" data-store-only="all" data-sheet="add-source" />
       {addLinks.map((l) => <Pill label="Add" href={l.href} data-store-only={l.store} />)}
     </span>
+    <button slot="actions" type="button" class="navbar-action" data-sheet="settings" aria-label="Settings" aria-haspopup="dialog"><Icon name="Settings01Icon" class="size-6" strokeWidth={1.75} /></button>
   </NavBar>
 
   <section class="hero-midnight relative -mx-4 overflow-hidden px-4 pt-[calc(60px+env(safe-area-inset-top,0px))] pb-6 xs:-mx-[25px] xs:px-[25px] lg:mx-0 lg:mt-2 lg:min-h-[286px] lg:rounded-card lg:px-10 lg:py-10" aria-labelledby="source-title">
@@ -105,6 +107,7 @@ const website = meta.website ? meta.website.replace(/^https?:\/\//, '').replace(
       </div>
     </section>
   )}
+  <SettingsSheet />
   <ActionSheet id="add-source" title={`Add "${meta.name}"`} message="Choose the app you use. The source keeps your apps updated." actions={addActions} />
 </Base>
 <script>

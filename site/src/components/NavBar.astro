@@ -4,7 +4,8 @@ import Icon from './Icon.astro';
  * Phone nav bar (hidden from 1000px, where the sidebar takes over). Fixed and transparent; the material
  * child and the title fade in once the page's large title or hero has scrolled under it (a page marks that
  * point with `<div data-nav-sentinel>`). Pages without a sentinel start collapsed. `back` is an href; `tinted` keeps the
- * back chevron white over a tinted header until the bar collapses.
+ * back chevron white over a tinted header until the bar collapses. `actions` holds controls that stay visible before the
+ * bar collapses (the home gear).
  */
 const { title, icon, back, tinted = false } = Astro.props;
 ---
@@ -18,8 +19,11 @@ const { title, icon, back, tinted = false } = Astro.props;
       {icon && <img src={icon} alt="" width="28" height="28" class="app-icon size-7 rounded-lg" />}
       {Astro.slots.has('title') ? <slot name="title" /> : <p class="truncate">{title}</p>}
     </div>
-    <div class="navbar-trailing flex min-w-11 items-center justify-end gap-2 pr-3" data-nav-trailing>
-      <slot name="trailing" />
+    <div class="relative flex min-w-11 items-center justify-end gap-1 pr-1">
+      <div class="navbar-trailing flex items-center gap-2" data-nav-trailing>
+        <slot name="trailing" />
+      </div>
+      <slot name="actions" />
     </div>
   </nav>
 </header>

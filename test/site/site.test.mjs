@@ -309,3 +309,16 @@ test('entitlements without a friendly name collapse into one row that lists them
   const body = both.match(/<div class="permcard">[\s\S]*?Entitlements[\s\S]*?<\/div>\s*<\/div>/)[0].replace(/data-alert-message="[^"]*"/g, '');
   assert.doesNotMatch(body, /com\.apple\.private/, 'raw keys are not printed in the card');
 });
+
+test('home: a gear in the bar opens the Settings sheet with appearance, project links and the store note', async () => {
+  const html = await page('index.html');
+  assert.match(html, /<button type="button" class="navbar-action[^"]*" data-sheet="settings" aria-label="Settings" aria-haspopup="dialog">\s*<svg/, 'gear in the nav bar');
+  const sheet = html.match(/<dialog id="settings"[\s\S]*?<\/dialog>/)?.[0];
+  assert.ok(sheet, 'settings dialog');
+  assert.match(sheet, /class="sheet[^"]*lg:hidden/, 'phones and tablets only');
+  assert.match(sheet, /role="radiogroup" aria-label="Appearance"/, 'appearance control inside');
+  assert.match(sheet, /<a href="https:\/\/example\.org\/repo" rel="noopener" class="info-row[^"]*"><span>Website<\/span>/, 'website row');
+  assert.doesNotMatch(sheet, /Report a problem/, 'no issues row when the website is not GitHub');
+  assert.match(sheet, /AltStore PAL installs notarized apps in the EU, Japan and Brazil\. AltStore Classic and SideStore sideload apps everywhere\./);
+  assert.doesNotMatch(await page('apps/index.html'), /data-sheet="settings"/, 'only the home bar has the gear');
+});
