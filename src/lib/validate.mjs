@@ -136,6 +136,69 @@ function checkFormats(c, { meta, apps, news }) {
   }
 }
 
+function checkVersions(c, apps) {
+  for (const a of apps) {
+    const seen = new Map();
+    let hasADP = false;
+    let previous = null;
+    let outOfOrder = false;
+    versionsOf(a).forEach((ver, i) => {
+      const where = `${a.file}#/versions/${i}`;
+      const kind = inferKind(ver);
+      if (!kind) c.error('E14', where, 'cannot tell ADP from IPA: downloadURL should end with manifest.json, / or .ipa, or set "kind": "adp" | "ipa"');
+      if (kind === 'adp') hasADP = true;
+      // the same release may legitimately ship as both an ADP and an IPA, so uniqueness is per kind
+      const key = `${kind}|${ver.version}|${ver.buildVersion ?? ''}`;
+      if (seen.has(key)) c.error('E11', where, `duplicate ${kind ?? ''} version ${ver.version} (${ver.buildVersion ?? 'no build'}) also at index ${seen.get(key)}`);
+      else seen.set(key, i);
+      for (const k of ['minOSVersion', 'maxOSVersion']) {
+        if (ver[k] !== undefined && !(typeof ver[k] === 'string' && OS_VERSION.test(ver[k]))) c.error('E17', `${where}/${k}`, `${k} must look like 17.4`);
+      }
+      if (ver.maxOSVersion !== undefined) c.warn('W04', `${where}/maxOSVersion`, 'maxOSVersion hides the app on newer iOS; most apps should not set it (PAL ignores it)');
+      if (ver.minOSVersion === undefined) c.warn('W05', `${where}/minOSVersion`, 'minOSVersion is recommended');
+      if (ver.localizedDescription === undefined) c.warn('W05', `${where}/localizedDescription`, 'release notes (localizedDescription) are recommended');
+      const t = isISODate(ver.date) ? Date.parse(ver.date) : NaN;
+      if (previous !== null && !Number.isNaN(t) && !Number.isNaN(previous) && t > previous) outOfOrder = true;
+      previous = t;
+    });
+    if (outOfOrder) c.warn('W03', `${a.file}#/versions`, 'versions are not in descending date order; AltStore treats index 0 as the latest release');
+    if (hasADP && typeof a.data.marketplaceID !== 'string') c.error('E18', `${a.file}#/marketplaceID`, 'apps with an ADP version need marketplaceID (the Apple ID in App Store Connect) for AltStore PAL');
+    if (a.data.subtitle === undefined) c.warn('W05', `${a.file}#/subtitle`, 'subtitle is recommended');
+    const shots = a.data.screenshots;
+    const count = Array.isArray(shots) ? shots.length : shots && typeof shots === 'object' ? (shots.iphone?.length ?? 0) + (shots.ipad?.length ?? 0) : 0;
+    if (count === 0) c.warn('W05', `${a.file}#/screenshots`, 'screenshots are recommended');
+  }
+}
+
+async function checkScreenshots(c, apps, rootDir) {
+  for (const a of apps) {
+    const shots = a.data.screenshots;
+    if (!shots || typeof shots !== 'object' || Array.isArray(shots) || !Array.isArray(shots.ipad)) continue;
+    for (const [i, item] of shots.ipad.entries()) {
+      const where = `${a.file}#/screenshots/ipad/${i}`;
+      const obj = typeof item === 'string' ? { imageURL: item } : item;
+      if (Number.isInteger(obj?.width) && Number.isInteger(obj?.height)) continue;
+      const rel = typeof obj?.imageURL === 'string' ? localPath(obj.imageURL) : null;
+      if (rel) {
+        try { if (imageSize(await readFile(path.join(rootDir, rel)))) continue; } catch { /* fall through */ }
+      }
+      c.error('E13', where, 'iPad screenshots need width and height (filled automatically only for local PNG/JPEG files under assets/)');
+    }
+  }
+}
+
+function checkPermissions(c, apps) {
+  for (const a of apps) {
+    const p = a.data.appPermissions;
+    const where = `${a.file}#/appPermissions`;
+    if (p === undefined) { c.warn('W07', where, 'appPermissions missing; the AltStore docs require entitlements and privacy (altsource can fill them from an IPA)'); continue; }
+    if (!p || typeof p !== 'object' || Array.isArray(p)) continue; // schema reported E15
+    // wrong types are already reported (as E15) by the schema; only absence is checked here
+    if (p.entitlements === undefined) c.error('E15', `${where}/entitlements`, 'entitlements must be an array of strings (use [] when the app has none)');
+    if (p.privacy === undefined) c.error('E15', `${where}/privacy`, 'privacy must be an object mapping UsageDescription keys to strings (use {} when the app has none)');
+  }
+}
+
 /** { errors: Issue[], warnings: Issue[] } with Issue = { code, path, message }. */
 export async function validateContent(content, { rootDir }) {
   const c = new Collector();
@@ -144,5 +207,8 @@ export async function validateContent(content, { rootDir }) {
   checkIdentity(c, content);
   await checkURLs(c, content, rootDir);
   checkFormats(c, content);
+  checkVersions(c, content.apps);
+  await checkScreenshots(c, content.apps, rootDir);
+  checkPermissions(c, content.apps);
   return { errors: c.errors, warnings: c.warnings };
 }
