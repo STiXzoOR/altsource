@@ -147,7 +147,7 @@ Errors:
 - E04 news `identifier` differs from file name or is duplicated
 - E05 `featuredApps` entry is not a known app
 - E06 any URL is not absolute `https://` after resolution
-- E07 relative URL does not resolve to an existing file under `assets/`
+- E07 relative URL does not resolve to an existing file under `assets/` or `public/`
 - E08 `tintColor` is not `#RRGGBB` or `RRGGBB`
 - E09 `date` is not ISO 8601 (`YYYY-M-D`, `YYYY-MM-DD`, or full datetime with `Z`/offset)
 - E10 `category` not in the documented set
@@ -155,7 +155,7 @@ Errors:
 - E12 `size` is not a positive integer
 - E13 iPad screenshot without `width` and `height` after autofill
 - E14 version `kind` cannot be inferred
-- E15 `appPermissions` missing, `entitlements` not an array of strings, or `privacy` not an object of strings
+- E15 `appPermissions` present but malformed: `entitlements` not an array of strings, or `privacy` not an object of strings
 - E16 `upstream` malformed for its `type`
 - E17 `minOSVersion`/`maxOSVersion` not dotted numerics
 - E18 (PAL output only) app has an ADP version but no `marketplaceID`
@@ -167,6 +167,7 @@ Warnings:
 - W04 `maxOSVersion` present (PAL ignores it; most apps should not set it)
 - W05 missing recommended fields: app `subtitle`, `screenshots`; version `minOSVersion`, `localizedDescription`
 - W06 news `appID` is not a known app
+- W07 `appPermissions` missing (the docs require it; AltStore tolerates its absence, and many community sources omit it)
 
 `--check-urls` sends a HEAD (falling back to a ranged GET) to every unique URL and reports
 non-2xx responses as errors, or as warnings with `--check-urls=warn`.
@@ -247,7 +248,9 @@ For each app with `upstream` (or only the ids given):
 
 - **altstore**: fetch the upstream source; find the app by `bundleIdentifier`; for each key in
   `sync` copy the upstream value over the local one. New version detected when
-  `versions[0]` `(version, buildVersion)` changed.
+  `versions[0]` `(version, buildVersion)` changed. If the app still lacks `appPermissions`
+  and its newest version is an IPA, download and inspect that IPA to fill them (same path
+  as `github`). `app add --from-source` does the same on creation.
 - **github**: list releases; take the newest non-draft (prereleases only if enabled); match
   the asset by glob; skip if a local version already has that `downloadURL`. Otherwise download
   the asset, inspect it (bundle id must match, else error), prepend a version
@@ -285,7 +288,9 @@ HEAD every unique URL across both outputs and assets. Write
 `public/status/index.html` is a static page reading `../status.json` and both source files:
 counts, both source URLs with copy buttons and QR codes, apps table with upstream state
 badges, recent activity, broken links, and links to "Run sync" / "Run link check" /
-"Publish release" workflow pages. Public but read-only; it contains no secrets.
+"Publish release" workflow pages. Public but read-only; it contains no secrets. When
+`status.json` is absent (local `serve` preview) the page renders the source data alone and
+says so.
 
 ## 9. Landing page
 
@@ -326,7 +331,8 @@ test/**/*.test.mjs, test/fixtures/ (trimmed real ADP manifest, synthetic IPA bui
 ## 11. Milestones
 
 1. **Core**: repo, schemas, content files, build (dual output), validate, tests, `ci.yml`,
-   `deploy.yml`, landing page, README, first deploy. Source is live with zero apps and a
+   `deploy.yml`, landing page, README; create the GitHub repo with `gh`, enable Pages with
+   build type `workflow` through the API, first deploy. Source is live with zero apps and a
    welcome news item.
 2. **CLI**: `app`, `version`, `news`, `serve`; ADP mapping; IPA inspection; `--from-*` inputs.
 3. **Automation + dashboard**: `sync`, `check-links`, `status`, `sync.yml`, `links.yml`,
