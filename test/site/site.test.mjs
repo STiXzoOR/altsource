@@ -13,7 +13,7 @@ const ipa = (o = {}) => version({ downloadURL: 'https://gh/d/a.ipa', ...o });
 const fixture = await root({
   'source.meta.json': { name: 'Fixture Source', baseURL: BASE, subtitle: 'sub', description: 'Hello https://example.com', iconURL: 'assets/icon.png', headerURL: 'assets/header.png', website: 'https://example.org/repo', tintColor: '#123456', featuredApps: ['com.both'] },
   'apps/com.pal.json': app('com.pal', { name: 'Pal Only', marketplaceID: '1', versions: [adp()], appPermissions: { entitlements: ['com.apple.security.application-groups'], privacy: { NSCameraUsageDescription: 'Snap' } } }),
-  'apps/com.both.json': app('com.both', { name: 'Both Kinds', marketplaceID: '2', screenshots: { iphone: ['assets/s.png'], ipad: [{ imageURL: 'https://x/i.png', width: 10, height: 20 }] }, versions: [adp({ version: '2.0' }), ipa({ version: '2.0', kind: 'ipa' }), ipa({ version: '1.0', date: '2026-01-01', localizedDescription: 'old notes' })] }),
+  'apps/com.both.json': app('com.both', { name: 'Both Kinds', marketplaceID: '2', screenshots: { iphone: ['assets/s.png'], ipad: [{ imageURL: 'https://x/i.png', width: 10, height: 20 }] }, versions: [adp({ version: '2.0', localizedDescription: '## Highlights\n* **Faster** sync\n\n| a | b |\n|---|---|\n| 1 | 2 |\n\n## Installation\nsee docs' }), ipa({ version: '2.0', kind: 'ipa' }), ipa({ version: '1.0', date: '2026-01-01', localizedDescription: 'old notes' })] }),
   'news/a.json': news('a', { title: 'First post', date: '2026-01-01' }),
   'news/b.json': news('b', { title: 'Both updated', date: '2026-02-01', appID: 'com.both' }),
   'assets/icon.png': 'png:4x4', 'assets/header.png': 'png:6x4', 'assets/s.png': 'png:1179x2556',
@@ -127,7 +127,7 @@ test('app pages: GET follows the kinds, permissions are explained, screenshots, 
   assert.doesNotMatch(pal, /bootstrap/i);
   const versions = await page('apps/com.both/versions/index.html');
   assert.match(versions, /old notes/);
-  assert.equal((versions.match(/<ol[\s\S]*?<\/ol>/)[0].match(/<li[\s>]/g) ?? []).length, 3, 'three versions listed (the shell has its own lists)');
+  assert.equal((versions.match(/data-version-row/g) ?? []).length, 3, 'three versions listed');
   const news = await page('news/index.html');
   assert.match(news, /Both updated/);
   assert.match(news, /Both Kinds/, 'news with an appID shows the app row');
@@ -286,4 +286,13 @@ test('remaining pages: Apps search and rows with per-store empty states, News gr
   for (const p of ['index.html', 'apps/index.html', 'apps/com.both/index.html', 'news/index.html', 'status/index.html', '404.html', 'apps/com.both/versions/index.html']) {
     assert.doesNotMatch(await page(p), /\b(bg-card|text-muted-foreground|bg-glass|text-primary|border-border|bg-background|text-foreground)\b|var\(--radius\)|snap-strip/, `${p} uses no retired names`);
   }
+});
+
+test('release notes and descriptions render as Markdown through the allowlist', async () => {
+  const both = await page('apps/com.both/index.html');
+  assert.match(both, /<p class="notes-h"><strong>Highlights<\/strong><\/p>\s*<ul><li><strong>Faster<\/strong> sync<\/li><\/ul>/, 'What’s New renders Markdown');
+  assert.doesNotMatch(both, /<table|see docs|## Highlights/, 'tables and installation sections are gone, no raw Markdown');
+  assert.match(both, /<div class="line-clamp-3 notes break-words[^"]*" data-clamp-body>/, 'clamped Markdown body');
+  const versions = await page('apps/com.both/versions/index.html');
+  assert.match(versions, /<strong>Faster<\/strong> sync/, 'version history rows render Markdown too');
 });

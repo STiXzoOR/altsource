@@ -24,7 +24,7 @@ const link = (v) => (inferKind(v) === 'ipa' ? { href: v.downloadURL, label: 'Dow
       <li class="py-4 first:pt-0" data-version-row>
         <div class="flex items-baseline justify-between gap-4"><p class="t-headline">{versionLabel(v)}</p><p class="t-subhead text-label-2">{formatDate(v.date)}</p></div>
         <p class="mt-0.5 t-footnote text-label-2">{[inferKind(v) === 'adp' ? 'AltStore PAL' : 'IPA', v.size ? formatBytes(v.size) : null, v.minOSVersion ? `iOS ${v.minOSVersion}+` : null].filter(Boolean).join(' · ')}</p>
-        <div class="mt-2 t-body"><Text text={v.localizedDescription ?? 'No release notes.'} clamp={3} /></div>
+        <div class="mt-2 t-body"><Text text={v.localizedDescription ?? 'No release notes.'} markdown clamp={3} /></div>
         <a href={l.href} download={l.download ? '' : undefined} class="mt-2 inline-block t-subhead-em text-key hover:underline">{l.label}</a>
       </li>
     ); })}

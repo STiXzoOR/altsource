@@ -1,20 +1,24 @@
 ---
 import { linkify } from '../lib/data.mjs';
-const { text, clamp = 0, class: cls = '' } = Astro.props;
-const html = linkify(text);
+import { renderNotes } from '../lib/notes.mjs';
+/** Body text: escaped with linked URLs, or (with `markdown`) rendered through the release-notes allowlist. `clamp` 3 or 5 adds a "more" toggle. */
+const { text, clamp = 0, markdown = false, class: cls = '' } = Astro.props;
+const html = markdown ? renderNotes(text) : linkify(text);
 const lines = clamp === 3 ? 'line-clamp-3' : clamp === 5 ? 'line-clamp-5' : '';
+const body = markdown ? 'notes' : 'whitespace-pre-line';
+const Body = markdown ? 'div' : 'p';
 ---
 {clamp ? (
   <div class={`group relative ${cls}`} data-clamp>
-    <p class={`${lines} whitespace-pre-line break-words group-data-[open]:line-clamp-none`} set:html={html}></p>
+    <Body class={`${lines} ${body} break-words group-data-[open]:line-clamp-none`} data-clamp-body="" set:html={html}></Body>
     <button type="button" data-toggle class="absolute right-0 bottom-0 hidden bg-gradient-to-r from-transparent from-0% via-page via-35% to-page pl-9 text-[15px] font-medium leading-[1.5em] text-key group-data-[overflow]:inline">more</button>
   </div>
 ) : (
-  <p class={`whitespace-pre-line break-words ${cls}`} set:html={html}></p>
+  <Body class={`${body} break-words ${cls}`} set:html={html}></Body>
 )}
 <script>
   for (const box of document.querySelectorAll('[data-clamp]')) {
-    const p = box.querySelector('p');
+    const p = box.querySelector('[data-clamp-body]');
     const btn = box.querySelector('[data-toggle]');
     if (p.scrollHeight > p.clientHeight + 2) box.setAttribute('data-overflow', '');
     btn?.addEventListener('click', () => { box.setAttribute('data-open', ''); btn.remove(); });
