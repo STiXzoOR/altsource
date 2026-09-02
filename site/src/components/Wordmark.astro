@@ -1,0 +1,7 @@
+---
+/** The source name as the brand lockup: Chakra Petch 700, first word as the wordmark, the rest as its tail. */
+const { name, stacked = false, class: cls = '' } = Astro.props;
+const [first, ...rest] = String(name).trim().split(/\s+/);
+const tail = rest.join(' ');
+---
+<span class={`wordmark-lockup ${cls}`} data-wordmark data-stacked={stacked ? '' : undefined}><span class="wordmark">{first}</span>{tail && <span class="wordmark-tail">{' '}{tail}</span>}</span>

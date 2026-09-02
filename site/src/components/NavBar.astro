@@ -10,7 +10,7 @@ const hasTrailing = Astro.slots.has('trailing');
     </div>
     <div class="nav-fade flex min-w-0 flex-1 items-center justify-center gap-1.5 font-semibold" data-nav-title data-hidden={revealOnScroll ? '' : undefined} aria-hidden={revealOnScroll ? 'true' : undefined}>
       {icon && <img src={icon} alt="" width="28" height="28" class="app-icon size-7 rounded-lg" />}
-      <p class="truncate">{title}</p>
+      {Astro.slots.has('title') ? <slot name="title" /> : <p class="truncate">{title}</p>}
     </div>
     <div class="nav-fade flex min-w-[78px] items-center justify-end gap-2" data-nav-trailing data-hidden={revealOnScroll && hasTrailing ? '' : undefined}>
       <slot name="trailing" />

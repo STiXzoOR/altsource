@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { readFile, access } from 'node:fs/promises';
+import { readFile, access, readdir } from 'node:fs/promises';
 import path from 'node:path';
 import { buildAll } from '../../src/lib/build.mjs';
 import { app, version, news, root, BASE } from '../helpers/content.mjs';
@@ -49,6 +49,23 @@ test('home page shows the source, both apps, news and the add sheet; accessible 
   assert.match(html, /<main id="main"/);
   assert.equal((html.match(/<h1[\s>]/g) ?? []).length, 1, 'one h1');
   assert.doesNotMatch(html, /bootstrap/i);
+});
+
+test('home hero and nav carry the wordmark, the hero is the midnight panel, the header image stays for link previews', async () => {
+  const html = await page('index.html');
+  const h1 = html.match(/<h1[^>]*>([\s\S]*?)<\/h1>/);
+  assert.ok(h1, 'h1 present');
+  assert.match(h1[1], /data-wordmark/, 'the source name is set as the wordmark');
+  assert.equal(h1[1].replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim(), 'Fixture Source', 'the accessible name is still the full source name');
+  assert.match(html, /data-nav-title[\s\S]*?data-wordmark/, 'the nav bar title is the wordmark too');
+  assert.match(html, /class="[^"]*hero-midnight/, 'the hero is drawn in CSS, not a blurred image');
+  assert.doesNotMatch(html, /<img[^>]+assets\/header\.png/, 'the header image is not embedded in the page');
+  assert.match(html, /property="og:image" content="[^"]*assets\/header\.png"/, 'link previews still use the header image');
+  const assets = await readdir(path.join(out, '_astro'));
+  const font = assets.find((f) => f.endsWith('.woff2'));
+  assert.ok(font, 'the wordmark font ships with the site');
+  const css = await Promise.all(assets.filter((f) => f.endsWith('.css')).map((f) => page(path.join('_astro', f))));
+  assert.ok(css.some((c) => /font-family:\s*["']?Chakra Petch/.test(c) && c.includes(font)), 'the CSS declares the font face and points at the shipped file');
 });
 
 test('app pages: GET follows the kinds, permissions are explained, screenshots, info and versions render', async () => {
