@@ -43,13 +43,13 @@ test('tokens: light-dark colours, the two type scales, the store filter rule, an
   const css = await allCss();
   assert.match(css, /--page:light-dark\(#fff,#000\)/, 'phone page colour');
   assert.match(css, /--page:light-dark\(#fff,#1f1f1f\)/, 'desktop page colour');
-  assert.match(css, /--fs-large-title:calc\(34\*var\(--u\)\)/, 'iOS large title');
-  assert.match(css, /--fs-large-title:calc\(26\*var\(--u\)\)/, 'App Store large title');
-  assert.match(css, /--fs-body:calc\(17\*var\(--u\)\)/, 'iOS body');
-  assert.match(css, /--fs-body:calc\(13\*var\(--u\)\)/, 'App Store body');
+  assert.match(css, /--fs-large-title:calc\(34\s*\*\s*var\(--u\)\)/, 'iOS large title');
+  assert.match(css, /--fs-large-title:calc\(26\s*\*\s*var\(--u\)\)/, 'App Store large title');
+  assert.match(css, /--fs-body:calc\(17\s*\*\s*var\(--u\)\)/, 'iOS body');
+  assert.match(css, /--fs-body:calc\(13\s*\*\s*var\(--u\)\)/, 'App Store body');
   assert.match(css, /font:-apple-system-body/, 'Dynamic Type');
   assert.match(css, /\[data-stores\]:not\(\[data-stores~=\\?"?pal\\?"?\]\)/, 'store filter rule');
-  assert.match(css, /\.navbar-material\{[^}]*backdrop-filter:blur\(20px\) saturate\(180%\)/, 'bar material');
+  assert.match(css, /\.navbar-material\{[^}]*backdrop-filter:blur\(20px\)\s*saturate\(180%\)/, 'bar material');
   assert.doesNotMatch(css.match(/\.navbar\{[^}]*\}/)?.[0] ?? '', /backdrop-filter/, 'the fixed header itself never blurs');
   assert.match(css, /\.tabbar\{[^}]*position:fixed/, 'floating tab bar');
   assert.match(css, /\.segmented\{/, 'segmented control');

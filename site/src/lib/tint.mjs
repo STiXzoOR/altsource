@@ -1,5 +1,5 @@
 const HEX = /^#?([0-9a-fA-F]{6})$/;
-const DARK_BG = '#1a191b';
+const DARK_BG = '#1c1c1e';
 
 export function normalizeTint(value, fallback = '#007aff') {
   const m = typeof value === 'string' ? HEX.exec(value.trim()) : null;

@@ -18,6 +18,6 @@ test('onTint picks black or white text for solid tints', () => {
 test('readableTint keeps readable tints and darkens/lightens unreadable ones to 4.5:1', () => {
   assert.equal(readableTint('#0055cc', false), '#0055cc', 'already readable on white');
   assert.ok(contrast(readableTint('#ffd60a', false), '#ffffff') >= 4.5, 'yellow gets darkened for light mode');
-  assert.ok(contrast(readableTint('#1a1a2e', true), '#1a191b') >= 4.5, 'near-black gets lightened for dark mode');
+  assert.ok(contrast(readableTint('#1a1a2e', true), '#1c1c1e') >= 4.5, 'near-black gets lightened for dark mode');
   assert.match(readableTint('#ffd60a', false), /^#[0-9a-f]{6}$/);
 });

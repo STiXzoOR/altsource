@@ -2,67 +2,214 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-card: var(--card);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-border: var(--border);
-  --color-glass: var(--glass);
-  --color-primary: var(--primary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-tint: var(--tint);
-  --radius-card: var(--radius);
+/* App Store web breakpoints: 484 / 1000 / 1260 / 1580 / 1940. sm (640) and md (768) stay for phone-to-tablet steps. */
+@theme {
+  --breakpoint-xs: 484px;
+  --breakpoint-lg: 1000px;
+  --breakpoint-xl: 1260px;
+  --breakpoint-2xl: 1580px;
+  --breakpoint-3xl: 1940px;
+  --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-wordmark: "Chakra Petch", system-ui, sans-serif;
+  --radius-mini: 5px;
+  --radius-chip: 9px;
+  --radius-box: 12px;
+  --radius-card: 17px;
+  --radius-tile: 24px;
+  --shadow-sm: 0 3px 9px rgba(0, 0, 0, 0.08);
+  --shadow-md: 0 3px 20px rgba(0, 0, 0, 0.08);
+  --ease-standard: cubic-bezier(0.4, 0, 0.6, 1);
+  --ease-sheet: cubic-bezier(0.32, 0.72, 0, 1);
 }
 
+@theme inline {
+  --color-page: var(--page);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-label: var(--label);
+  --color-label-2: var(--label-2);
+  --color-label-3: var(--label-3);
+  --color-label-4: var(--label-4);
+  --color-separator: var(--separator);
+  --color-divider: var(--label-divider);
+  --color-fill: var(--fill);
+  --color-fill-2: var(--fill-2);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-selected: var(--sidebar-selected);
+  --color-footer: var(--footer);
+  --color-ribbon: var(--ribbon-value);
+  --color-material: var(--material);
+  --color-key: var(--key);
+  --color-tint: var(--tint);
+  --color-red: var(--red);
+  /* M6 names, kept until every page has moved to the tokens above */
+  --color-background: var(--page);
+  --color-foreground: var(--label);
+  --color-card: var(--surface);
+  --color-muted-foreground: var(--label-2);
+  --color-border: var(--separator);
+  --color-glass: var(--material);
+  --color-primary: var(--key);
+  --color-primary-foreground: #ffffff;
+}
+
+/* ---------- colour ---------- */
 :root {
+  color-scheme: light dark;
+  --page: light-dark(#ffffff, #000000);
+  --surface: light-dark(rgba(0, 0, 0, 0.05), #1c1c1e);
+  --surface-2: light-dark(#f2f2f7, #2c2c2e);
+  --label: light-dark(#000000, #ffffff);
+  --label-2: light-dark(rgba(60, 60, 67, 0.6), rgba(235, 235, 245, 0.6));
+  --label-3: light-dark(rgba(60, 60, 67, 0.3), rgba(235, 235, 245, 0.3));
+  --label-4: light-dark(rgba(60, 60, 67, 0.18), rgba(235, 235, 245, 0.18));
+  --separator: light-dark(rgba(60, 60, 67, 0.29), rgba(84, 84, 88, 0.6));
+  --label-divider: light-dark(rgba(0, 0, 0, 0.15), rgba(255, 255, 255, 0.1));
+  --fill: light-dark(rgba(120, 120, 128, 0.2), rgba(120, 120, 128, 0.36));
+  --fill-2: light-dark(rgba(120, 120, 128, 0.16), rgba(120, 120, 128, 0.32));
+  --sidebar: light-dark(rgba(60, 60, 67, 0.03), rgba(235, 235, 245, 0.03));
+  --sidebar-selected: light-dark(rgba(31, 31, 31, 0.07), rgba(255, 255, 255, 0.08));
+  --footer: light-dark(#f2f2f2, #323232);
+  --ribbon-value: light-dark(#48484a, #c7c7cc);
+  --material: light-dark(rgb(249 249 249 / 0.78), rgb(29 29 31 / 0.72));
+  --red: light-dark(#ff383c, #ff4245);
   --tint: #007aff;
   --tint-readable: #007aff;
   --tint-readable-dark: #0a84ff;
-  --primary: var(--tint-readable);
-  --primary-foreground: #ffffff;
-  --background: #ffffff;
-  --foreground: #000000;
-  --card: #ebebeb;
-  --muted-foreground: rgba(0, 0, 0, 0.5);
-  --border: rgba(0, 0, 0, 0.15);
-  --glass: rgba(255, 255, 255, 0.75);
-  --radius: 1.5rem;
+  --key: light-dark(var(--tint-readable), var(--tint-readable-dark));
+  --radius: 1.5rem; /* M6 card radius, still used by pages not yet migrated */
+}
+@media (min-width: 1000px) {
+  :root {
+    --page: light-dark(#ffffff, #1f1f1f);
+    --surface: light-dark(rgba(0, 0, 0, 0.05), rgba(255, 255, 255, 0.05));
+  }
+}
+.dark { color-scheme: dark; }
+.light { color-scheme: light; }
+@media (prefers-contrast: more) {
+  :root { --label-2: light-dark(rgba(0, 0, 0, 0.76), rgba(255, 255, 255, 0.8)); }
 }
 
-.dark {
-  --primary: var(--tint-readable-dark);
-  --background: rgb(26, 25, 27);
-  --foreground: #ffffff;
-  --card: rgb(46, 45, 47);
-  --muted-foreground: rgba(255, 255, 255, 0.5);
-  --border: rgba(255, 255, 255, 0.15);
-  --glass: rgba(26, 25, 27, 0.75);
+/* ---------- type: iOS Dynamic Type sizes on phones, apps.apple.com sizes from 1000px ---------- */
+:root {
+  --u: calc(1rem / 16);
+  --fs-large-title: calc(34 * var(--u)); --lh-large-title: calc(41 * var(--u));
+  --fs-header: calc(34 * var(--u)); --lh-header: calc(41 * var(--u));
+  --fs-title-1: calc(28 * var(--u)); --lh-title-1: calc(34 * var(--u));
+  --fs-title-2: calc(22 * var(--u)); --lh-title-2: calc(28 * var(--u));
+  --fs-title-3: calc(20 * var(--u)); --lh-title-3: calc(25 * var(--u));
+  --fs-headline: calc(17 * var(--u)); --lh-headline: calc(22 * var(--u)); --fw-headline: 600;
+  --fs-body: calc(17 * var(--u)); --lh-body: calc(22 * var(--u)); --lh-body-tall: calc(22 * var(--u));
+  --fs-callout: calc(16 * var(--u)); --lh-callout: calc(21 * var(--u));
+  --fs-subhead: calc(15 * var(--u)); --lh-subhead: calc(20 * var(--u));
+  --fs-footnote: calc(13 * var(--u)); --lh-footnote: calc(18 * var(--u)); --fw-footnote-em: 600;
+  --fs-caption: calc(12 * var(--u)); --lh-caption: calc(16 * var(--u)); --fw-caption-em: 600;
+}
+@supports (font: -apple-system-body) and (-webkit-touch-callout: none) {
+  html { font: -apple-system-body; }
+  :root { --u: calc(1rem / 17); }
+}
+@media (min-width: 1000px) {
+  :root {
+    --fs-large-title: calc(26 * var(--u)); --lh-large-title: calc(32 * var(--u));
+    --fs-header: calc(34 * var(--u)); --lh-header: calc(40 * var(--u));
+    --fs-title-1: calc(22 * var(--u)); --lh-title-1: calc(26 * var(--u));
+    --fs-title-2: calc(17 * var(--u)); --lh-title-2: calc(22 * var(--u));
+    --fs-title-3: calc(15 * var(--u)); --lh-title-3: calc(20 * var(--u));
+    --fs-headline: calc(13 * var(--u)); --lh-headline: calc(16 * var(--u)); --fw-headline: 700;
+    --fs-body: calc(13 * var(--u)); --lh-body: calc(16 * var(--u)); --lh-body-tall: calc(18 * var(--u));
+    --fs-callout: calc(12 * var(--u)); --lh-callout: calc(15 * var(--u));
+    --fs-subhead: calc(11 * var(--u)); --lh-subhead: calc(14 * var(--u));
+    --fs-footnote: calc(10 * var(--u)); --lh-footnote: calc(13 * var(--u)); --fw-footnote-em: 700;
+    --fs-caption: calc(10 * var(--u)); --lh-caption: calc(13 * var(--u)); --fw-caption-em: 500;
+  }
+}
+@utility t-large-title { font-size: var(--fs-large-title); line-height: var(--lh-large-title); }
+@utility t-large-title-em { font-size: var(--fs-large-title); line-height: var(--lh-large-title); font-weight: 700; }
+@utility t-header { font-size: var(--fs-header); line-height: var(--lh-header); font-weight: 700; }
+@utility t-title-1 { font-size: var(--fs-title-1); line-height: var(--lh-title-1); }
+@utility t-title-1-em { font-size: var(--fs-title-1); line-height: var(--lh-title-1); font-weight: 700; }
+@utility t-title-2 { font-size: var(--fs-title-2); line-height: var(--lh-title-2); }
+@utility t-title-2-em { font-size: var(--fs-title-2); line-height: var(--lh-title-2); font-weight: 700; }
+@utility t-title-3 { font-size: var(--fs-title-3); line-height: var(--lh-title-3); }
+@utility t-title-3-em { font-size: var(--fs-title-3); line-height: var(--lh-title-3); font-weight: 600; }
+@utility t-headline { font-size: var(--fs-headline); line-height: var(--lh-headline); font-weight: var(--fw-headline); }
+@utility t-body { font-size: var(--fs-body); line-height: var(--lh-body); }
+@utility t-body-em { font-size: var(--fs-body); line-height: var(--lh-body); font-weight: 600; }
+@utility t-body-tall { font-size: var(--fs-body); line-height: var(--lh-body-tall); }
+@utility t-callout { font-size: var(--fs-callout); line-height: var(--lh-callout); }
+@utility t-callout-em { font-size: var(--fs-callout); line-height: var(--lh-callout); font-weight: 600; }
+@utility t-subhead { font-size: var(--fs-subhead); line-height: var(--lh-subhead); }
+@utility t-subhead-em { font-size: var(--fs-subhead); line-height: var(--lh-subhead); font-weight: 600; }
+@utility t-footnote { font-size: var(--fs-footnote); line-height: var(--lh-footnote); }
+@utility t-footnote-em { font-size: var(--fs-footnote); line-height: var(--lh-footnote); font-weight: var(--fw-footnote-em); }
+@utility t-caption { font-size: var(--fs-caption); line-height: var(--lh-caption); }
+@utility t-caption-em { font-size: var(--fs-caption); line-height: var(--lh-caption); font-weight: var(--fw-caption-em); }
+
+/* ---------- base ---------- */
+@layer base {
+  html { -webkit-text-size-adjust: 100%; -webkit-tap-highlight-color: transparent; scrollbar-gutter: stable; }
+  body {
+    font-family: var(--font-sans); font-size: var(--fs-body); line-height: var(--lh-body);
+    background: var(--page); color: var(--label);
+    font-optical-sizing: auto; letter-spacing: 0; -webkit-font-smoothing: antialiased;
+  }
+  a, button, [role="button"], label, summary { touch-action: manipulation; }
+  input, select, textarea { font-size: max(16px, 1rem); }
+  h1, h2, h3 { text-wrap: balance; }
+  p { text-wrap: pretty; }
 }
 
+*:focus-visible { outline: 2px solid var(--key); outline-offset: 2px; border-radius: 6px; }
+
+.skip-link { position: absolute; left: 1rem; top: -4rem; z-index: 100; padding: 0.5rem 0.75rem; border-radius: 9999px; background: var(--key); color: #fff; font-weight: 600; }
+.skip-link:focus { top: 1rem; }
+
+/* ---------- wordmark ---------- */
 @font-face {
   font-family: "Chakra Petch"; font-style: normal; font-weight: 700; font-display: swap;
   src: url("../fonts/chakra-petch-700.woff2") format("woff2");
 }
+.wordmark-lockup { font-family: var(--font-wordmark); font-weight: 700; letter-spacing: 0.005em; }
+.wordmark-lockup .wordmark-tail { font-family: var(--font-sans); font-weight: 600; font-size: 0.78em; }
+.wordmark-lockup[data-stacked] .wordmark-tail { display: block; font-family: var(--font-wordmark); font-weight: 700; font-size: 0.42em; margin-top: 0.14em; opacity: 0.92; }
 
-.wordmark-lockup { font-family: "Chakra Petch", system-ui, sans-serif; font-weight: 700; letter-spacing: 0.005em; }
-.wordmark-lockup[data-stacked] .wordmark-tail { display: block; font-size: 0.42em; margin-top: 0.14em; opacity: 0.92; }
+/* ---------- phone nav bar: fixed and transparent; the material is a child and appears when collapsed ---------- */
+.navbar { position: fixed; inset-inline: 0; top: 0; z-index: 40; padding-top: env(safe-area-inset-top); background: transparent; }
+.navbar-material { position: absolute; inset: 0; z-index: -1; background: var(--material); backdrop-filter: blur(20px) saturate(180%); box-shadow: 0 0.5px 0 var(--separator); opacity: 0; transition: opacity 0.25s ease-out; }
+.navbar-title, .navbar-trailing { opacity: 0; translate: 0 6px; transition: opacity 0.2s ease-out, translate 0.2s ease-out; pointer-events: none; }
+.navbar[data-collapsed] .navbar-material { opacity: 1; }
+.navbar[data-collapsed] :is(.navbar-title, .navbar-trailing) { opacity: 1; translate: 0 0; pointer-events: auto; }
+[data-nav-sentinel] { height: 1px; margin-top: -1px; pointer-events: none; }
 
+/* ---------- phone tab bar: floating glass capsule ---------- */
+.tabbar {
+  position: fixed; left: 16px; right: 16px; bottom: max(12px, env(safe-area-inset-bottom)); z-index: 40;
+  border-radius: 9999px; background: var(--material); backdrop-filter: blur(20px) saturate(180%);
+  box-shadow: inset 0 1px 0 light-dark(rgb(255 255 255 / 0.6), rgb(255 255 255 / 0.12)), 0 8px 24px rgb(0 0 0 / 0.12);
+  transition: translate 0.3s var(--ease-standard), opacity 0.3s var(--ease-standard);
+}
+.tabbar[data-hidden] { translate: 0 calc(100% + 24px); opacity: 0; }
+
+/* ---------- iOS segmented control ---------- */
+.segmented { display: inline-flex; padding: 2px; border-radius: 9px; background: var(--fill); }
+.segment { flex: 1; height: 28px; padding: 0 10px; border-radius: 7px; font-size: 13px; font-weight: 500; color: var(--label); white-space: nowrap; transition: background-color 0.14s ease-out; }
+.segment[aria-checked="true"] { background: light-dark(#ffffff, #636366); box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12), 0 3px 1px rgba(0, 0, 0, 0.04); font-weight: 600; }
+
+/* ---------- store switch: anything marked with data-stores hides when the chosen store is not listed ---------- */
+html[data-store="pal"] [data-stores]:not([data-stores~="pal"]),
+html[data-store="classic"] [data-stores]:not([data-stores~="classic"]),
+html[data-store="sidestore"] [data-stores]:not([data-stores~="sidestore"]),
+html:not([data-store="all"]) [data-stores="all"] { display: none !important; }
+
+/* ---------- M6 pieces still in use ---------- */
 .hero-midnight {
   color: #fff;
   background:
     radial-gradient(70% 90% at 78% 35%, rgba(59, 130, 246, 0.55), rgba(59, 130, 246, 0) 70%),
     linear-gradient(135deg, #070b14, #101a33);
 }
-
-html { scrollbar-gutter: stable; }
-body { font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif; }
-
-*:focus-visible { outline: 2px solid var(--primary); outline-offset: 3px; border-radius: 6px; }
-
-.skip-link { position: absolute; left: 1rem; top: -4rem; z-index: 100; padding: 0.5rem 0.75rem; border-radius: 9999px; background: var(--primary); color: var(--primary-foreground); font-weight: 600; }
-.skip-link:focus { top: 1rem; }
-
 .pill {
   display: inline-flex; align-items: center; justify-content: center;
   min-width: 78px; height: 32px; padding: 0 12px; border-radius: 9999px;
@@ -72,17 +219,15 @@ body { font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Ro
 }
 .pill:hover { opacity: 0.85; }
 .pill:active { opacity: 0.7; }
-
 .app-icon { border: 0.75px solid rgba(0, 0, 0, 0.12); }
 .dark .app-icon { border-color: rgba(255, 255, 255, 0.12); }
-
 .snap-strip { scrollbar-width: thin; }
 
-.nav-fade { transition: opacity 0.25s ease-in-out; }
-[data-navbar][data-overlay] { transition: background-color 0.25s ease, border-color 0.25s ease; }
-[data-navbar][data-overlay]:not([data-scrolled]) { background-color: transparent; border-color: transparent; backdrop-filter: none; pointer-events: none; }
-.nav-fade[data-hidden] { opacity: 0; pointer-events: none; }
-
+/* ---------- preferences ---------- */
+@media (prefers-reduced-transparency: reduce) {
+  .navbar-material, .tabbar { background: var(--page); backdrop-filter: none; }
+}
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; scroll-behavior: auto !important; }
+  .tabbar[data-hidden] { translate: 0 0; opacity: 1; }
 }

@@ -24,6 +24,7 @@ await buildAll({ rootDir: fixture, outDir: staging });
 const build = spawnSync(path.join(REPO, 'node_modules', '.bin', 'astro'), ['build'], { cwd: REPO, encoding: 'utf8', env: { ...process.env, ALTSOURCE_ROOT: fixture, ALTSOURCE_PUBLIC: staging, ALTSOURCE_OUT: out, ALTSOURCE_ASTRO_CACHE: path.join(fixture, '.astro') } });
 const page = (rel) => readFile(path.join(out, rel), 'utf8');
 const exists = (rel) => access(path.join(out, rel)).then(() => true, () => false);
+const allCss = async () => (await Promise.all((await readdir(path.join(out, '_astro'))).filter((f) => f.endsWith('.css')).map((f) => page(path.join('_astro', f))))).join('');
 
 test('astro build succeeds and writes every page, the JSON and the assets', async () => {
   assert.equal(build.status, 0, build.stdout + build.stderr);
@@ -69,17 +70,31 @@ test('home hero and nav carry the wordmark, the hero is the midnight panel, the 
   assert.ok(css.some((c) => /font-family:\s*["']?Chakra Petch/.test(c) && c.includes(font)), 'the CSS declares the font face and points at the shipped file');
 });
 
-test('home nav bar overlays the hero, transparent until scrolled, with the lockup on the left; other pages keep the sticky bar with a centred title', async () => {
-  const html = await page('index.html');
-  assert.match(html, /<header class="[^"]*\bfixed\b[^"]*"[^>]*data-navbar[^>]*data-overlay/, 'home bar is fixed over the hero and marked as an overlay');
-  assert.match(html, /<nav[^>]*>\s*<div class="nav-fade[^"]*justify-start/, 'no back-link spacer: the lockup starts at the left edge');
-  const pal = await page('apps/com.pal/index.html');
-  assert.match(pal, /<header class="[^"]*\bsticky\b/, 'app pages keep the sticky bar');
-  assert.match(pal, /<nav[^>]*>\s*<div class="flex min-w-\[78px\]/, 'app pages keep the back-link column');
-  assert.match(pal, /data-nav-title[^>]*>/, 'app title still present');
-  assert.match(pal, /<div class="nav-fade[^"]*justify-center[^"]*" data-nav-title/, 'app pages centre the title between back and trailing');
-  const css = (await Promise.all((await readdir(path.join(out, '_astro'))).filter((f) => f.endsWith('.css')).map((f) => page(path.join('_astro', f))))).join('');
-  assert.match(css, /data-overlay\]:not\(\[data-scrolled\]\)\{(?:[^}]*;)?backdrop-filter:none/, 'the unprefixed backdrop-filter is switched off while the overlay is transparent (the minifier drops it if a -webkit- copy comes last)');
+test('tokens: light-dark colours, the two type scales, the store filter rule, and a material that only the bar layer carries', async () => {
+  const css = await allCss();
+  assert.match(css, /--page:light-dark\(#fff,#000\)/, 'phone page colour');
+  assert.match(css, /--page:light-dark\(#fff,#1f1f1f\)/, 'desktop page colour');
+  assert.match(css, /--fs-large-title:calc\(34\s*\*\s*var\(--u\)\)/, 'iOS large title');
+  assert.match(css, /--fs-large-title:calc\(26\s*\*\s*var\(--u\)\)/, 'App Store large title');
+  assert.match(css, /--fs-body:calc\(17\s*\*\s*var\(--u\)\)/, 'iOS body');
+  assert.match(css, /--fs-body:calc\(13\s*\*\s*var\(--u\)\)/, 'App Store body');
+  assert.match(css, /font:-apple-system-body/, 'Dynamic Type');
+  assert.match(css, /\[data-stores\]:not\(\[data-stores~=\\?"?pal\\?"?\]\)/, 'store filter rule');
+  assert.match(css, /\.navbar-material\{[^}]*backdrop-filter:blur\(20px\)\s*saturate\(180%\)/, 'bar material');
+  assert.doesNotMatch(css.match(/\.navbar\{[^}]*\}/)?.[0] ?? '', /backdrop-filter/, 'the fixed header itself never blurs');
+  assert.match(css, /\.tabbar\{[^}]*position:fixed/, 'floating tab bar');
+  assert.match(css, /\.segmented\{/, 'segmented control');
+});
+
+test('nav bar: transparent fixed bar with a material layer, chevron-only back, large titles with a sentinel; the 404 has no large title', async () => {
+  for (const p of ['index.html', 'apps/index.html', 'apps/com.pal/index.html', '404.html']) {
+    assert.match(await page(p), /<header class="navbar[^"]*" data-navbar>\s*<div class="navbar-material" aria-hidden="true"><\/div>/, `${p} bar`);
+  }
+  const apps = await page('apps/index.html');
+  assert.match(apps, /<a href="\/altsource\/" class="[^"]*" aria-label="Back"><svg/, 'back is a chevron with an accessible name and no text');
+  assert.match(apps, /<h1 class="[^"]*t-large-title-em[^"]*">Apps<\/h1>\s*<div data-nav-sentinel/, 'large title followed by the sentinel');
+  assert.match(apps, /data-nav-title aria-hidden="true"[\s\S]*?<p class="truncate">Apps<\/p>/, 'small title is hidden until collapsed');
+  assert.doesNotMatch(await page('404.html'), /data-nav-sentinel/, 'no large title on the 404');
 });
 
 test('the "more" toggle on clamped text fades into the page background instead of painting over the words', async () => {
