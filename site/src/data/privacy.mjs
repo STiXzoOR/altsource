@@ -1,49 +1,49 @@
-// Adapted from therealFoxster/altsource-viewer (MIT). See THIRD_PARTY.md.
+// Adapted from therealFoxster/altsource-viewer (MIT); icon names refer to Hugeicons (@hugeicons/core-free-icons). See THIRD_PARTY.md.
 export default {
   "NSAppleMusicUsageDescription": {
-    "icon": "music-note-beamed"
+    "icon": "MusicNote01Icon"
   },
   "NSBluetoothAlwaysUsageDescription": {
     "name": "Bluetooth",
-    "icon": "bluetooth"
+    "icon": "BluetoothIcon"
   },
   "NSBluetoothPeripheralUsageDescription": {
     "name": "Bluetooth (Peripherals)",
-    "icon": "bluetooth"
+    "icon": "BluetoothIcon"
   },
   "NSContactsUsageDescription": {
-    "icon": "person-circle"
+    "icon": "ContactIcon"
   },
   "NSCameraUsageDescription": {
-    "icon": "camera-fill"
+    "icon": "Camera01Icon"
   },
   "NSFaceIDUsageDescription": {
     "name": "Face ID",
-    "icon": "person-bounding-box"
+    "icon": "FaceIdIcon"
   },
   "NSLocalNetworkUsageDescription": {
-    "icon": "globe2"
+    "icon": "Globe02Icon"
   },
   "NSLocationWhenInUseUsageDescription": {
     "name": "Location (When Using)",
-    "icon": "cursor-fill"
+    "icon": "Location01Icon"
   },
   "NSMicrophoneUsageDescription": {
-    "icon": "mic-fill"
+    "icon": "Mic01Icon"
   },
   "NSPhotoLibraryUsageDescription": {
     "name": "Photos",
-    "icon": "images"
+    "icon": "Image01Icon"
   },
   "NSPhotoLibraryAddUsageDescription": {
     "name": "Photos (Add)",
-    "icon": "image"
+    "icon": "ImageAdd01Icon"
   },
   "NSUserTracking": {
-    "icon": "person-vcard-fill"
+    "icon": "EyeIcon"
   },
   "NSHomeKitUsageDescription": {
     "name": "HomeKit",
-    "icon": "house-fill"
+    "icon": "Home01Icon"
   }
 };
