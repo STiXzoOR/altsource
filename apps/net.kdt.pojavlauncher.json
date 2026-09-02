@@ -2,9 +2,11 @@
   "$schema": "../schema/app.schema.json",
   "name": "PojavLauncher",
   "bundleIdentifier": "net.kdt.pojavlauncher",
-  "developerName": "PojavLauncherTeam",
+  "developerName": "PojavLauncher Team",
+  "subtitle": "Minecraft: Java Edition launcher",
   "localizedDescription": "A Minecraft: Java Edition Launcher for Android and iOS based on Boardwalk. Succeeded by https://github.com/AngelAuraMC/Amethyst-iOS",
-  "iconURL": "https://github.com/PojavLauncherTeam.png",
+  "iconURL": "assets/apps/net.kdt.pojavlauncher/icon.jpg",
+  "tintColor": "#34C759",
   "category": "games",
   "versions": [
     {
@@ -40,7 +42,5 @@
     "type": "github",
     "repo": "PojavLauncherTeam/PojavLauncher_iOS",
     "asset": "*.ipa"
-  },
-  "subtitle": "Minecraft: Java Edition launcher",
-  "tintColor": "#34C759"
+  }
 }

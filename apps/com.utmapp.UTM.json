@@ -2,11 +2,49 @@
   "$schema": "../schema/app.schema.json",
   "name": "UTM",
   "bundleIdentifier": "com.utmapp.UTM",
-  "developerName": "utmapp",
+  "developerName": "Turing Software",
   "subtitle": "Virtual machines for iOS",
   "localizedDescription": "Virtual machines for iOS and macOS",
-  "iconURL": "https://github.com/utmapp.png",
+  "iconURL": "assets/apps/com.utmapp.UTM/icon.png",
+  "tintColor": "#2F5BEA",
   "category": "utilities",
+  "screenshots": [
+    {
+      "imageURL": "assets/apps/com.utmapp.UTM/iphone-1.jpg",
+      "width": 750,
+      "height": 1334
+    },
+    {
+      "imageURL": "assets/apps/com.utmapp.UTM/iphone-2.jpg",
+      "width": 750,
+      "height": 1334
+    },
+    {
+      "imageURL": "assets/apps/com.utmapp.UTM/iphone-3.jpg",
+      "width": 750,
+      "height": 1334
+    },
+    {
+      "imageURL": "assets/apps/com.utmapp.UTM/iphone-4.jpg",
+      "width": 750,
+      "height": 1334
+    },
+    {
+      "imageURL": "assets/apps/com.utmapp.UTM/iphone-5.jpg",
+      "width": 750,
+      "height": 1334
+    },
+    {
+      "imageURL": "assets/apps/com.utmapp.UTM/iphone-6.jpg",
+      "width": 750,
+      "height": 1334
+    },
+    {
+      "imageURL": "assets/apps/com.utmapp.UTM/iphone-7.jpg",
+      "width": 750,
+      "height": 1334
+    }
+  ],
   "versions": [
     {
       "version": "4.7.5",
@@ -44,6 +82,5 @@
     "type": "github",
     "repo": "utmapp/UTM",
     "asset": "UTM.ipa"
-  },
-  "tintColor": "#2F5BEA"
+  }
 }

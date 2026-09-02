@@ -2,10 +2,39 @@
   "$schema": "../schema/app.schema.json",
   "name": "Provenance",
   "bundleIdentifier": "org.provenance-emu.provenance",
-  "developerName": "Provenance-Emu",
+  "developerName": "Provenance EMU",
+  "subtitle": "Multi-system emulator",
   "localizedDescription": "iOS & tvOS multi-emulator frontend, supporting various Atari, Bandai, NEC, Nintendo, Sega, SNK and Sony console systems… Get Started:  https://wiki.provenance-emu.com  | ",
-  "iconURL": "https://github.com/Provenance-Emu.png",
+  "iconURL": "assets/apps/org.provenance-emu.provenance/icon.png",
+  "tintColor": "#5856D6",
   "category": "games",
+  "screenshots": [
+    {
+      "imageURL": "assets/apps/org.provenance-emu.provenance/iphone-1.jpg",
+      "width": 593,
+      "height": 1200
+    },
+    {
+      "imageURL": "assets/apps/org.provenance-emu.provenance/iphone-2.jpg",
+      "width": 655,
+      "height": 1354
+    },
+    {
+      "imageURL": "assets/apps/org.provenance-emu.provenance/iphone-3.jpg",
+      "width": 579,
+      "height": 1200
+    },
+    {
+      "imageURL": "assets/apps/org.provenance-emu.provenance/iphone-4.jpg",
+      "width": 655,
+      "height": 1354
+    },
+    {
+      "imageURL": "assets/apps/org.provenance-emu.provenance/iphone-5.jpg",
+      "width": 593,
+      "height": 1200
+    }
+  ],
   "versions": [
     {
       "version": "3.3.0",
@@ -49,7 +78,5 @@
     "type": "github",
     "repo": "Provenance-Emu/Provenance",
     "asset": "*.ipa"
-  },
-  "subtitle": "Multi-system emulator",
-  "tintColor": "#5856D6"
+  }
 }
