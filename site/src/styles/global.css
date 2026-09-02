@@ -268,11 +268,11 @@ html:not([data-store="sidestore"]) [data-store-only="sidestore"] { display: none
 
 @layer components {
 /* App Store information ribbon */
-.ribbon { display: grid; grid-auto-flow: column; grid-auto-columns: 144px; gap: 10px; overflow-x: auto; overscroll-behavior-x: contain; scroll-snap-type: x proximity; scroll-padding-inline: var(--gutter); scrollbar-width: none; margin-inline: calc(-1 * var(--gutter)); padding-inline: var(--gutter); }
+.ribbon { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(144px, min-content); gap: 10px; overflow-x: auto; overscroll-behavior-x: contain; scroll-snap-type: x proximity; scroll-padding-inline: var(--gutter); scrollbar-width: none; margin-inline: calc(-1 * var(--gutter)); padding-inline: var(--gutter); }
 .ribbon::-webkit-scrollbar { display: none; }
 .ribbon-item { display: flex; flex-direction: column; align-items: center; text-align: center; scroll-snap-align: start; color: inherit; text-decoration: none; }
 .ribbon-label { font-size: calc(11 * var(--u)); line-height: 1.27; font-weight: 600; text-transform: uppercase; color: var(--label-2); margin-bottom: 4px; white-space: nowrap; }
-.ribbon-value { display: flex; align-items: center; gap: 4px; height: 25px; margin: 4px 0 2px; font-size: calc(22 * var(--u)); line-height: 25px; font-weight: 700; color: var(--ribbon-value); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.ribbon-value { display: flex; align-items: center; justify-content: center; gap: 4px; min-height: 25px; margin: 4px 0 2px; font-size: calc(22 * var(--u)); line-height: 25px; font-weight: 700; color: var(--ribbon-value); font-variant-numeric: tabular-nums; text-wrap: balance; overflow-wrap: break-word; }
 .ribbon-sub { font-size: calc(11 * var(--u)); line-height: 1.27; color: var(--ribbon-value); white-space: nowrap; }
 .ribbon[data-on-dark] .ribbon-label { color: rgba(246, 246, 246, 0.6); }
 .ribbon[data-on-dark] :is(.ribbon-value, .ribbon-sub) { color: #fff; }

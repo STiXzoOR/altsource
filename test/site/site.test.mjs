@@ -186,7 +186,7 @@ test('app rows say which stores can install them, so the store switch can filter
 
 test('storefront component CSS: ribbon, shelf, Today card, Get pill and AltStore row measurements', async () => {
   const css = await allCss();
-  assert.match(css, /\.ribbon\{[^}]*grid-auto-columns:144px/, 'ribbon phone columns');
+  assert.match(css, /\.ribbon\{[^}]*grid-auto-columns:minmax\(144px,\s*min-content\)/, 'ribbon phone columns grow to their longest word');
   assert.match(css, /\.ribbon\{[^}]*scroll-padding-inline:var\(--gutter\)/, 'ribbon snaps back to the gutter, not 16px in');
   assert.match(css, /\.shelf-list\{[^}]*scroll-snap-type:x mandatory/, 'shelf snaps');
   assert.match(css, /\.shelf-arrow\{[^}]*width:28px;height:64px/, 'shelf arrows');
@@ -420,4 +420,16 @@ test('ribbon sub-lines never repeat the column label', async () => {
   const both = await page('apps/com.both/index.html');
   assert.match(both, /<span class="ribbon-label">Developer<\/span>\s*<span class="ribbon-value">Dev<\/span>\s*<\/(?:a|div)>/, 'Developer has no sub-line');
   assert.match(both, /<span class="ribbon-label">Category<\/span>\s*<span class="ribbon-value">Utilities<\/span>\s*<\/(?:a|div)>/, 'Category has no sub-line');
+});
+
+test('ribbon values wrap at spaces instead of running into the next column', async () => {
+  const css = await allCss();
+  const value = css.match(/\.ribbon-value\{[^}]*\}/)?.[0] ?? '';
+  assert.ok(value, 'ribbon value rule');
+  assert.doesNotMatch(value, /white-space:nowrap/, 'no nowrap on values');
+  assert.match(value, /min-height:25px/, 'height is a minimum so two lines fit');
+  assert.doesNotMatch(value, /(?:^|;)height:25px/, 'no fixed height');
+  assert.match(value, /text-wrap:balance/, 'two-word names split evenly');
+  assert.match(value, /overflow-wrap:break-word/, 'a very long word breaks only as a last resort, and does not shrink the column\'s minimum width like anywhere would');
+  assert.doesNotMatch(value, /overflow-wrap:anywhere/, 'anywhere would collapse min-content and break inside names');
 });
