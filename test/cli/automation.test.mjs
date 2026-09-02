@@ -53,8 +53,12 @@ test('status prints the table, --write writes status.json, prepare() writes it o
   c.out.text = '';
   assert.equal(await status(['--json', '--offline'], c), 0);
   assert.equal(JSON.parse(c.out.text).apps[0].upstream.state, 'unknown');
-  await prepare({ cwd: c.cwd, outDir: `${c.cwd}/dist` });
+  const calls = [];
+  await prepare({ cwd: c.cwd, outDir: `${c.cwd}/dist`, exec: async (cmd, args, opts) => { calls.push({ cmd, args, env: opts.env }); } });
   const local = JSON.parse(await readFile(`${c.cwd}/dist/status.json`, 'utf8'));
   assert.equal(local.apps[0].upstream.state, 'unknown');
-  assert.ok((await readFile(`${c.cwd}/dist/source.json`, 'utf8')).includes('com.example.demo'));
+  assert.ok((await readFile(`${c.cwd}/.altsource/source.json`, 'utf8')).includes('com.example.demo'), 'JSON build goes to the staging dir Astro publishes');
+  assert.match(calls[0].cmd, /node_modules\/\.bin\/astro$/);
+  assert.deepEqual(calls[0].args, ['build']);
+  assert.deepEqual([calls[0].env.ALTSOURCE_ROOT, calls[0].env.ALTSOURCE_PUBLIC, calls[0].env.ALTSOURCE_OUT], [c.cwd, `${c.cwd}/.altsource`, `${c.cwd}/dist`]);
 });

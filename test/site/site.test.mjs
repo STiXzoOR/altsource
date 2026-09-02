@@ -21,7 +21,7 @@ const fixture = await root({
 const staging = path.join(fixture, '.altsource');
 const out = path.join(fixture, 'dist');
 await buildAll({ rootDir: fixture, outDir: staging });
-const build = spawnSync(path.join(REPO, 'node_modules', '.bin', 'astro'), ['build'], { cwd: REPO, encoding: 'utf8', env: { ...process.env, ALTSOURCE_ROOT: fixture, ALTSOURCE_PUBLIC: staging, ALTSOURCE_OUT: out, ALTSOURCE_VITE_CACHE: path.join(fixture, '.astro', 'vite') } });
+const build = spawnSync(path.join(REPO, 'node_modules', '.bin', 'astro'), ['build'], { cwd: REPO, encoding: 'utf8', env: { ...process.env, ALTSOURCE_ROOT: fixture, ALTSOURCE_PUBLIC: staging, ALTSOURCE_OUT: out, ALTSOURCE_ASTRO_CACHE: path.join(fixture, '.astro') } });
 const page = (rel) => readFile(path.join(out, rel), 'utf8');
 const exists = (rel) => access(path.join(out, rel)).then(() => true, () => false);
 

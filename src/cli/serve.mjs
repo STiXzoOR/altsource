@@ -14,11 +14,13 @@ import { writeStatus, detectRepo } from './status.mjs';
 const execFile = promisify(execFileCb);
 const REPO = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
 
-/** JSON build into .altsource, the Astro site into outDir, then an offline status.json. */
-export async function prepare({ cwd, outDir }) {
+const defaultExec = (cmd, args, opts) => execFile(cmd, args, { ...opts, maxBuffer: 64 * 1024 * 1024 });
+
+/** JSON build into .altsource, the Astro site into outDir (via exec, injectable), then an offline status.json. */
+export async function prepare({ cwd, outDir, exec = defaultExec }) {
   const staging = path.join(cwd, '.altsource');
   const result = await buildAll({ rootDir: cwd, outDir: staging });
-  await execFile(path.join(REPO, 'node_modules', '.bin', 'astro'), ['build'], { cwd: REPO, env: { ...process.env, ALTSOURCE_ROOT: cwd, ALTSOURCE_PUBLIC: staging, ALTSOURCE_OUT: outDir, ALTSOURCE_VITE_CACHE: path.join(cwd, '.astro', 'vite') }, maxBuffer: 64 * 1024 * 1024 });
+  await exec(path.join(REPO, 'node_modules', '.bin', 'astro'), ['build'], { cwd: REPO, env: { ...process.env, ALTSOURCE_ROOT: cwd, ALTSOURCE_PUBLIC: staging, ALTSOURCE_OUT: outDir, ALTSOURCE_ASTRO_CACHE: path.join(cwd, '.astro') } });
   await writeStatus(await buildStatus({ cwd, online: false, repo: detectRepo(cwd) }), outDir);
   return result;
 }

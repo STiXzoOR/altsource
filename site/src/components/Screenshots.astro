@@ -20,7 +20,7 @@ const uid = `shots-${Math.random().toString(36).slice(2, 8)}`;
       <div data-panel={key} hidden={i !== 0} class="snap-strip -mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-2 sm:mx-0 sm:px-0">
         {list.map((s, n) => (
           <button type="button" data-shot={s.imageURL} class="snap-start shrink-0" aria-label={`${label} screenshot ${n + 1}`}>
-            <img src={s.imageURL} alt="" loading="lazy" width={s.width} height={s.height} class={`${key === 'ipad' ? 'h-60 sm:h-80' : 'h-80 sm:h-[26rem]'} w-auto rounded-xl border border-zinc-200 bg-zinc-100 object-contain dark:border-zinc-800 dark:bg-zinc-900`} />
+            <img src={s.imageURL} alt="" loading="lazy" width={s.width} height={s.height} class={`${key === 'ipad' ? 'h-60 sm:h-80' : 'h-80 sm:h-[26rem]'} w-auto min-w-36 rounded-xl border border-zinc-200 bg-zinc-100 object-contain dark:border-zinc-800 dark:bg-zinc-900`} />
           </button>
         ))}
       </div>

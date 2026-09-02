@@ -16,5 +16,6 @@ export default defineConfig({
   site: baseURL.origin,
   ...(basePath ? { base: basePath } : {}),
   trailingSlash: 'always',
-  vite: { plugins: [tailwindcss()], cacheDir: process.env.ALTSOURCE_VITE_CACHE ?? 'node_modules/.vite', server: { fs: { allow: ['.', root] } } },
+  cacheDir: process.env.ALTSOURCE_ASTRO_CACHE ?? '.astro',
+  vite: { plugins: [tailwindcss()], cacheDir: process.env.ALTSOURCE_ASTRO_CACHE ? path.join(process.env.ALTSOURCE_ASTRO_CACHE, 'vite') : 'node_modules/.vite', server: { fs: { allow: ['.', root] } } },
 });
