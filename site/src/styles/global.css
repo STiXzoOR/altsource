@@ -143,6 +143,7 @@
 /* ---------- base ---------- */
 @layer base {
   html { -webkit-text-size-adjust: 100%; -webkit-tap-highlight-color: transparent; scrollbar-gutter: stable; }
+  html, body { overflow-x: clip; }
   body {
     font-family: var(--font-sans); font-size: var(--fs-body); line-height: var(--lh-body);
     background: var(--page); color: var(--label);
@@ -307,6 +308,10 @@ html:not([data-store="sidestore"]) [data-store-only="sidestore"] { display: none
 .newscard { display: block; overflow: hidden; border-radius: 24px; text-decoration: none; transition: filter 0.21s ease-out, transform 0.12s ease-out; }
 .newscard:active { transform: scale(0.98); }
 @media (hover: hover) { .newscard:hover { filter: brightness(0.93); } }
+
+/* Controls behave like native ones: no text selection, a press state */
+.approw, .pill, .get, .segment, .tabbar a, .sheet-action, .navbar-back, .navbar-action, .today, .newscard { -webkit-user-select: none; user-select: none; }
+.today:active { opacity: 0.85; }
 
 /* Hero icon tile (App Store hero icon treatment) */
 .hero-tile { border-radius: 25%; border: 2px solid rgba(255, 255, 255, 0.3); box-shadow: 0 0 30px rgba(0, 0, 0, 0.33); }
