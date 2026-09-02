@@ -1,6 +1,7 @@
 ---
 import Badge from './Badge.astro';
 import { normalizeTint } from '../lib/tint.mjs';
+import { storesFor } from '../lib/stores.mjs';
 const { entry, label = 'View', href, link = true, heading = false } = Astro.props;
 const NameTag = heading ? 'h1' : 'p';
 const { app, kinds } = entry;
@@ -10,7 +11,7 @@ const style = app.tintColor ? `--tint: ${normalizeTint(app.tintColor)}` : undefi
 const Tag = link ? 'a' : 'div';
 ---
 <Tag href={link ? target : undefined} class="relative flex items-center gap-3 overflow-hidden rounded-[1.5em] p-4 text-inherit transition hover:opacity-75" style={style}
-  data-app data-name={`${app.name} ${app.subtitle ?? ''} ${app.developerName}`.toLowerCase()} data-category={app.category ?? 'other'} data-kinds={kinds.join(' ')}>
+  data-app data-name={`${app.name} ${app.subtitle ?? ''} ${app.developerName}`.toLowerCase()} data-category={app.category ?? 'other'} data-kinds={kinds.join(' ')} data-stores={storesFor(kinds)}>
   <div class="absolute inset-0 bg-tint opacity-20"></div>
   <img src={app.iconURL} alt="" width="64" height="64" loading="lazy" class="app-icon relative size-16 shrink-0 rounded-[14px] bg-card object-cover" />
   <div class="relative flex min-w-0 flex-1 items-center justify-between gap-3">

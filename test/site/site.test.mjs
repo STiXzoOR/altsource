@@ -174,3 +174,9 @@ test('shell: sidebar with the current row, floating tab bar, store switch, three
   assert.equal(manifest.start_url, '/altsource/');
   assert.ok(manifest.icons.some((i) => i.sizes === '180x180'), 'touch icon in the manifest');
 });
+
+test('app rows say which stores can install them, so the store switch can filter', async () => {
+  const apps = await page('apps/index.html');
+  assert.match(apps, /data-app[^>]*data-stores="pal"/, 'ADP-only app is PAL only');
+  assert.match(apps, /data-app[^>]*data-stores="pal classic sidestore"/, 'ADP + IPA app installs everywhere');
+});
