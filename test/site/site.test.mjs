@@ -32,35 +32,54 @@ test('astro build succeeds and writes every page, the JSON and the assets', asyn
   }
 });
 
-test('home page shows the source, both apps, featured, news and add links', async () => {
+test('home page shows the source, both apps, news and the add sheet; accessible landmarks', async () => {
   const html = await page('index.html');
   assert.match(html, /Fixture Source/);
-  assert.match(html, /Pal Only/);
-  assert.match(html, /Both Kinds/);
+  assert.match(html, /Both Kinds/, 'featured app is on the home page');
+  assert.doesNotMatch(html, /Pal Only/, 'non-featured apps live on the Apps page, like the viewer');
+  assert.match(await page('apps/index.html'), /Pal Only/);
   assert.match(html, /https:\/\/altstore\.io\/source\/stixzoor\.github\.io\/altsource\/source\.pal\.json/);
   assert.match(html, /sidestore:\/\/source\?url=/);
   assert.match(html, /First post/);
   assert.match(html, /href="https:\/\/example\.com"/, 'description URLs are linked');
-  assert.match(html, /2 apps · 2 for AltStore PAL · 1 for Classic/);
+  assert.match(html, /2 apps · 2 PAL · 1 sideload/);
+  assert.match(html, /data-sheet="add-source"/);
+  assert.match(html, /<dialog id="add-source"[^>]*aria-labelledby="add-source-title"/);
+  assert.match(html, /class="skip-link"/);
+  assert.match(html, /<main id="main"/);
+  assert.equal((html.match(/<h1[\s>]/g) ?? []).length, 1, 'one h1');
+  assert.doesNotMatch(html, /bootstrap/i);
 });
 
-test('app pages: install buttons follow the kinds, permissions are explained, screenshots and versions render', async () => {
+test('app pages: GET follows the kinds, permissions are explained, screenshots, info and versions render', async () => {
   const both = await page('apps/com.both/index.html');
+  assert.match(both, /data-sheet="get"/, 'two or more install targets open the action sheet');
   assert.match(both, /Get in AltStore PAL/);
   assert.match(both, /Install with SideStore/);
   assert.match(both, /sidestore:\/\/install\?url=https%3A%2F%2Fgh%2Fd%2Fa\.ipa/);
-  assert.match(both, /iPhone/);
-  assert.match(both, /iPad/);
+  assert.match(both, /role="tablist"/);
+  assert.match(both, /aria-controls="shots-ipad"/);
+  assert.match(both, /alt="Both Kinds iPhone screenshot 1"/);
   assert.match(both, /width="1179"/);
-  assert.match(both, /Version history/);
+  assert.match(both, /Version History/);
+  assert.match(both, /--tint: #123456/, 'the page tint comes from the source when the app has none');
+  assert.match(both, /--tint-readable: #[0-9a-f]{6}/);
+  assert.match(both, /Bundle ID/);
   const pal = await page('apps/com.pal/index.html');
+  assert.doesNotMatch(pal, /data-sheet="get"/, 'a single install target links directly');
+  assert.match(pal, /href="https:\/\/altstore\.io\/source\/stixzoor\.github\.io\/altsource\/source\.pal\.json\?app=com\.pal"/);
   assert.doesNotMatch(pal, /Install with SideStore/);
   assert.match(pal, /App Groups/);
   assert.match(pal, /Camera/);
-  assert.match(pal, /Snap/);
+  assert.match(pal, /data-alert-message="Snap"/);
+  assert.match(pal, /<dialog data-alert aria-labelledby="perm-alert-title"/);
+  assert.doesNotMatch(pal, /bootstrap/i);
   const versions = await page('apps/com.both/versions/index.html');
   assert.match(versions, /old notes/);
   assert.equal((versions.match(/<li[\s>]/g) ?? []).length, 3);
+  const news = await page('news/index.html');
+  assert.match(news, /Both updated/);
+  assert.match(news, /Both Kinds/, 'news with an appID shows the app row');
 });
 
 test('every internal link resolves to a built file and nothing points at GitHub Actions', async () => {

@@ -959,8 +959,9 @@ Replace the three page assertions in `test/site/site.test.mjs` with:
 test('home page shows the source, both apps, news and the add sheet; accessible landmarks', async () => {
   const html = await page('index.html');
   assert.match(html, /Fixture Source/);
-  assert.match(html, /Pal Only/);
-  assert.match(html, /Both Kinds/);
+  assert.match(html, /Both Kinds/, 'featured app is on the home page');
+  assert.doesNotMatch(html, /Pal Only/, 'non-featured apps live on the Apps page, like the viewer');
+  assert.match(await page('apps/index.html'), /Pal Only/);
   assert.match(html, /https:\/\/altstore\.io\/source\/stixzoor\.github\.io\/altsource\/source\.pal\.json/);
   assert.match(html, /sidestore:\/\/source\?url=/);
   assert.match(html, /First post/);

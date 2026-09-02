@@ -132,11 +132,16 @@ package can live on GitHub Releases.
 ## Site
 
 `site/` is an [Astro](https://astro.build) 7 + [Tailwind CSS](https://tailwindcss.com) 4 project that renders the
-source as an App Store-like website at build time: home with featured apps, news and a searchable app grid;
-one page per app with install buttons matched to its kinds, screenshots (iPhone/iPad, lightbox), release notes,
-version history and plain-English permissions; a news page; the status dashboard. No runtime fetches except the
-status page reading `status.json`; light/dark themes; no UI framework. `site/src/data/*.mjs` (permission
-descriptions) come from altsource-viewer, see `THIRD_PARTY.md`.
+source as a website at build time. On phones it mirrors the AltStore app and
+[altsource-viewer](https://github.com/therealFoxster/altsource-viewer): tinted app rows with GET/VIEW pills, solid-tint
+news cards, a translucent nav bar whose title and GET button appear on scroll, a screenshot carousel, permission
+cards with plain-English explanations, iOS action sheets for install choices. On desktop it reads like an App Store
+product page: large header, wide gallery, description beside a sticky Information sidebar, grids for lists.
+
+Stack: no UI framework (native `<dialog>`, ARIA tabs, small inline scripts), [Hugeicons](https://hugeicons.com)
+rendered at build time, shadcn-style design tokens (`--background`, `--card`, `--primary`, …) so shadcn components could
+be dropped in later, light/dark themes, tint colours corrected for contrast, skip link, focus rings, reduced-motion
+support. `site/src/data/*.mjs` (permission descriptions) come from altsource-viewer, see `THIRD_PARTY.md`.
 
 ## Automation
 

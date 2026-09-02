@@ -1,10 +1,15 @@
 # Third-party material
 
+## Hugeicons
+
+Icons are rendered from [`@hugeicons/core-free-icons`](https://www.npmjs.com/package/@hugeicons/core-free-icons)
+(Hugeicons free set, MIT License) at build time; no icon font or React runtime ships with the site.
+
 ## altsource-viewer
 
 `site/src/data/entitlements.mjs` and `site/src/data/privacy.mjs` are adapted from
-[therealFoxster/altsource-viewer](https://github.com/therealFoxster/altsource-viewer), which inspired
-the site's structure. The viewer is licensed under the MIT License:
+[therealFoxster/altsource-viewer](https://github.com/therealFoxster/altsource-viewer), whose design the
+site replicates on phones (icon names were remapped to Hugeicons). The viewer is licensed under the MIT License:
 
     MIT License
 
