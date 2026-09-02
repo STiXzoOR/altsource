@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>STiX Apps</title>
+<meta name="description" content="STiX Apps — an AltStore PAL and AltStore Classic source.">
+<style>
+  :root { color-scheme: light dark; --bg: #f6f7fb; --fg: #111827; --muted: #6b7280; --card: #ffffff; --line: #e5e7eb; --accent: #3b82f6; --accent-fg: #ffffff; }
+  @media (prefers-color-scheme: dark) { :root { --bg: #0b0f19; --fg: #f3f4f6; --muted: #9ca3af; --card: #111827; --line: #1f2937; } }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--fg); font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+  main { max-width: 960px; margin: 0 auto; padding: 32px 20px 64px; }
+  header { display: flex; gap: 20px; align-items: center; flex-wrap: wrap; }
+  header img { width: 96px; height: 96px; border-radius: 22px; background: var(--line); }
+  h1 { margin: 0; font-size: 2rem; } .sub { margin: 4px 0 0; color: var(--muted); }
+  .desc { white-space: pre-line; margin: 20px 0; }
+  .buttons { display: flex; gap: 12px; flex-wrap: wrap; margin: 20px 0; }
+  .btn { display: inline-flex; align-items: center; gap: 8px; padding: 12px 18px; border-radius: 12px; background: var(--accent); color: var(--accent-fg); text-decoration: none; font-weight: 600; }
+  .btn.secondary { background: var(--card); color: var(--fg); border: 1px solid var(--line); }
+  .urls { display: grid; gap: 8px; margin: 12px 0 28px; }
+  .url { display: flex; gap: 8px; align-items: center; background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 8px 12px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.85rem; overflow-x: auto; }
+  .url span { flex: 1; white-space: nowrap; }
+  .url button { border: 1px solid var(--line); background: transparent; color: var(--fg); border-radius: 8px; padding: 4px 10px; cursor: pointer; }
+  h2 { font-size: 1.2rem; margin: 28px 0 12px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; }
+  .card { display: flex; gap: 14px; background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 14px; text-decoration: none; color: inherit; }
+  .card img { width: 64px; height: 64px; border-radius: 14px; background: var(--line); flex: none; }
+  .card .name { font-weight: 600; } .card .meta { color: var(--muted); font-size: 0.9rem; }
+  .badge { display: inline-block; font-size: 0.7rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; background: var(--line); margin-left: 6px; }
+  .empty { color: var(--muted); padding: 24px; border: 1px dashed var(--line); border-radius: 16px; text-align: center; }
+  footer { margin-top: 40px; color: var(--muted); font-size: 0.85rem; }
+  footer a { color: inherit; }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <img id="icon" alt="" src="assets/icon.png">
+    <div><h1 id="name">STiX Apps</h1><p class="sub" id="subtitle"></p></div>
+  </header>
+  <p class="desc" id="description"></p>
+
+  <div class="buttons">
+    <a class="btn" id="add-pal" href="#">Add to AltStore PAL</a>
+    <a class="btn secondary" id="add-classic" href="#">Add to AltStore Classic</a>
+    <a class="btn secondary" id="add-sidestore" href="#">Add to SideStore</a>
+  </div>
+  <div class="urls">
+    <div class="url"><span id="url-pal"></span><button data-copy="url-pal">Copy</button></div>
+    <div class="url"><span id="url-classic"></span><button data-copy="url-classic">Copy</button></div>
+  </div>
+
+  <h2>Apps</h2>
+  <div class="grid" id="apps"></div>
+  <p class="empty" id="empty" hidden>No apps yet. Add the source now and they will appear as they are published.</p>
+
+  <footer>Built from <a id="website" href="#">the repository</a>. AltStore PAL installs notarized apps in the EU, Japan and Brazil; AltStore Classic and SideStore sideload IPAs everywhere.</footer>
+</main>
+<script>
+(async () => {
+  const here = new URL('.', location.href);
+  const abs = (file) => new URL(file, here).href;
+  const universal = (file) => 'https://altstore.io/source/' + abs(file).replace(/^https?:\/\//, '');
+  const $ = (id) => document.getElementById(id);
+
+  $('add-pal').href = universal('source.pal.json');
+  $('add-classic').href = universal('source.json');
+  $('add-sidestore').href = 'sidestore://source?url=' + encodeURIComponent(abs('source.json'));
+  $('url-pal').textContent = abs('source.pal.json');
+  $('url-classic').textContent = abs('source.json');
+  for (const b of document.querySelectorAll('[data-copy]')) {
+    b.addEventListener('click', async () => { await navigator.clipboard.writeText($(b.dataset.copy).textContent); b.textContent = 'Copied'; setTimeout(() => (b.textContent = 'Copy'), 1200); });
+  }
+
+  const load = async (file) => { try { const r = await fetch(abs(file), { cache: 'no-store' }); return r.ok ? await r.json() : null; } catch { return null; } };
+  const [pal, classic] = await Promise.all([load('source.pal.json'), load('source.json')]);
+  const src = pal ?? classic;
+  if (src) {
+    $('name').textContent = src.name; document.title = src.name;
+    $('subtitle').textContent = src.subtitle ?? '';
+    $('description').textContent = src.description ?? '';
+    if (src.iconURL) $('icon').src = src.iconURL;
+    if (src.website) $('website').href = src.website;
+    if (src.tintColor) document.documentElement.style.setProperty('--accent', src.tintColor.startsWith('#') ? src.tintColor : '#' + src.tintColor);
+  }
+
+  const apps = new Map();
+  const add = (source, kind) => { for (const a of source?.apps ?? []) { const e = apps.get(a.bundleIdentifier) ?? { app: a, kinds: [] }; e.kinds.push(kind); apps.set(a.bundleIdentifier, e); } };
+  add(pal, 'PAL'); add(classic, 'Sideload');
+  const grid = $('apps');
+  for (const { app, kinds } of [...apps.values()].sort((x, y) => x.app.name.localeCompare(y.app.name))) {
+    const latest = app.versions?.[0];
+    const file = kinds.includes('PAL') ? 'source.pal.json' : 'source.json';
+    const card = document.createElement('a');
+    card.className = 'card';
+    card.href = universal(file) + '?app=' + encodeURIComponent(app.bundleIdentifier);
+    card.innerHTML = `<img alt="" src=""><div><div class="name"></div><div class="meta subtitle"></div><div class="meta version"></div></div>`;
+    card.querySelector('img').src = app.iconURL;
+    card.querySelector('.name').textContent = app.name;
+    card.querySelector('.name').insertAdjacentHTML('beforeend', kinds.map((k) => `<span class="badge">${k}</span>`).join(''));
+    card.querySelector('.subtitle').textContent = app.subtitle ?? app.developerName ?? '';
+    card.querySelector('.version').textContent = latest ? `v${latest.marketingVersion ?? latest.version}${latest.date ? ' · ' + latest.date.slice(0, 10) : ''}` : '';
+    grid.appendChild(card);
+  }
+  $('empty').hidden = apps.size > 0;
+})();
+</script>
+</body>
+</html>
