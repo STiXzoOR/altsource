@@ -17,10 +17,17 @@ const Body = markdown ? 'div' : 'p';
   <Body class={`${body} break-words ${cls}`} set:html={html}></Body>
 )}
 <script>
-  for (const box of document.querySelectorAll('[data-clamp]')) {
-    const p = box.querySelector('[data-clamp-body]');
-    const btn = box.querySelector('[data-toggle]');
-    if (p.scrollHeight > p.clientHeight + 2) box.setAttribute('data-overflow', '');
-    btn?.addEventListener('click', () => { box.setAttribute('data-open', ''); btn.remove(); });
-  }
+  const boxes = [...document.querySelectorAll('[data-clamp]')];
+  const check = () => {
+    for (const box of boxes) {
+      if (box.hasAttribute('data-open')) continue;
+      const p = box.querySelector('[data-clamp-body]');
+      box.toggleAttribute('data-overflow', p.scrollHeight > p.clientHeight + 2);
+    }
+  };
+  for (const box of boxes) box.querySelector('[data-toggle]')?.addEventListener('click', (e) => { box.setAttribute('data-open', ''); e.currentTarget.remove(); });
+  check();
+  addEventListener('load', check);
+  addEventListener('resize', check);
+  document.fonts?.ready.then(check);
 </script>

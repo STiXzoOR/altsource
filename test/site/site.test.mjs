@@ -358,3 +358,16 @@ test('app rows sit in two columns from 640px on Home, Apps and More by', async (
   assert.match(await page('index.html'), /<div class="lg:hidden" data-app-list>[\s\S]*?<div class="grid gap-2\.5 sm:grid-cols-2">/, 'home phone list');
   assert.match(await page('apps/index.html'), /<div class="grid gap-2\.5 sm:grid-cols-2 lg:grid-cols-2 lg:gap-x-5 lg:gap-y-6 xl:grid-cols-3 2xl:grid-cols-4">/, 'apps index');
 });
+
+test('viewport pass fixes: hero ribbon spans the full width on phones, the tab bar is capped on tablets, small phones get narrower pills, clamp detection re-checks after load', async () => {
+  const html = await page('index.html');
+  assert.match(html, /<div class="grid grid-cols-\[minmax\(0,1fr\)_auto\] items-start gap-x-5[^"]*">/, 'hero is a two-column grid');
+  assert.match(html, /<ul class="ribbon col-span-2 lg:col-span-1[^"]*"/, 'ribbon spans both columns on phones');
+  assert.match(html, /<img[^>]*class="hero-tile[^"]*lg:row-span-3/, 'tile spans the rows on desktop');
+  const js = (await Promise.all((await readdir(path.join(out, '_astro'))).filter((f) => f.endsWith('.js')).map((f) => page(path.join('_astro', f))))).join('');
+  assert.match(html + js, /fonts\??\.ready/, 'clamp check waits for fonts');
+  const css = await allCss();
+  assert.match(css, /\.tabbar\{[^}]*max-width:480px/, 'tab bar capped');
+  assert.match(css, /\.tabbar\{[^}]*margin-inline:auto/, 'tab bar centred');
+  assert.match(css, /@media \((?:max-width:359px|width<=359px)\)\{\.pill\{min-width:64px\}\}/, 'narrower pills under 360px');
+});
