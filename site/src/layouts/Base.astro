@@ -1,20 +1,21 @@
 ---
 import '../styles/global.css';
-import Nav from '../components/Nav.astro';
-import Footer from '../components/Footer.astro';
+import Icon from '../components/Icon.astro';
 import { getSite } from '../lib/data.mjs';
-const { title, description, image, noindex = false, accent } = Astro.props;
+import { normalizeTint, readableTint } from '../lib/tint.mjs';
+const { title, description, image, noindex = false, tint, width = 'narrow' } = Astro.props;
 const site = await getSite();
 const fullTitle = title ? `${title} · ${site.meta.name}` : site.meta.name;
 const desc = description ?? site.meta.subtitle ?? '';
-const tint = (accent ?? site.meta.tintColor ?? '#3b82f6').replace(/^#?/, '#');
+const color = normalizeTint(tint ?? site.meta.tintColor);
+const vars = `--tint: ${color}; --tint-readable: ${readableTint(color, false)}; --tint-readable-dark: ${readableTint(color, true)}`;
 const canonical = new URL(Astro.url.pathname, Astro.site).href;
 ---
 <!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>{fullTitle}</title>
   <meta name="description" content={desc} />
   {noindex && <meta name="robots" content="noindex" />}
@@ -28,7 +29,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site).href;
   <meta property="og:image" content={image ?? site.meta.headerURL ?? site.meta.iconURL} />
   <meta property="og:url" content={canonical} />
   <meta name="twitter:card" content="summary" />
-  <meta name="theme-color" content={tint} />
+  <meta name="theme-color" content={color} />
   <script is:inline>
     (function () {
       try {
@@ -39,11 +40,31 @@ const canonical = new URL(Astro.url.pathname, Astro.site).href;
     })();
   </script>
 </head>
-<body class="min-h-dvh bg-zinc-50 text-zinc-900 antialiased dark:bg-zinc-950 dark:text-zinc-100" style={`--accent: ${tint}`}>
-  <Nav />
-  <main class="mx-auto w-full max-w-6xl px-4 pb-12 sm:px-6">
+<body class="min-h-dvh bg-background text-foreground antialiased" style={vars}>
+  <a href="#main" class="skip-link">Skip to content</a>
+  <slot name="nav" />
+  <main id="main" tabindex="-1" class={`mx-auto w-full px-4 pt-3 pb-16 outline-none ${width === 'wide' ? 'max-w-6xl' : 'max-w-2xl'}`}>
     <slot />
   </main>
-  <Footer />
+  <footer class="mx-auto max-w-6xl px-5 pb-10 text-[0.8rem] text-muted-foreground">
+    <div class="flex flex-wrap items-center justify-between gap-2 border-t border-border pt-4">
+      <p>{site.meta.name} · AltStore PAL installs notarized apps in the EU, Japan and Brazil; AltStore Classic and SideStore sideload IPAs everywhere.</p>
+      <p class="flex gap-3"><a class="hover:text-primary" href={site.urls.pal}>source.pal.json</a><a class="hover:text-primary" href={site.urls.classic}>source.json</a></p>
+    </div>
+  </footer>
+  <button type="button" data-theme-toggle class="fixed right-4 bottom-4 z-30 flex size-11 items-center justify-center rounded-full bg-card text-muted-foreground shadow-md hover:text-primary" aria-label="Toggle dark mode" aria-pressed="false">
+    <span class="dark:hidden"><Icon name="Moon02Icon" class="size-5" /></span>
+    <span class="hidden dark:inline"><Icon name="Sun03Icon" class="size-5" /></span>
+  </button>
+  <script>
+    const toggle = document.querySelector('[data-theme-toggle]');
+    const sync = () => toggle?.setAttribute('aria-pressed', String(document.documentElement.classList.contains('dark')));
+    sync();
+    toggle?.addEventListener('click', () => {
+      const dark = document.documentElement.classList.toggle('dark');
+      try { localStorage.setItem('theme', dark ? 'dark' : 'light'); } catch {}
+      sync();
+    });
+  </script>
 </body>
 </html>

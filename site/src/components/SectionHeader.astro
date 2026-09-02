@@ -1,0 +1,8 @@
+---
+const { title, href, linkLabel = 'View All', as = 'h2', id } = Astro.props;
+const Tag = as;
+---
+<div class="flex items-baseline justify-between gap-4 px-1">
+  <Tag id={id} class={as === 'h1' ? 'text-[1.9rem] font-bold tracking-tight' : 'text-[1.4rem] font-bold tracking-tight'}>{title}</Tag>
+  {href && <a href={href} class="shrink-0 text-[1.02em] font-[450] text-primary hover:underline">{linkLabel}</a>}
+</div>

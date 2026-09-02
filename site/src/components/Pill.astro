@@ -1,0 +1,4 @@
+---
+const { href, label, class: cls = '', ...rest } = Astro.props;
+---
+{href ? <a href={href} class={`pill ${cls}`} {...rest}>{label}</a> : <button type="button" class={`pill ${cls}`} {...rest}>{label}</button>}
