@@ -371,3 +371,14 @@ test('viewport pass fixes: hero ribbon spans the full width on phones, the tab b
   assert.match(css, /\.tabbar\{[^}]*margin-inline:auto/, 'tab bar centred');
   assert.match(css, /@media \((?:max-width:359px|width<=359px)\)\{\.pill\{min-width:64px\}\}/, 'narrower pills under 360px');
 });
+
+test('sheet fixes from the WebKit pass: opaque grouped rows on phones, full-width copy rows, no focus ring on the auto-focused title', async () => {
+  const css = await allCss();
+  assert.match(css, /\.sheet-group\{[^}]*background:light-dark\(#f9f9f9f0,#252525f0\)/, 'phone action sheet group is nearly opaque');
+  assert.match(css, /\.sheet-group\{[^}]*backdrop-filter:blur\(20px\)\s*saturate\(180%\)/, 'group carries the material');
+  assert.match(css, /\.sheet-action\{[^}]*width:100%/, 'copy buttons span the sheet like the links');
+  const global = css.search(/\*?:focus-visible\{outline:2px/);
+  const sheetTitle = css.indexOf('.sheet [autofocus]:focus-visible{outline:none}');
+  assert.ok(global >= 0 && sheetTitle > global, 'the sheet-title override comes after the global focus ring rule');
+  assert.doesNotMatch(css.slice(sheetTitle - 400, sheetTitle), /@layer components\{[^}]*$/, 'and sits outside the components layer');
+});
