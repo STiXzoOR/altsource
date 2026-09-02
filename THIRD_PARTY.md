@@ -5,6 +5,12 @@
 Icons are rendered from [`@hugeicons/core-free-icons`](https://www.npmjs.com/package/@hugeicons/core-free-icons)
 (Hugeicons free set, MIT License) at build time; no icon font or React runtime ships with the site.
 
+## Chakra Petch
+
+The wordmark, the header image and the site's hero are set in Chakra Petch Bold (and Medium for the header
+tagline) by Cadson Demak, licensed under the SIL Open Font License 1.1. The font files live in `brand/fonts/`
+with the licence text (`OFL.txt`); the site ships a Basic Latin subset as `site/src/fonts/chakra-petch-700.woff2`.
+
 ## altsource-viewer
 
 `site/src/data/entitlements.mjs` and `site/src/data/privacy.mjs` are adapted from

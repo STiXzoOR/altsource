@@ -38,7 +38,7 @@ npm run validate            check content; add -- --check-urls to probe every UR
 npm run build               JSON + assets into .altsource/, then the Astro site into dist/
 npm run dev                 Astro dev server with hot reload (http://localhost:4321/altsource/)
 npm run serve               full build (site + offline status.json) served at http://localhost:4173/
-npm run assets:placeholder  regenerate the placeholder icon and header
+npm run assets:brand        regenerate assets/ (icon, header, wordmark) from src/lib/brand.mjs
 
 altsource app add …         create apps/<bundleId>.json (see below)
 altsource app list          apps with kinds, latest version and upstream
