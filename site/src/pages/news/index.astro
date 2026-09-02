@@ -7,7 +7,7 @@ const { news, apps } = await getSite();
 const base = import.meta.env.BASE_URL;
 ---
 <Base title="News" description="Announcements and updates." width="wide">
-  <NavBar slot="nav" title="News" back={base} />
+  <NavBar slot="nav" title="News" />
   <h1 class="t-large-title-em pt-2 lg:pt-[11px]">News</h1>
   <div data-nav-sentinel></div>
   {news.length === 0 ? (

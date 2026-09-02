@@ -57,7 +57,7 @@ The Home nav bar's trailing slot holds a gear button (`Settings01Icon`, `aria-la
 - "About" group as an inset grouped list (`.info` rows): "Source on GitHub ↗" (`meta.website`), "Report a problem ↗" (`meta.website` + `/issues` when the website is a GitHub URL).
 - Footnote (13 px secondary): "AltStore PAL installs notarized apps in the EU, Japan and Brazil. AltStore Classic and SideStore sideload apps everywhere."
 
-Only the home page includes the sheet and the gear. The sheet's `sm:` centred-card variant is fine on tablets.
+Amended after review: the trigger is a fourth item, "Settings", in the floating tab bar, so the sheet is rendered by `Base.astro` on every page and no gear sits in the top bar. The sheet's `sm:` centred-card variant is fine on tablets. Apps and News are tab roots and carry no back chevron; the home hero's subtitle spans the full width under the lockup on phones.
 
 ### 3.3 Footer and sidebar
 
@@ -83,7 +83,7 @@ Only the home page includes the sheet and the gear. The sheet's `sm:` centred-ca
 
 ### 4.2 App page
 
-- Ribbon: SIZE, VERSION (date), REQUIRES, DEVELOPER, CATEGORY (`categoryLabel`), STORE with value "AltStore" and sub "PAL · Classic" / "PAL" / "Classic · SideStore". Under 1000 px the ribbon gets a right-edge fade (`mask-image: linear-gradient(to right, #000 calc(100% - 40px), transparent)`) so a cut column reads as scrollable.
+- Ribbon: SIZE, VERSION (date), REQUIRES, DEVELOPER, CATEGORY (`categoryLabel`), STORE with value "AltStore" and sub "PAL · Classic" / "PAL" / "Classic · SideStore". Amended after review: every horizontal strip (`.ribbon`, `.shelf-list`) carries `scroll-fade-x`, a port of shadcn's scroll-fade utility whose mask edges follow the strip's own `scroll(self inline)` timeline (size `min(12%, 40px)`, reveal 96 px, static fallback under `@supports not`).
 - What's New: "Version {versionLabel}" and the date; notes via `<Text markdown clamp={3}>`. Version History rows use `versionLabel` and `<Text markdown clamp={3}>`.
 - Description via `<Text markdown clamp={5}>`.
 - Permissions: privacy card unchanged. Entitlements card lists only entitlements with a dictionary entry; the rest collapse into one row "{n} more system entitlement(s)" whose alert lists the raw keys (12 px, monospace, secondary). The dictionary gains friendly entries for the common sideloading keys: `com.apple.developer.kernel.increased-memory-limit` ("Increased Memory Limit"), `com.apple.developer.kernel.extended-virtual-addressing` ("Extended Virtual Addressing"), `dynamic-codesigning` ("Just-In-Time Compilation"), `com.apple.private.hypervisor` ("Hypervisor"), `com.apple.vm.device-access` ("Virtual Machine Device Access"), `com.apple.security.exception.iokit-user-client-class` ("Hardware Access"), `com.apple.private.memorystatus` ("Memory Status"), `com.apple.system.diagnostics.iokit-properties` ("Hardware Diagnostics"), `com.apple.private.iokit.IOServiceSetAuthorizationID` ("Hardware Authorization"), `get-task-allow` stays "Debuggable".

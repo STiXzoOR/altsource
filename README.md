@@ -143,7 +143,7 @@ source as a website at build time, following Apple's Human Interface Guidelines 
 - **Phones** feel like the AltStore app: a transparent bar that turns to glass as the large title scrolls under it,
   a floating glass tab bar, tinted header cards, 87 px tinted app rows with uppercase pills, snapping strips, bottom
   sheets that slide up on iOS's curve, Dynamic Type through the system font, safe-area padding, a Settings sheet
-  (appearance, project links) behind the gear in the home bar instead of a footer, and nothing technical on screen (no
+  (appearance, project links) behind the Settings item of the floating tab bar instead of a footer, and nothing technical on screen (no
   identifiers, file names or build numbers).
 - **Content.** `altsource app assets <bundleId> --icon … --screenshot …` vendors icons (1024 px PNG, JPEG when heavy) and
   screenshots (JPEG ≤ 1600 px tall) under `assets/apps/<bundleId>/` and writes them into the app JSON; release notes and
@@ -153,6 +153,9 @@ source as a website at build time, following Apple's Human Interface Guidelines 
   Elements with `data-stores="pal classic"` show when the chosen store is listed (always under All); elements with
   `data-store-only="pal"` show in exactly that state. Rows, install pills, source URL chips and counts use it, so a
   SideStore user only sees what SideStore can install and Add/Get become direct links.
+- **Scroll fades.** Horizontal strips (`.ribbon`, `.shelf-list`) carry `scroll-fade-x`, a port of shadcn's utility: the
+  mask edges are driven by the strip's own inline scroll timeline, so nothing fades when the content fits, the start fade
+  appears once scrolled and the end fade disappears at the end (static fades where scroll timelines are unsupported).
 - **Tokens.** iOS semantic colours through `light-dark()`, two type scales (`t-large-title` … `t-caption`: iOS sizes on
   phones, apps.apple.com sizes on desktop), App Store radii and shadows, `.get` / `.pill` / `.approw` / `.ribbon` /
   `.shelf` / `.today` / `.sheet` component classes in `site/src/styles/global.css`.

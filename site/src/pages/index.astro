@@ -14,7 +14,6 @@ import Text from '../components/Text.astro';
 import ActionSheet from '../components/ActionSheet.astro';
 import Wordmark from '../components/Wordmark.astro';
 import StoreSwitch from '../components/StoreSwitch.astro';
-import SettingsSheet from '../components/SettingsSheet.astro';
 import { getSite, universalLink, formatDate } from '../lib/data.mjs';
 const site = await getSite();
 const base = import.meta.env.BASE_URL;
@@ -48,22 +47,21 @@ const emptyAttrs = { 'data-empty': '', 'data-empty-pal': empty.pal, 'data-empty-
 const website = meta.website ? meta.website.replace(/^https?:\/\//, '').replace(/\/$/, '') : null;
 ---
 <Base width="wide" flush>
-  <NavBar slot="nav" icon={meta.iconURL} tinted>
+  <NavBar slot="nav" icon={meta.iconURL}>
     <Wordmark slot="title" name={meta.name} class="truncate text-[1.05em]" />
     <span slot="trailing" class="contents">
       <Pill label="Add" data-store-only="all" data-sheet="add-source" />
       {addLinks.map((l) => <Pill label="Add" href={l.href} data-store-only={l.store} />)}
     </span>
-    <button slot="actions" type="button" class="navbar-action" data-sheet="settings" aria-label="Settings" aria-haspopup="dialog"><Icon name="Settings01Icon" class="size-6" strokeWidth={1.75} /></button>
   </NavBar>
 
   <section class="hero-midnight relative -mx-4 overflow-hidden px-4 pt-[calc(60px+env(safe-area-inset-top,0px))] pb-6 xs:-mx-[25px] xs:px-[25px] lg:mx-0 lg:mt-2 lg:min-h-[286px] lg:rounded-card lg:px-10 lg:py-10" aria-labelledby="source-title">
     <div class="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-x-5 sm:gap-x-8 lg:items-center lg:gap-x-12">
       <div class="min-w-0">
         <h1 id="source-title" class="leading-none tracking-tight"><Wordmark name={meta.name} stacked class="text-[2.75rem] sm:text-[3.25rem] lg:text-[4rem]" /></h1>
-        {meta.subtitle && <p class="mt-3 t-body text-white/70 lg:mt-4 lg:t-title-2-em lg:text-[rgba(246,246,246,.6)]">{meta.subtitle}</p>}
       </div>
-      <img src={meta.iconURL} alt="" width="194" height="194" class="hero-tile size-24 shrink-0 sm:size-32 lg:size-[194px] lg:row-span-3 lg:self-center" />
+      <img src={meta.iconURL} alt="" width="194" height="194" class="hero-tile size-24 shrink-0 sm:size-32 lg:size-[194px] lg:row-span-4 lg:self-center" />
+      {meta.subtitle && <p class="col-span-2 mt-3 t-body text-white/70 lg:col-span-1 lg:mt-4 lg:t-title-2-em lg:text-[rgba(246,246,246,.6)]">{meta.subtitle}</p>}
       <Ribbon items={facts} onDark class="col-span-2 lg:col-span-1 mt-4 lg:mt-5 lg:max-w-[600px]" />
       <div class="col-span-2 lg:col-span-1 mt-5 flex flex-wrap items-center gap-2.5 lg:mt-6">
           <button type="button" class="get get-blue min-h-8" data-store-only="all" data-sheet="add-source" aria-haspopup="dialog">Add to AltStore</button>
@@ -115,7 +113,6 @@ const website = meta.website ? meta.website.replace(/^https?:\/\//, '').replace(
       </div>
     </section>
   )}
-  <SettingsSheet />
   <ActionSheet id="add-source" title={`Add "${meta.name}"`} message="Choose the app you use. The source keeps your apps updated." actions={addActions} qr={qrs} />
 </Base>
 <script>

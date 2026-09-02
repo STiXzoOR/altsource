@@ -9,7 +9,7 @@ const base = import.meta.env.BASE_URL;
 const emptyAttrs = { 'data-empty': '', 'data-empty-pal': 'Nothing for AltStore PAL yet.', 'data-empty-classic': 'Nothing for AltStore Classic yet.', 'data-empty-sidestore': 'Nothing for SideStore yet.' };
 ---
 <Base title="Apps" description="Every app in this source." width="wide">
-  <NavBar slot="nav" title="Apps" back={base} />
+  <NavBar slot="nav" title="Apps" />
   <div class="flex flex-wrap items-end justify-between gap-4 pt-2 lg:pt-[11px]">
     <h1 class="t-large-title-em">Apps</h1>
     {apps.length > 0 && (
