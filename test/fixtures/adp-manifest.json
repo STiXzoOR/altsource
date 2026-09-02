@@ -1,0 +1,147 @@
+{
+  "manifestSchemaVersion": "1.0",
+  "distributionPackageRevision": 2,
+  "appleItemId": "6445840140",
+  "bundleId": "com.tsg0o0.cse",
+  "shortVersionString": "4.19",
+  "bundleVersion": "71",
+  "appleVersionId": "886717703",
+  "platforms": [
+    "ios"
+  ],
+  "minimumSystemVersions": {
+    "ios": "16.0"
+  },
+  "requiredDeviceCapabilities": [
+    "arm64"
+  ],
+  "appInstallDeterminants": [],
+  "hasMessagesExtension": false,
+  "isLaunchProhibited": false,
+  "variants": [
+    {
+      "publicId": "38fb3b78-8270-3866-b260-8957bd769887",
+      "assetPath": "variant/38fb3b78-8270-3866-b260-8957bd769887.ipa",
+      "installTargets": [
+        {
+          "device": "iPhone18,2",
+          "os": "26"
+        },
+        {
+          "device": "iPhone14,6",
+          "os": "26"
+        }
+      ],
+      "variantDetails": {
+        "compressedSize": 9141886,
+        "uncompressedSize": 12164096,
+        "hashes": [
+          {
+            "algorithm": "sha256",
+            "chunkSize": 9141886,
+            "encryptedChunkDigests": [
+              "<trimmed>"
+            ],
+            "unencryptedChunkDigests": [
+              "<trimmed>"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "publicId": "00537633-59bd-301c-9468-41b230ee4439",
+      "assetPath": "variant/00537633-59bd-301c-9468-41b230ee4439.ipa",
+      "installTargets": [
+        {
+          "device": "iPad12,1",
+          "os": "18"
+        },
+        {
+          "device": "iPad7,12",
+          "os": "18"
+        }
+      ],
+      "variantDetails": {
+        "compressedSize": 8211041,
+        "uncompressedSize": 11144192,
+        "hashes": [
+          {
+            "algorithm": "sha256",
+            "chunkSize": 8211041,
+            "encryptedChunkDigests": [
+              "<trimmed>"
+            ],
+            "unencryptedChunkDigests": [
+              "<trimmed>"
+            ]
+          }
+        ]
+      }
+    }
+  ],
+  "deltas": [
+    {
+      "publicId": "9d3554d4-fcac-3bb5-b28c-f5cbe21e7421",
+      "assetPath": "delta/9d3554d4-fcac-3bb5-b28c-f5cbe21e7421.ipa",
+      "sourceVariant": {
+        "installTargets": [
+          {
+            "device": "iPhone14,5",
+            "os": "17.4"
+          }
+        ],
+        "appleVersionId": "886185511",
+        "version": "4.18"
+      },
+      "targetVariantAssetPath": "variant/38fb3b78-8270-3866-b260-8957bd769887.ipa",
+      "deltaDetails": {
+        "compressedSize": 147248,
+        "uncompressedSize": 193536,
+        "hashes": [
+          {
+            "algorithm": "sha256",
+            "chunkSize": 147248,
+            "encryptedChunkDigests": [
+              "<trimmed>"
+            ],
+            "unencryptedChunkDigests": [
+              "<trimmed>"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "publicId": "b4248efb-d5be-3ea3-9c38-209a5553d789",
+      "assetPath": "delta/b4248efb-d5be-3ea3-9c38-209a5553d789.ipa",
+      "sourceVariant": {
+        "installTargets": [
+          {
+            "device": "iPhone18,2",
+            "os": "26"
+          }
+        ],
+        "appleVersionId": "886185511",
+        "version": "4.18"
+      },
+      "targetVariantAssetPath": "variant/38fb3b78-8270-3866-b260-8957bd769887.ipa",
+      "deltaDetails": {
+        "compressedSize": 147232,
+        "uncompressedSize": 193536,
+        "hashes": [
+          {
+            "algorithm": "sha256",
+            "chunkSize": 147232,
+            "encryptedChunkDigests": [
+              "<trimmed>"
+            ],
+            "unencryptedChunkDigests": [
+              "<trimmed>"
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}
