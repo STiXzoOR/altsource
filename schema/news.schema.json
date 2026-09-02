@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://stixzoor.github.io/altsource/schema/news.schema.json",
+  "title": "AltStore news item",
+  "type": "object",
+  "required": ["title", "identifier", "caption", "date"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "title": { "type": "string", "minLength": 1 },
+    "identifier": { "type": "string", "minLength": 1 },
+    "caption": { "type": "string" },
+    "date": { "type": "string" },
+    "tintColor": { "type": "string" },
+    "imageURL": { "type": "string" },
+    "notify": { "type": "boolean" },
+    "url": { "type": "string" },
+    "appID": { "type": "string" }
+  }
+}

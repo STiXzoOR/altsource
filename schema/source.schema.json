@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://stixzoor.github.io/altsource/schema/source.schema.json",
+  "title": "AltStore source",
+  "type": "object",
+  "required": ["name", "apps", "news"],
+  "properties": {
+    "name": { "type": "string" },
+    "identifier": { "type": "string" },
+    "subtitle": { "type": "string" },
+    "description": { "type": "string" },
+    "iconURL": { "type": "string" },
+    "headerURL": { "type": "string" },
+    "website": { "type": "string" },
+    "fediUsername": { "type": "string" },
+    "patreonURL": { "type": "string" },
+    "tintColor": { "type": "string" },
+    "nsfw": { "type": "boolean" },
+    "featuredApps": { "type": "array", "items": { "type": "string" } },
+    "apps": { "type": "array", "items": { "$ref": "app.schema.json" } },
+    "news": { "type": "array", "items": { "$ref": "news.schema.json" } }
+  }
+}

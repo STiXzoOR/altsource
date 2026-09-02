@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://stixzoor.github.io/altsource/schema/meta.schema.json",
+  "title": "altsource source metadata",
+  "type": "object",
+  "required": ["name", "baseURL"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "baseURL": { "type": "string", "pattern": "^https://.+/$", "description": "altsource extension: absolute URL with trailing slash that relative URLs resolve against." },
+    "overrides": {
+      "type": "object",
+      "properties": { "pal": { "type": "object" }, "classic": { "type": "object" } },
+      "additionalProperties": false,
+      "description": "altsource extension: source-level keys merged over the base for one output."
+    },
+    "name": { "type": "string", "minLength": 1 },
+    "identifier": { "type": "string" },
+    "subtitle": { "type": "string" },
+    "description": { "type": "string" },
+    "localizedSubtitles": { "type": "object", "additionalProperties": { "type": "string" } },
+    "localizedDescriptions": { "type": "object", "additionalProperties": { "type": "string" } },
+    "iconURL": { "type": "string" },
+    "headerURL": { "type": "string" },
+    "website": { "type": "string" },
+    "fediUsername": { "type": "string" },
+    "patreonURL": { "type": "string" },
+    "tintColor": { "type": "string" },
+    "nsfw": { "type": "boolean" },
+    "featuredApps": { "type": "array", "items": { "type": "string" } }
+  }
+}

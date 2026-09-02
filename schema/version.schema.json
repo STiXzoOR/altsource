@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://stixzoor.github.io/altsource/schema/version.schema.json",
+  "title": "AltStore app version",
+  "type": "object",
+  "required": ["version", "date", "downloadURL", "size"],
+  "properties": {
+    "kind": { "enum": ["adp", "ipa"], "description": "altsource extension: which output this version belongs to. Inferred from downloadURL when omitted." },
+    "version": { "type": "string", "minLength": 1, "description": "CFBundleShortVersionString" },
+    "buildVersion": { "type": "string", "minLength": 1, "description": "CFBundleVersion" },
+    "marketingVersion": { "type": "string" },
+    "date": { "type": "string", "description": "ISO 8601" },
+    "localizedDescription": { "type": "string" },
+    "localizedDescriptions": { "type": "object", "additionalProperties": { "type": "string" } },
+    "downloadURL": { "type": "string" },
+    "size": { "type": "integer", "minimum": 1 },
+    "sha256": { "type": "string", "pattern": "^[0-9a-fA-F]{64}$" },
+    "assetURLs": { "type": "object", "additionalProperties": { "type": "string" } },
+    "minOSVersion": { "type": "string" },
+    "maxOSVersion": { "type": "string" }
+  }
+}
