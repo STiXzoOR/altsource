@@ -1,0 +1,51 @@
+name: Publish release
+on:
+  workflow_dispatch:
+    inputs:
+      bundle_id:
+        description: 'Bundle identifier (apps/<id>.json must exist)'
+        required: true
+      adp_id:
+        description: 'ADP ID from App Store Connect'
+        required: true
+      tag:
+        description: 'GitHub release tag to create, e.g. v1.2.0'
+        required: true
+      notes:
+        description: 'Release notes shown in AltStore'
+        required: false
+        default: ''
+concurrency:
+  group: content
+  cancel-in-progress: false
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with: { node-version: 24, cache: npm }
+      - run: npm ci
+      - name: Download the processed ADP
+        run: node bin/altsource.mjs adp download "${{ inputs.adp_id }}" --out adp --wait --interval 60
+      - name: Publish to GitHub Releases and add the version
+        run: node bin/altsource.mjs release publish "${{ inputs.bundle_id }}" --adp-dir adp --tag "${{ inputs.tag }}" --notes "${{ inputs.notes }}"
+      - run: npm run validate && npm run build
+      - name: Commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add apps
+          git commit -m "feat(release): ${{ inputs.bundle_id }} ${{ inputs.tag }}"
+          git push
+  deploy:
+    needs: publish
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    uses: ./.github/workflows/deploy.yml

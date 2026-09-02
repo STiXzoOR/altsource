@@ -154,13 +154,38 @@ buttons that open the workflow pages.
 
 `state/` holds bot-written files (`sync-log.json`, `link-check.json`); commit them but do not edit them.
 
-## Publishing your own notarized app (later)
+## Publishing your own notarized app
 
-1. Request the [Alternative EU Terms Addendum](https://developer.apple.com/contact/request/alternative-eu-terms-addendum/).
-2. Register your Developer ID with AltStore PAL: `POST https://api.altstore.io/register` with `developerID` and `email`; paste the returned token in App Store Connect → Users and Access → Integrations → Marketplace.
-3. Set the app's review type to Notarization and submit.
-4. `GET https://api.altstore.io/adps/<ADP ID>` until `downloadURL` appears; download and host the ADP without modifying any file (or use GitHub Releases with `assetURLs`).
-5. Add the version here with `marketplaceID` set.
+> **Not yet exercised against a real notarized build.** Every step below is unit-tested with mocked
+> API responses and a fake `gh`, but the first real run will be the first real test. Use `--dry-run`
+> and `adp status` liberally the first time.
+
+1. Request the [Alternative EU Terms Addendum](https://developer.apple.com/contact/request/alternative-eu-terms-addendum/) (skip if distributing only in Japan).
+2. Register with AltStore PAL and connect the marketplace:
+   ```
+   altsource adp register --developer-id <Apple Developer ID> --email you@example.com
+   ```
+   Paste the printed token in App Store Connect → Users and Access → Integrations → Marketplace,
+   pick the app(s), and choose "Yes, send notifications" so AltStore processes builds automatically.
+3. In App Store Connect set the app's review type to **Notarization** and submit. Note the ADP ID
+   (Distribution → Alternative Distribution Package).
+4. Create the listing once: `altsource app add com.your.app --from-adp <manifest URL>` is only
+   possible after step 6, so for the first release create `apps/com.your.app.json` by hand (template
+   above) with a placeholder version, or run `altsource app add` interactively.
+5. Wait for processing: `altsource adp status <ADP ID>` (or `altsource adp process <ADP ID>` if you
+   declined notifications).
+6. Publish — either run the **Publish release** workflow (`gh workflow run "Publish release"
+   -f bundle_id=com.your.app -f adp_id=<ADP ID> -f tag=v1.0.0 -f notes="First release"`) or locally:
+   ```
+   altsource adp download <ADP ID> --out adp --wait
+   altsource release publish com.your.app --adp-dir adp --tag v1.0.0 --notes "First release" --dry-run
+   altsource release publish com.your.app --adp-dir adp --tag v1.0.0 --notes "First release"
+   git add apps && git commit -m "feat(release): com.your.app v1.0.0" && git push
+   ```
+   The package files go to a GitHub Release and the version entry gets `assetURLs`, exactly as the
+   AltStore docs describe for GitHub-hosted ADPs. Nothing in the package is modified.
+7. Optional: set `fediUsername` in `source.meta.json` (permanent), deploy, then `altsource federate`
+   to list the source on https://explore.alt.store/.
 
 ## Deployment
 
