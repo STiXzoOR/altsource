@@ -21,6 +21,12 @@ jobs:
       - run: npm ci
       - run: npm test
       - run: npm run build
+      - name: Status
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          node bin/altsource.mjs status --write
+          node bin/altsource.mjs status --offline --markdown >> "$GITHUB_STEP_SUMMARY"
       - name: Summary
         run: |
           {

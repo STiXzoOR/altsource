@@ -1,0 +1,61 @@
+name: Link check
+on:
+  schedule:
+    - cron: '0 6 * * 1'
+  workflow_dispatch:
+concurrency:
+  group: content
+  cancel-in-progress: false
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: write
+    outputs:
+      changed: ${{ steps.commit.outputs.changed }}
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with: { node-version: 24, cache: npm }
+      - run: npm ci
+      - name: Check links
+        run: node bin/altsource.mjs check-links --write --markdown | tee -a "$GITHUB_STEP_SUMMARY"
+      - name: Commit state
+        id: commit
+        run: |
+          if [ -n "$(git status --porcelain state)" ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add state
+            git commit -m "chore(links): record link check"
+            git push
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Open, update or close the issue
+        run: |
+          gh label create link-check --description "Automated link check" --color D93F0B --force >/dev/null 2>&1 || true
+          BROKEN=$(node -e "console.log(require('./state/link-check.json').broken.length)")
+          BODY=$(node -e "const s=require('./state/link-check.json');console.log(s.broken.map(b=>'- '+b.url+' → '+(b.status||'network error')+' ('+b.where+')').join('\n'))")
+          EXISTING=$(gh issue list --label link-check --state open --json number -q '.[0].number')
+          if [ "$BROKEN" != "0" ]; then
+            if [ -n "$EXISTING" ]; then
+              gh issue comment "$EXISTING" --body "Still broken as of $(date -u +%F):"$'\n\n'"$BODY"
+            else
+              gh issue create --title "Broken links in the source" --label link-check --body "The weekly link check found URLs that no longer respond:"$'\n\n'"$BODY"
+            fi
+          elif [ -n "$EXISTING" ]; then
+            gh issue close "$EXISTING" --comment "All links respond again."
+          fi
+  deploy:
+    needs: check
+    if: needs.check.outputs.changed == 'true'
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    uses: ./.github/workflows/deploy.yml

@@ -1,0 +1,59 @@
+name: Sync
+on:
+  schedule:
+    - cron: '0 */6 * * *'
+  workflow_dispatch:
+    inputs:
+      apps:
+        description: 'Bundle identifiers to sync (space separated; empty = all)'
+        required: false
+        default: ''
+      dry_run:
+        description: 'Dry run (report only, no commit)'
+        type: boolean
+        default: false
+concurrency:
+  group: content
+  cancel-in-progress: false
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    outputs:
+      changed: ${{ steps.commit.outputs.changed }}
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with: { node-version: 24, cache: npm }
+      - run: npm ci
+      - name: Sync upstreams
+        run: node bin/altsource.mjs sync ${{ inputs.apps }} ${{ inputs.dry_run == true && '--dry-run' || '' }} --markdown | tee -a "$GITHUB_STEP_SUMMARY"
+      - name: Validate and build
+        if: ${{ inputs.dry_run != true }}
+        run: npm run validate && npm run build
+      - name: Commit
+        id: commit
+        if: ${{ inputs.dry_run != true }}
+        run: |
+          if [ -n "$(git status --porcelain apps news state)" ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            FILES=$(git status --porcelain apps news | sed 's/^...//' | sed 's/^/- /')
+            git add apps news state
+            git commit -m "chore(sync): update apps from upstream" -m "$FILES"
+            git push
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          fi
+  deploy:
+    needs: sync
+    if: needs.sync.outputs.changed == 'true'
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    uses: ./.github/workflows/deploy.yml
