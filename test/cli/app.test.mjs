@@ -105,3 +105,54 @@ test('unknown subcommand prints usage', async () => {
   assert.equal(await run(['frob'], c), 1);
   assert.match(c.out.text, /usage/);
 });
+
+import { readdir } from 'node:fs/promises';
+import { encodePNG } from '../../src/lib/png.mjs';
+import { pngSize } from '../helpers/png.mjs';
+
+const images = {
+  'https://img/icon.png': { bytes: encodePNG(300, 200, () => [255, 0, 0]) },
+  'https://img/s1.png': { bytes: encodePNG(200, 400, () => [0, 255, 0]) },
+  'https://img/s2.png': { bytes: encodePNG(400, 2000, () => [0, 0, 255]) },
+  'https://img/pad.png': { bytes: encodePNG(600, 800, () => [9, 9, 9]) },
+};
+
+test('app assets vendors the icon and screenshots under assets/apps/<id>/ and rewrites the JSON', async () => {
+  const c = await ctx({ fetch: makeFetch({ ...routes, ...images }) });
+  assert.equal(await run(['add', '--from-github', 'o/r', '--tag', 'v1.8'], c), 0, c.out.text);
+  assert.equal(await run(['assets', 'com.example.demo', '--icon', 'https://img/icon.png', '--screenshot', 'https://img/s1.png', '--screenshot', 'https://img/s2.png'], c), 0, c.out.text);
+  const a = await read(c, 'com.example.demo');
+  assert.equal(a.iconURL, 'assets/apps/com.example.demo/icon.png');
+  assert.deepEqual(a.screenshots, [
+    { imageURL: 'assets/apps/com.example.demo/iphone-1.jpg', width: 200, height: 400 },
+    { imageURL: 'assets/apps/com.example.demo/iphone-2.jpg', width: 320, height: 1600 },
+  ]);
+  assert.deepEqual(pngSize(await readFile(`${c.cwd}/assets/apps/com.example.demo/icon.png`)), { width: 1024, height: 1024, colorType: 2 });
+  assert.deepEqual((await readdir(`${c.cwd}/assets/apps/com.example.demo`)).sort(), ['icon.png', 'iphone-1.jpg', 'iphone-2.jpg']);
+  assert.match(c.out.text, /wrote assets\/apps\/com\.example\.demo\/iphone-2\.jpg/);
+  assert.match(c.out.text, /updated apps\/com\.example\.demo\.json/);
+});
+
+test('app assets appends by default, --replace clears the group, --ipad switches to the device form', async () => {
+  const c = await ctx({ fetch: makeFetch({ ...routes, ...images }) });
+  await run(['add', '--from-github', 'o/r', '--tag', 'v1.8'], c);
+  await run(['assets', 'com.example.demo', '--screenshot', 'https://img/s1.png'], c);
+  await run(['assets', 'com.example.demo', '--screenshot', 'https://img/s1.png'], c);
+  assert.equal((await read(c, 'com.example.demo')).screenshots.length, 2, 'appended');
+  assert.equal(await run(['assets', 'com.example.demo', '--screenshot', 'https://img/s2.png', '--replace'], c), 0, c.out.text);
+  let a = await read(c, 'com.example.demo');
+  assert.deepEqual(a.screenshots.map((s) => s.imageURL), ['assets/apps/com.example.demo/iphone-1.jpg']);
+  assert.deepEqual((await readdir(`${c.cwd}/assets/apps/com.example.demo`)).sort(), ['iphone-1.jpg']);
+  assert.equal(await run(['assets', 'com.example.demo', '--ipad', 'https://img/pad.png'], c), 0, c.out.text);
+  a = await read(c, 'com.example.demo');
+  assert.deepEqual(a.screenshots, { iphone: [{ imageURL: 'assets/apps/com.example.demo/iphone-1.jpg', width: 320, height: 1600 }], ipad: [{ imageURL: 'assets/apps/com.example.demo/ipad-1.jpg', width: 600, height: 800 }] });
+});
+
+test('app assets needs an existing app and at least one input', async () => {
+  const c = await ctx();
+  assert.equal(await run(['assets', 'com.nope', '--icon', 'https://img/icon.png'], c), 1);
+  assert.match(c.out.text, /apps\/com\.nope\.json does not exist/);
+  await run(['add', '--from-github', 'o/r', '--tag', 'v1.8'], c);
+  assert.equal(await run(['assets', 'com.example.demo'], c), 1);
+  assert.match(c.out.text, /--icon and\/or --screenshot/);
+});

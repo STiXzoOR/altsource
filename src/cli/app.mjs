@@ -1,4 +1,6 @@
 import { parseArgs } from 'node:util';
+import path from 'node:path';
+import { mkdir, writeFile, readdir, unlink } from 'node:fs/promises';
 import { createInterface } from 'node:readline/promises';
 import { readApp, writeApp, listApps, removeApp, today } from '../lib/content.mjs';
 import { fetchUpstreamApp } from '../lib/upstream.mjs';
@@ -6,12 +8,15 @@ import { fetchRepoInfo } from '../lib/github.mjs';
 import { inferKind } from '../lib/kinds.mjs';
 import { ensurePermissions } from '../lib/permissions.mjs';
 import { SOURCE_OPTIONS, resolvePackage, sourceKind, reportFileIssues, UsageError } from './inputs.mjs';
+import { loadBytes } from '../lib/http.mjs';
+import { normalizeIcon, normalizeScreenshot, assetDir, iconPath, shotPath, mergeScreenshots } from '../lib/assets.mjs';
 
 const USAGE = `usage:
   altsource app add [bundleId] (--from-source URL | --from-github owner/repo | --from-adp URL | --from-ipa PATH|URL) [options]
   altsource app add                       interactive prompts
   altsource app list [--json]
   altsource app remove <bundleId>
+  altsource app assets <bundleId> [--icon URL|PATH] [--screenshot URL|PATH]... [--ipad URL|PATH]... [--replace]
 
 options for add:
   --upstream                              record the origin so \`altsource sync\` can update the app
@@ -20,6 +25,11 @@ options for add:
   --release BASE_URL                      ADP hosted on GitHub Releases (writes assetURLs)
   --download-url URL                      required with a local --from-ipa file
   --notes TEXT --date ISO --force
+
+options for assets:
+  --icon                                  any raster; stored as a 1024 px opaque PNG
+  --screenshot / --ipad                   repeatable, in order; stored as JPEG no taller than 1600 px
+  --replace                               clear a device's existing screenshots before adding
 `;
 
 const ADD_OPTIONS = {
@@ -164,9 +174,58 @@ async function remove(argv, ctx) {
   return 0;
 }
 
+const ASSET_OPTIONS = {
+  icon: { type: 'string' },
+  screenshot: { type: 'string', multiple: true, default: [] },
+  ipad: { type: 'string', multiple: true, default: [] },
+  replace: { type: 'boolean', default: false },
+};
+
+async function assets(argv, ctx) {
+  const { values, positionals } = parseArgs({ args: argv, options: ASSET_OPTIONS, allowPositionals: true });
+  const id = positionals[0];
+  if (!id) throw new UsageError('bundleId is required');
+  if (!values.icon && values.screenshot.length === 0 && values.ipad.length === 0) throw new UsageError('pass --icon and/or --screenshot / --ipad');
+  const app = await readApp(ctx.cwd, id);
+  if (!app) throw new UsageError(`apps/${id}.json does not exist`);
+  const dir = path.join(ctx.cwd, assetDir(id));
+  await mkdir(dir, { recursive: true });
+  const written = [];
+  const next = { ...app };
+  if (values.icon) {
+    const { buffer } = await loadBytes(values.icon, { cwd: ctx.cwd, fetch: ctx.fetch });
+    const icon = await normalizeIcon(buffer);
+    await writeFile(path.join(ctx.cwd, iconPath(id)), icon.data);
+    next.iconURL = iconPath(id);
+    written.push(iconPath(id));
+  }
+  const added = {};
+  for (const [device, inputs] of [['iphone', values.screenshot], ['ipad', values.ipad]]) {
+    if (inputs.length === 0) continue;
+    if (values.replace) for (const f of await readdir(dir)) if (f.startsWith(`${device}-`)) await unlink(path.join(dir, f));
+    let n = (await readdir(dir)).filter((f) => f.startsWith(`${device}-`)).length;
+    added[device] = [];
+    for (const input of inputs) {
+      const { buffer } = await loadBytes(input, { cwd: ctx.cwd, fetch: ctx.fetch });
+      const shot = await normalizeScreenshot(buffer);
+      n += 1;
+      const rel = shotPath(id, device, n);
+      await writeFile(path.join(ctx.cwd, rel), shot.data);
+      added[device].push({ imageURL: rel, width: shot.width, height: shot.height });
+      written.push(rel);
+    }
+  }
+  const merged = mergeScreenshots(app.screenshots, added, { replace: values.replace });
+  if (merged === undefined) delete next.screenshots; else next.screenshots = merged;
+  await writeApp(ctx.cwd, next);
+  for (const w of written) ctx.stdout.write(`wrote ${w}\n`);
+  ctx.stdout.write(`updated apps/${id}.json\n`);
+  return 0;
+}
+
 export async function run(argv, ctx) {
   const [sub, ...rest] = argv;
-  const handlers = { add, list, remove };
+  const handlers = { add, list, remove, assets };
   if (!handlers[sub]) { ctx.stderr.write(USAGE); return 1; }
   try {
     return await handlers[sub](rest, ctx);
