@@ -91,7 +91,9 @@ test('nav bar: transparent fixed bar with a material layer, chevron-only back, l
     assert.match(await page(p), /<header class="navbar[^"]*" data-navbar(?: data-tinted)?>\s*<div class="navbar-material" aria-hidden="true"><\/div>/, `${p} bar`);
   }
   const apps = await page('apps/index.html');
-  assert.match(apps, /<a href="\/altsource\/" class="[^"]*" aria-label="Back"><svg/, 'back is a chevron with an accessible name and no text');
+  assert.doesNotMatch(apps, /aria-label="Back"/, 'tab roots have no back button');
+  assert.doesNotMatch(await page('news/index.html'), /aria-label="Back"/, 'News is a tab root too');
+  assert.match(await page('apps/com.pal/index.html'), /<a href="\/altsource\/apps\/" class="[^"]*" aria-label="Back"><svg/, 'back is a chevron with an accessible name and no text on pushed pages');
   assert.match(apps, /<h1 class="[^"]*t-large-title-em[^"]*">Apps<\/h1>[\s\S]*?<div data-nav-sentinel/, 'large title followed by the sentinel');
   assert.match(apps, /data-nav-title aria-hidden="true"[\s\S]*?<p class="truncate">Apps<\/p>/, 'small title is hidden until collapsed');
   assert.doesNotMatch(await page('404.html'), /<div data-nav-sentinel/, 'no large title on the 404');
@@ -185,6 +187,7 @@ test('app rows say which stores can install them, so the store switch can filter
 test('storefront component CSS: ribbon, shelf, Today card, Get pill and AltStore row measurements', async () => {
   const css = await allCss();
   assert.match(css, /\.ribbon\{[^}]*grid-auto-columns:144px/, 'ribbon phone columns');
+  assert.match(css, /\.ribbon\{[^}]*scroll-padding-inline:var\(--gutter\)/, 'ribbon snaps back to the gutter, not 16px in');
   assert.match(css, /\.shelf-list\{[^}]*scroll-snap-type:x mandatory/, 'shelf snaps');
   assert.match(css, /\.shelf-arrow\{[^}]*width:28px;height:64px/, 'shelf arrows');
   assert.match(css, /\.today\{[^}]*border-radius:17px/, 'Today card radius');
@@ -214,7 +217,7 @@ test('home: hero ribbon, Add and Share, a Today card for the featured app, shelv
   assert.match(html, /<div class="min-w-0" data-stores="classic sidestore"><button type="button" data-copy="https:\/\/stixzoor\.github\.io\/altsource\/source\.json"/, 'the Classic chip belongs to Classic and SideStore');
   assert.match(html, /data-share data-share-url="https:\/\/stixzoor\.github\.io\/altsource\/source\.pal\.json"/, 'Share carries the PAL URL');
   assert.match(html, /<a href="\/altsource\/apps\/com\.both\/" class="today"[\s\S]*?<p class="today-eyebrow">Utilities<\/p>\s*<h3 class="today-title">Both Kinds<\/h3>/, 'Today card for the featured app');
-  assert.match(html, /<div class="shelf-list" data-shelf-list>[\s\S]*?class="newscard"/, 'news shelf');
+  assert.match(html, /<div class="shelf-list scroll-fade-x" data-shelf-list>[\s\S]*?class="newscard"/, 'news shelf');
   assert.match(html, /data-app-list>[\s\S]*?class="approw"/, 'rows inside an app list');
   assert.match(html, /data-empty data-empty-pal="Nothing for AltStore PAL yet\." data-empty-classic="Nothing for AltStore Classic yet\." data-empty-sidestore="Nothing for SideStore yet\."/, 'per-store empty state');
   assert.match(html, /<a href="https:\/\/example\.org\/repo" rel="noopener"[^>]*>example\.org\/repo<span aria-hidden="true">↗<\/span><\/a>/, 'website link');
@@ -232,7 +235,6 @@ test('app page CSS: sheets slide on the iOS curve, the hero blurs its artwork, c
   assert.match(css, /\.permcard\{[^}]*border-radius:10px/, 'privacy card radius');
   assert.match(css, /\.permcard\{[^}]*padding:30px/, 'privacy card padding');
   assert.match(css, /@view-transition\{navigation:auto\}/, 'cross-document view transitions');
-  assert.match(css, /\.ribbon\{[^}]*mask-image:linear-gradient\((?:to right|90deg),\s*#000 calc\(100% - 40px\),\s*(?:transparent|#0000)\)/, 'ribbon fade on phones');
 });
 
 test('sheets: the add-source action sheet is a bottom sheet with grouped actions and a Cancel row, wired by one script in the layout', async () => {
@@ -323,17 +325,20 @@ test('entitlements without a friendly name collapse into one row that lists them
   assert.doesNotMatch(body, /com\.apple\.private/, 'raw keys are not printed in the card');
 });
 
-test('home: a gear in the bar opens the Settings sheet with appearance, project links and the store note', async () => {
-  const html = await page('index.html');
-  assert.match(html, /<button type="button" class="navbar-action[^"]*" data-sheet="settings" aria-label="Settings" aria-haspopup="dialog">\s*<svg/, 'gear in the nav bar');
-  const sheet = html.match(/<dialog id="settings"[\s\S]*?<\/dialog>/)?.[0];
+test('Settings lives in the floating tab bar on every page and opens the sheet with appearance, project links and the store note', async () => {
+  for (const p of ['index.html', 'apps/index.html', 'news/index.html', 'apps/com.both/index.html', '404.html']) {
+    const html = await page(p);
+    assert.match(html, /data-tabbar>[\s\S]*?<button type="button" data-sheet="settings" aria-haspopup="dialog" class="[^"]*">\s*<svg[\s\S]*?<span class="[^"]*">Settings<\/span>/, `${p}: Settings button in the tab bar`);
+    assert.match(html, /<dialog id="settings"/, `${p}: settings sheet present`);
+    assert.doesNotMatch(html, /navbar-action/, `${p}: no gear in the top bar`);
+  }
+  const sheet = (await page('index.html')).match(/<dialog id="settings"[\s\S]*?<\/dialog>/)?.[0];
   assert.ok(sheet, 'settings dialog');
   assert.match(sheet, /class="sheet[^"]*lg:hidden/, 'phones and tablets only');
   assert.match(sheet, /role="radiogroup" aria-label="Appearance"/, 'appearance control inside');
   assert.match(sheet, /<a href="https:\/\/example\.org\/repo" rel="noopener" class="info-row[^"]*"><span>Website<\/span>/, 'website row');
   assert.doesNotMatch(sheet, /Report a problem/, 'no issues row when the website is not GitHub');
   assert.match(sheet, /AltStore PAL installs notarized apps in the EU, Japan and Brazil\. AltStore Classic and SideStore sideload apps everywhere\./);
-  assert.doesNotMatch(await page('apps/index.html'), /data-sheet="settings"/, 'only the home bar has the gear');
 });
 
 test('no file names anywhere: the footer is desktop-only with one GitHub link, the sidebar links GitHub, phones pad for the tab bar', async () => {
@@ -362,8 +367,9 @@ test('app rows sit in two columns from 640px on Home, Apps and More by', async (
 test('viewport pass fixes: hero ribbon spans the full width on phones, the tab bar is capped on tablets, small phones get narrower pills, clamp detection re-checks after load', async () => {
   const html = await page('index.html');
   assert.match(html, /<div class="grid grid-cols-\[minmax\(0,1fr\)_auto\] items-start gap-x-5[^"]*">/, 'hero is a two-column grid');
-  assert.match(html, /<ul class="ribbon col-span-2 lg:col-span-1[^"]*"/, 'ribbon spans both columns on phones');
-  assert.match(html, /<img[^>]*class="hero-tile[^"]*lg:row-span-3/, 'tile spans the rows on desktop');
+  assert.match(html, /<ul class="ribbon scroll-fade-x col-span-2 lg:col-span-1[^"]*"/, 'ribbon spans both columns on phones');
+  assert.match(html, /<img[^>]*class="hero-tile[^"]*lg:row-span-4/, 'tile spans the four rows on desktop');
+  assert.match(html, /<p class="col-span-2 mt-3 t-body text-white\/70 lg:col-span-1[^"]*">sub<\/p>/, 'subtitle spans the full width on phones');
   const js = (await Promise.all((await readdir(path.join(out, '_astro'))).filter((f) => f.endsWith('.js')).map((f) => page(path.join('_astro', f))))).join('');
   assert.match(html + js, /fonts\??\.ready/, 'clamp check waits for fonts');
   const css = await allCss();
@@ -381,4 +387,25 @@ test('sheet fixes from the WebKit pass: opaque grouped rows on phones, full-widt
   const sheetTitle = css.indexOf('.sheet [autofocus]:focus-visible{outline:none}');
   assert.ok(global >= 0 && sheetTitle > global, 'the sheet-title override comes after the global focus ring rule');
   assert.doesNotMatch(css.slice(sheetTitle - 400, sheetTitle), /@layer components\{[^}]*$/, 'and sits outside the components layer');
+});
+
+test('scrollable strips fade with the scroll position through shadcn’s scroll-fade-x mechanics, and only when they overflow', async () => {
+  const css = await allCss();
+  for (const edge of ['s', 'e']) assert.match(css, new RegExp(`@property --scroll-fade-${edge}\\{syntax:"<length-percentage>";inherits:false;initial-value:0(?:px)?\\}`), `registered --scroll-fade-${edge}`);
+  const rule = css.match(/\.scroll-fade-x\{[^}]*\}/)?.[0] ?? '';
+  assert.match(rule, /mask-image:linear-gradient\([^)]*var\(--scroll-fade-s,\s*0(?:px)?\)[^)]*calc\(100% - var\(--scroll-fade-e,\s*0(?:px)?\)\)[^)]*\)/, 'mask stops follow the two lengths');
+  assert.match(rule, /animation-name:scroll-fade-reveal-s,scroll-fade-reveal-e|animation:1ms ease-in-out(?: both)? scroll-fade-reveal-s,1ms ease-in-out(?: both)? scroll-fade-reveal-e[;}]/, 'two keyframe animations (longhands or shorthand), timeline not folded into the shorthand');
+  assert.doesNotMatch(rule, /animation:[^;}]*scroll\(/, 'a timeline inside the animation shorthand would invalidate the whole declaration');
+  const timeline = css.match(/\[class~="?scroll-fade-x"?\]\{[^}]*\}/)?.[0] ?? '';
+  assert.ok(css.indexOf('.scroll-fade-x{') < css.indexOf(timeline.slice(0, 20)), 'timeline rule comes after the shorthand rule');
+  assert.match(timeline, /animation-timeline:scroll\(self inline\),scroll\(self inline\)/, 'driven by the strip’s own inline scroll');
+  assert.match(timeline, /animation-range:0 var\(--scroll-fade-reveal,\s*96px\),\s*calc\(100% - var\(--scroll-fade-reveal,\s*96px\)\) 100%/, 'reveal over the first and last 96px');
+  assert.match(rule, /animation-fill-mode:both(?:,both)?|animation:1ms ease-in-out both /, 'fill both');
+  assert.match(css, /@keyframes scroll-fade-reveal-e\{(?:from|0%)\{--scroll-fade-e:var\(--scroll-fade-size,\s*min\(12%,\s*40px\)\)\}(?:to|100%)\{--scroll-fade-e:0(?:px)?\}\}/, 'end fade shrinks to nothing at the end');
+  assert.match(css, /@supports not \(animation-timeline:\s*scroll\(\)\)\{\.scroll-fade-x\{--scroll-fade-s:var\(--scroll-fade-size,\s*min\(12%,\s*40px\)\);--scroll-fade-e:var\(--scroll-fade-size,\s*min\(12%,\s*40px\)\)\}\}/, 'static fades where scroll timelines are missing');
+  assert.doesNotMatch(css, /\.ribbon\{[^}]*mask-image/, 'no static ribbon mask');
+  assert.doesNotMatch(css, /\.shelf-list\{[^}]*mask-image/, 'no static shelf mask');
+  const html = await page('index.html');
+  assert.match(html, /<ul class="ribbon scroll-fade-x /, 'ribbon fades');
+  assert.match(html, /<div class="shelf-list scroll-fade-x" data-shelf-list>/, 'shelves fade');
 });
