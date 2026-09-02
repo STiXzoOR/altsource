@@ -1,0 +1,53 @@
+---
+import Icon from './Icon.astro';
+import { screenshotsOf } from '../lib/data.mjs';
+const { app } = Astro.props;
+const shots = screenshotsOf(app);
+const groups = [['iphone', 'iPhone', shots.iphone], ['ipad', 'iPad', shots.ipad]].filter(([, , list]) => list.length > 0);
+const uid = `shots-${Math.random().toString(36).slice(2, 8)}`;
+---
+{groups.length > 0 && (
+  <section aria-labelledby={`${uid}-h`} class="mt-8">
+    <div class="mb-3 flex items-center gap-3">
+      <h2 id={`${uid}-h`} class="text-lg font-semibold">Preview</h2>
+      {groups.length > 1 && (
+        <div class="flex rounded-lg bg-zinc-200 p-0.5 text-xs font-semibold dark:bg-zinc-800" role="tablist">
+          {groups.map(([key, label], i) => <button type="button" role="tab" aria-selected={i === 0 ? 'true' : 'false'} data-tab={key} class="rounded-md px-2.5 py-1 aria-selected:bg-white aria-selected:shadow dark:aria-selected:bg-zinc-700">{label}</button>)}
+        </div>
+      )}
+    </div>
+    {groups.map(([key, label, list], i) => (
+      <div data-panel={key} hidden={i !== 0} class="snap-strip -mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-2 sm:mx-0 sm:px-0">
+        {list.map((s, n) => (
+          <button type="button" data-shot={s.imageURL} class="snap-start shrink-0" aria-label={`${label} screenshot ${n + 1}`}>
+            <img src={s.imageURL} alt="" loading="lazy" width={s.width} height={s.height} class={`${key === 'ipad' ? 'h-60 sm:h-80' : 'h-80 sm:h-[26rem]'} w-auto rounded-xl border border-zinc-200 bg-zinc-100 object-contain dark:border-zinc-800 dark:bg-zinc-900`} />
+          </button>
+        ))}
+      </div>
+    ))}
+    <dialog data-lightbox class="m-auto max-h-[92vh] max-w-[92vw] rounded-2xl bg-transparent p-0 backdrop:bg-black/80">
+      <button type="button" data-close class="absolute top-2 right-2 rounded-full bg-black/60 p-2 text-white" aria-label="Close"><Icon name="x" class="size-5" /></button>
+      <img alt="" class="max-h-[92vh] max-w-[92vw] rounded-2xl object-contain" />
+    </dialog>
+  </section>
+)}
+<script>
+  for (const tab of document.querySelectorAll('[data-tab]')) {
+    tab.addEventListener('click', () => {
+      const section = tab.closest('section');
+      for (const t of section.querySelectorAll('[data-tab]')) t.setAttribute('aria-selected', t === tab ? 'true' : 'false');
+      for (const p of section.querySelectorAll('[data-panel]')) p.hidden = p.dataset.panel !== tab.dataset.tab;
+    });
+  }
+  for (const btn of document.querySelectorAll('[data-shot]')) {
+    btn.addEventListener('click', () => {
+      const dialog = btn.closest('section').querySelector('[data-lightbox]');
+      dialog.querySelector('img').src = btn.dataset.shot;
+      dialog.showModal();
+    });
+  }
+  for (const dialog of document.querySelectorAll('[data-lightbox]')) {
+    dialog.querySelector('[data-close]').addEventListener('click', () => dialog.close());
+    dialog.addEventListener('click', (e) => { if (e.target === dialog) dialog.close(); });
+  }
+</script>

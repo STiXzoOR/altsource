@@ -1,0 +1,52 @@
+---
+import Base from '../layouts/Base.astro';
+import Icon from '../components/Icon.astro';
+import Text from '../components/Text.astro';
+import AddSource from '../components/AddSource.astro';
+import AppCard from '../components/AppCard.astro';
+import AppGrid from '../components/AppGrid.astro';
+import NewsCard from '../components/NewsCard.astro';
+import { getSite } from '../lib/data.mjs';
+const site = await getSite();
+const base = import.meta.env.BASE_URL;
+const { meta, apps, featured, news, counts } = site;
+---
+<Base>
+  <section class="relative -mx-4 overflow-hidden px-4 pt-10 pb-8 sm:-mx-6 sm:rounded-b-3xl sm:px-6">
+    {meta.headerURL && <img src={meta.headerURL} alt="" class="absolute inset-0 -z-10 h-full w-full scale-110 object-cover opacity-30 blur-2xl dark:opacity-25" />}
+    <div class="flex flex-col items-start gap-5 sm:flex-row sm:items-center">
+      <img src={meta.iconURL} alt="" width="112" height="112" class="size-24 rounded-[24px] shadow-lg sm:size-28" />
+      <div class="min-w-0">
+        <h1 class="text-3xl font-bold tracking-tight sm:text-4xl">{meta.name}</h1>
+        {meta.subtitle && <p class="mt-1 text-lg text-zinc-600 dark:text-zinc-300">{meta.subtitle}</p>}
+        <p class="mt-2 text-sm text-zinc-500 dark:text-zinc-400">{apps.length} app{apps.length === 1 ? '' : 's'} · {counts.pal} for AltStore PAL · {counts.classic} for Classic / SideStore</p>
+      </div>
+    </div>
+    {meta.description && <div class="mt-5 max-w-3xl"><Text text={meta.description} clamp /></div>}
+    <div class="mt-6"><AddSource /></div>
+  </section>
+
+  {featured.length > 0 && (
+    <section class="mt-10" aria-labelledby="featured-h">
+      <h2 id="featured-h" class="mb-3 flex items-center gap-2 text-lg font-semibold"><Icon name="sparkles" class="size-5 text-accent" />Featured</h2>
+      <div class="snap-strip -mx-4 flex snap-x gap-3 overflow-x-auto px-4 pb-2 sm:mx-0 sm:px-0">
+        {featured.map((entry) => <div class="w-80 shrink-0 snap-start"><AppCard entry={entry} /></div>)}
+      </div>
+    </section>
+  )}
+
+  {news.length > 0 && (
+    <section class="mt-10" aria-labelledby="news-h">
+      <div class="mb-3 flex items-center justify-between">
+        <h2 id="news-h" class="flex items-center gap-2 text-lg font-semibold"><Icon name="newspaper" class="size-5 text-accent" />Latest news</h2>
+        <a href={`${base}news/`} class="text-sm font-semibold text-accent">All news</a>
+      </div>
+      <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">{news.slice(0, 3).map((item) => <NewsCard item={item} apps={apps} />)}</div>
+    </section>
+  )}
+
+  <section class="mt-10" aria-labelledby="apps-h">
+    <h2 id="apps-h" class="mb-3 flex items-center gap-2 text-lg font-semibold"><Icon name="grid" class="size-5 text-accent" />Apps</h2>
+    <AppGrid entries={apps} />
+  </section>
+</Base>

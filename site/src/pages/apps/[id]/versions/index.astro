@@ -1,0 +1,31 @@
+---
+import Base from '../../../../layouts/Base.astro';
+import Icon from '../../../../components/Icon.astro';
+import Badge from '../../../../components/Badge.astro';
+import Text from '../../../../components/Text.astro';
+import { getSite, formatBytes, formatDate, versionLabel, inferKind } from '../../../../lib/data.mjs';
+
+export async function getStaticPaths() {
+  const site = await getSite();
+  return site.apps.map((entry) => ({ params: { id: entry.id }, props: { entry } }));
+}
+const { entry } = Astro.props;
+const { app } = entry;
+const base = import.meta.env.BASE_URL;
+---
+<Base title={`${app.name} versions`} description={`Version history of ${app.name}.`} image={app.iconURL} accent={app.tintColor}>
+  <a href={`${base}apps/${encodeURIComponent(app.bundleIdentifier)}/`} class="mt-6 inline-flex items-center gap-1 text-sm font-semibold text-accent"><Icon name="chevron-left" class="size-4" />{app.name}</a>
+  <h1 class="mt-3 text-2xl font-bold">Version history</h1>
+  <ol class="mt-4 divide-y divide-zinc-200 rounded-2xl border border-zinc-200 bg-white dark:divide-zinc-800 dark:border-zinc-800 dark:bg-zinc-900">
+    {app.versions.map((v) => (
+      <li class="p-4">
+        <div class="flex flex-wrap items-center gap-2">
+          <span class="font-semibold">{versionLabel(v)}</span>
+          <Badge kind={inferKind(v)} />
+          <span class="text-sm text-zinc-500 dark:text-zinc-400">{formatDate(v.date)}{v.size ? ` · ${formatBytes(v.size)}` : ''}{v.minOSVersion ? ` · iOS ${v.minOSVersion}+` : ''}</span>
+        </div>
+        <div class="mt-1 text-sm"><Text text={v.localizedDescription ?? 'No release notes.'} /></div>
+      </li>
+    ))}
+  </ol>
+</Base>

@@ -1,0 +1,11 @@
+---
+import Base from '../layouts/Base.astro';
+const base = import.meta.env.BASE_URL;
+---
+<Base title="Not found" noindex>
+  <div class="py-24 text-center">
+    <p class="text-6xl font-bold text-accent">404</p>
+    <p class="mt-3 text-zinc-600 dark:text-zinc-300">That page does not exist.</p>
+    <a href={base} class="mt-6 inline-block rounded-xl bg-accent px-4 py-2.5 text-sm font-semibold text-white">Back to {`the source`}</a>
+  </div>
+</Base>

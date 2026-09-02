@@ -1,0 +1,81 @@
+---
+import Base from '../../../layouts/Base.astro';
+import Icon from '../../../components/Icon.astro';
+import Badge from '../../../components/Badge.astro';
+import Text from '../../../components/Text.astro';
+import AddSource from '../../../components/AddSource.astro';
+import Screenshots from '../../../components/Screenshots.astro';
+import Permissions from '../../../components/Permissions.astro';
+import { getSite, installLinks, formatBytes, formatDate, versionLabel } from '../../../lib/data.mjs';
+
+export async function getStaticPaths() {
+  const site = await getSite();
+  return site.apps.map((entry) => ({ params: { id: entry.id }, props: { entry } }));
+}
+const { entry } = Astro.props;
+const site = await getSite();
+const { app, kinds, latest } = entry;
+const base = import.meta.env.BASE_URL;
+const links = installLinks(entry, site.urls);
+const facts = [
+  ['Version', versionLabel(latest), 'tag'],
+  ['Size', formatBytes(latest.size), 'hard-drive'],
+  ['Requires', latest.minOSVersion ? `iOS ${latest.minOSVersion}+` : 'iOS', 'phone'],
+  ['Updated', formatDate(latest.date), 'calendar'],
+  ['Category', app.category ?? 'other', 'layers'],
+].filter(([, v]) => v);
+---
+<Base title={app.name} description={app.subtitle ?? app.localizedDescription.slice(0, 150)} image={app.iconURL} accent={app.tintColor}>
+  <a href={`${base}apps/`} class="mt-6 inline-flex items-center gap-1 text-sm font-semibold text-accent"><Icon name="chevron-left" class="size-4" />All apps</a>
+  <header class="mt-4 flex flex-col gap-5 sm:flex-row sm:items-start">
+    <img src={app.iconURL} alt="" width="128" height="128" class="size-28 rounded-[28px] bg-zinc-100 shadow-lg sm:size-32 dark:bg-zinc-800" />
+    <div class="min-w-0 flex-1">
+      <div class="flex flex-wrap items-center gap-2">
+        <h1 class="text-3xl font-bold tracking-tight">{app.name}</h1>
+        {kinds.map((k) => <Badge kind={k} />)}
+      </div>
+      {app.subtitle && <p class="mt-1 text-lg text-zinc-600 dark:text-zinc-300">{app.subtitle}</p>}
+      <p class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">{app.developerName} · <span class="font-mono text-xs">{app.bundleIdentifier}</span></p>
+      <div class="mt-4 flex flex-wrap gap-2">
+        {links.map((l) => (
+          <a href={l.href} download={l.download ? '' : undefined} class={`inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold shadow-sm transition ${l.primary ? 'bg-accent text-white hover:opacity-90' : 'border border-zinc-200 bg-white text-zinc-800 hover:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100 dark:hover:bg-zinc-800'}`}>
+            <Icon name="download" class="size-4" />{l.label}
+          </a>
+        ))}
+      </div>
+    </div>
+  </header>
+
+  <dl class="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+    {facts.map(([label, value, icon]) => (
+      <div class="rounded-2xl border border-zinc-200 bg-white p-3 dark:border-zinc-800 dark:bg-zinc-900">
+        <dt class="flex items-center gap-1.5 text-xs text-zinc-500 dark:text-zinc-400"><Icon name={icon} class="size-3.5" />{label}</dt>
+        <dd class="mt-1 truncate font-semibold">{value}</dd>
+      </div>
+    ))}
+  </dl>
+
+  <Screenshots app={app} />
+
+  <section class="mt-8" aria-labelledby="about-h">
+    <h2 id="about-h" class="mb-2 text-lg font-semibold">About</h2>
+    <Text text={app.localizedDescription} clamp />
+  </section>
+
+  <section class="mt-8" aria-labelledby="new-h">
+    <div class="mb-2 flex items-center justify-between">
+      <h2 id="new-h" class="text-lg font-semibold">What's new</h2>
+      {app.versions.length > 1 && <a href={`${base}apps/${encodeURIComponent(app.bundleIdentifier)}/versions/`} class="text-sm font-semibold text-accent">Version history</a>}
+    </div>
+    <p class="text-sm text-zinc-500 dark:text-zinc-400">Version {versionLabel(latest)} · {formatDate(latest.date)}</p>
+    <div class="mt-2"><Text text={latest.localizedDescription ?? 'No release notes for this version.'} clamp /></div>
+  </section>
+
+  <Permissions app={app} />
+
+  <section class="mt-10 rounded-2xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900" aria-labelledby="src-h">
+    <h2 id="src-h" class="text-lg font-semibold">Get this source</h2>
+    <p class="mt-1 mb-4 text-sm text-zinc-600 dark:text-zinc-300">Add {site.meta.name} once and every update to {app.name} shows up in AltStore automatically.</p>
+    <AddSource compact />
+  </section>
+</Base>

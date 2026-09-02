@@ -1,0 +1,10 @@
+---
+import Base from '../../layouts/Base.astro';
+import AppGrid from '../../components/AppGrid.astro';
+import { getSite } from '../../lib/data.mjs';
+const { apps } = await getSite();
+---
+<Base title="Apps" description="Every app in this source.">
+  <h1 class="mt-8 mb-4 text-2xl font-bold">Apps</h1>
+  <AppGrid entries={apps} />
+</Base>
