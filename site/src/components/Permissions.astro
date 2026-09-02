@@ -4,28 +4,44 @@ import { entitlementInfo, privacyInfo } from '../lib/permissions.mjs';
 const { app } = Astro.props;
 const ents = (app.appPermissions?.entitlements ?? []).map(entitlementInfo);
 const priv = Object.entries(app.appPermissions?.privacy ?? {}).map(([k, v]) => privacyInfo(k, v));
-const Item = null;
+const cards = [
+  priv.length
+    ? { icon: 'UserLock01Icon', title: 'Privacy', text: `"${app.name}" may request to access the following:`, items: priv }
+    : { icon: 'UserRemove01Icon', title: 'Unknown', text: app.appPermissions ? 'This app declares no privacy usage.' : 'The developer has not specified any permissions for this app.', items: [] },
+  ents.length ? { icon: 'Key01Icon', title: 'Entitlements', text: 'Entitlements are additional permissions that grant access to certain system services, including potentially sensitive information.', items: ents } : null,
+].filter(Boolean);
 ---
-<section class="mt-8" aria-labelledby="perm-h">
-  <h2 id="perm-h" class="mb-3 text-lg font-semibold">App permissions</h2>
-  {ents.length === 0 && priv.length === 0 ? (
-    <p class="text-sm text-zinc-500 dark:text-zinc-400">{app.appPermissions ? 'This app declares no additional entitlements or privacy usage.' : 'The source does not list permissions for this app.'}</p>
-  ) : (
-    <div class="grid gap-4 md:grid-cols-2">
-      {[['Privacy', 'lock', priv], ['Entitlements', 'shield', ents]].filter(([, , list]) => list.length).map(([title, icon, list]) => (
-        <div class="rounded-2xl border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900">
-          <h3 class="mb-2 flex items-center gap-2 text-sm font-semibold text-zinc-500 dark:text-zinc-400"><Icon name={icon} class="size-4" />{title}</h3>
-          <ul class="divide-y divide-zinc-100 dark:divide-zinc-800">
-            {list.map((p) => (
-              <li class="py-2">
-                <p class="font-medium">{p.name}</p>
-                <p class="text-sm text-zinc-600 dark:text-zinc-400">{p.description}</p>
-                <p class="mt-0.5 font-mono text-[11px] text-zinc-400">{p.key}</p>
-              </li>
-            ))}
-          </ul>
+<div class="mt-4 flex flex-col gap-7">
+  {cards.map((c) => (
+    <div class="rounded-[1.5em] bg-card p-5 shadow-[0_4px_10px_rgba(0,0,0,.15)]">
+      <div class="flex flex-col items-center gap-1 text-center">
+        <Icon name={c.icon} class="size-8 text-primary" />
+        <p class="text-[1.25em] font-bold">{c.title}</p>
+        <p class="text-[0.9em] leading-relaxed opacity-50">{c.text}</p>
+      </div>
+      {c.items.length > 0 && (
+        <div class="mt-4 mb-2 grid grid-cols-2 gap-x-2 gap-y-2">
+          {c.items.map((p) => (
+            <button type="button" data-alert-title={p.name} data-alert-message={p.description} class="flex w-fit max-w-full items-center gap-2 text-left text-[0.85em] hover:underline">
+              <Icon name={p.icon} class="size-5 shrink-0" /><span class="min-w-0">{p.name}</span>
+            </button>
+          ))}
         </div>
-      ))}
+      )}
     </div>
-  )}
-</section>
+  ))}
+</div>
+<dialog data-alert aria-labelledby="perm-alert-title" class="m-auto w-[17rem] rounded-[1em] bg-glass p-0 text-center backdrop-blur-xl backdrop:bg-black/40">
+  <div class="px-4 pt-5 pb-4"><p id="perm-alert-title" class="font-semibold" data-alert-heading></p><p class="mt-1 text-[0.85em] opacity-70" data-alert-body></p></div>
+  <button type="button" data-close class="block w-full border-t border-border py-3 text-primary hover:bg-black/5 dark:hover:bg-white/5">OK</button>
+</dialog>
+<script>
+  const alert = document.querySelector('[data-alert]');
+  if (alert) {
+    alert.querySelector('[data-close]').addEventListener('click', () => alert.close());
+    alert.addEventListener('click', (e) => { if (e.target === alert) alert.close(); });
+    for (const b of document.querySelectorAll('[data-alert-title]')) {
+      b.addEventListener('click', () => { alert.querySelector('[data-alert-heading]').textContent = b.dataset.alertTitle; alert.querySelector('[data-alert-body]').textContent = b.dataset.alertMessage; alert.showModal(); });
+    }
+  }
+</script>

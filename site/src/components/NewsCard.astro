@@ -1,27 +1,21 @@
 ---
-import Icon from './Icon.astro';
+import AppRow from './AppRow.astro';
 import { formatDate } from '../lib/data.mjs';
-const { item, apps } = Astro.props;
-const base = import.meta.env.BASE_URL;
-const app = item.appID ? apps.find((a) => a.id === item.appID) : null;
-const tint = item.tintColor ? item.tintColor.replace(/^#?/, '#') : null;
+import { normalizeTint, onTint } from '../lib/tint.mjs';
+const { item, apps, minimal = false } = Astro.props;
+const app = item.appID && !minimal ? apps.find((a) => a.id === item.appID) : null;
+const tint = item.tintColor ? normalizeTint(item.tintColor) : null;
+const style = tint ? `background-color: ${tint}; color: ${onTint(tint)}` : 'background-color: var(--tint); color: #fff';
+const Wrapper = item.url ? 'a' : 'div';
 ---
-<article class="overflow-hidden rounded-2xl border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900">
-  {item.imageURL ? (
-    <img src={item.imageURL} alt="" loading="lazy" class="aspect-[3/2] w-full object-cover" />
-  ) : (
-    <div class="h-2" style={tint ? `background:${tint}` : 'background: var(--accent)'}></div>
-  )}
-  <div class="p-4">
-    <p class="text-xs text-zinc-500 dark:text-zinc-400">{formatDate(item.date)}{item.notify && <span class="ml-2 inline-flex items-center gap-1"><Icon name="bell" class="size-3" />notified</span>}</p>
-    <h3 class="mt-1 text-base font-semibold">{item.url ? <a href={item.url} rel="noopener" class="hover:text-accent">{item.title}</a> : item.title}</h3>
-    <p class="mt-1 text-sm text-zinc-600 dark:text-zinc-300">{item.caption}</p>
-    {app && (
-      <a href={`${base}apps/${encodeURIComponent(app.id)}/`} class="mt-3 flex items-center gap-3 rounded-xl bg-zinc-100 p-2.5 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700">
-        <img src={app.app.iconURL} alt="" width="40" height="40" class="size-10 rounded-lg" />
-        <span class="min-w-0 flex-1"><span class="block truncate text-sm font-semibold">{app.app.name}</span><span class="block truncate text-xs text-zinc-500 dark:text-zinc-400">{app.app.subtitle ?? app.app.developerName}</span></span>
-        <Icon name="chevron-right" class="size-4 text-zinc-400" />
-      </a>
-    )}
-  </div>
-</article>
+<div class="flex flex-col gap-3">
+  <Wrapper href={item.url} rel={item.url ? 'noopener' : undefined} class="block overflow-hidden rounded-[1.5em] transition hover:opacity-75" style={style}>
+    <div class="m-6 line-clamp-4">
+      <p class="mb-1 text-[0.8em] font-medium uppercase opacity-75">{formatDate(item.date)}</p>
+      <h3 class="mb-1 text-[1.1em] leading-snug font-bold">{item.title}</h3>
+      <p class="text-[0.9em]">{item.caption}</p>
+    </div>
+    {item.imageURL && !minimal && <div class="max-h-[15em] overflow-hidden"><img src={item.imageURL} alt="" loading="lazy" class="block w-full" /></div>}
+  </Wrapper>
+  {app && <AppRow entry={app} />}
+</div>

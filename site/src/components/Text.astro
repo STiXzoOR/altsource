@@ -1,24 +1,22 @@
 ---
 import { linkify } from '../lib/data.mjs';
-const { text, clamp = false, class: cls = '' } = Astro.props;
+const { text, clamp = 0, class: cls = '' } = Astro.props;
 const html = linkify(text);
+const lines = clamp === 3 ? 'line-clamp-3' : clamp === 5 ? 'line-clamp-5' : '';
 ---
 {clamp ? (
-  <div class={`group ${cls}`} data-clamp>
-    <p class="line-clamp-5 whitespace-pre-line text-zinc-700 dark:text-zinc-300 group-data-[open]:line-clamp-none" set:html={html}></p>
-    <button type="button" class="mt-1 hidden text-sm font-semibold text-accent group-data-[overflow]:inline" data-toggle>more</button>
+  <div class={`group relative ${cls}`} data-clamp>
+    <p class={`${lines} whitespace-pre-line break-words group-data-[open]:line-clamp-none`} set:html={html}></p>
+    <button type="button" data-toggle class="absolute right-0 bottom-0 hidden bg-gradient-to-r from-transparent from-0% via-ios-bg via-35% to-ios-bg pl-9 text-[15px] font-medium leading-[1.5em] text-primary group-data-[overflow]:inline">more</button>
   </div>
 ) : (
-  <p class={`whitespace-pre-line text-zinc-700 dark:text-zinc-300 ${cls}`} set:html={html}></p>
+  <p class={`whitespace-pre-line break-words ${cls}`} set:html={html}></p>
 )}
 <script>
   for (const box of document.querySelectorAll('[data-clamp]')) {
     const p = box.querySelector('p');
     const btn = box.querySelector('[data-toggle]');
     if (p.scrollHeight > p.clientHeight + 2) box.setAttribute('data-overflow', '');
-    btn?.addEventListener('click', () => {
-      const open = box.toggleAttribute('data-open');
-      btn.textContent = open ? 'less' : 'more';
-    });
+    btn?.addEventListener('click', () => { box.setAttribute('data-open', ''); btn.remove(); });
   }
 </script>

@@ -1,0 +1,24 @@
+---
+import Icon from './Icon.astro';
+const { label, url } = Astro.props;
+---
+<button type="button" data-copy={url} class="flex w-full items-center gap-2 rounded-[10px] bg-black/[.08] px-3 py-2 text-left text-primary hover:opacity-75 dark:bg-white/[.12]" aria-label={`Copy ${label} source URL`}>
+  <span class="shrink-0 text-[0.75em] font-semibold uppercase opacity-60">{label}</span>
+  <span class="min-w-0 flex-1 truncate text-[0.95em]">{url}</span>
+  <span class="shrink-0" data-copy-icon><Icon name="Copy01Icon" class="size-4" /></span>
+  <span class="hidden shrink-0" data-copied-icon><Icon name="Tick02Icon" class="size-4" strokeWidth={2.5} /></span>
+  <span class="sr-only" aria-live="polite" data-copy-status></span>
+</button>
+<script>
+  for (const b of document.querySelectorAll('[data-copy]')) {
+    b.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(b.dataset.copy);
+        b.querySelector('[data-copy-icon]').classList.add('hidden');
+        b.querySelector('[data-copied-icon]').classList.remove('hidden');
+        b.querySelector('[data-copy-status]').textContent = 'Copied';
+        setTimeout(() => { b.querySelector('[data-copy-icon]').classList.remove('hidden'); b.querySelector('[data-copied-icon]').classList.add('hidden'); b.querySelector('[data-copy-status]').textContent = ''; }, 1500);
+      } catch {}
+    });
+  }
+</script>

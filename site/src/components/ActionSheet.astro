@@ -1,0 +1,24 @@
+---
+const { id, title, message, actions = [] } = Astro.props;
+---
+<dialog id={id} data-action-sheet aria-labelledby={`${id}-title`} class="m-0 mt-auto w-full max-w-lg bg-transparent p-2 backdrop:bg-black/40 sm:m-auto" style="margin-inline: auto">
+  <div class="overflow-hidden rounded-[1em] bg-glass backdrop-blur-xl">
+    <div class="px-4 py-3 text-center">
+      <p id={`${id}-title`} class="text-[0.85em] font-semibold text-muted-foreground">{title}</p>
+      {message && <p class="mt-0.5 text-[0.8em] text-muted-foreground">{message}</p>}
+    </div>
+    {actions.map((a) => (
+      <a href={a.href} download={a.download ? '' : undefined} class={`block border-t border-border py-3.5 text-center text-[1.1em] text-primary hover:bg-black/5 dark:hover:bg-white/5 ${a.primary ? 'font-semibold' : ''}`}>{a.label}</a>
+    ))}
+  </div>
+  <button type="button" data-close class="mt-2 block w-full rounded-[1em] bg-background py-3.5 text-center text-[1.1em] font-semibold text-primary hover:bg-card">Cancel</button>
+</dialog>
+<script>
+  for (const trigger of document.querySelectorAll('[data-sheet]')) {
+    trigger.addEventListener('click', (e) => { const d = document.getElementById(trigger.dataset.sheet); if (d) { e.preventDefault(); d.showModal(); } });
+  }
+  for (const d of document.querySelectorAll('[data-action-sheet]')) {
+    d.querySelector('[data-close]').addEventListener('click', () => d.close());
+    d.addEventListener('click', (e) => { if (e.target === d) d.close(); });
+  }
+</script>

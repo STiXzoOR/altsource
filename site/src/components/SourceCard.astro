@@ -1,0 +1,19 @@
+---
+import { getSite } from '../lib/data.mjs';
+import { onTint, normalizeTint } from '../lib/tint.mjs';
+const { href, subtitle, sheet } = Astro.props;
+const site = await getSite();
+const tint = normalizeTint(site.meta.tintColor);
+const fg = onTint(tint);
+const Tag = href ? 'a' : 'button';
+---
+<Tag href={href} type={href ? undefined : 'button'} data-sheet={sheet} class="flex w-full items-center gap-3 rounded-[1.5rem] p-4 text-left transition hover:opacity-75" style={`background-color: ${tint}; color: ${fg}`}>
+  <img src={site.meta.iconURL} alt="" width="42" height="42" class="size-[42px] shrink-0 rounded-full" />
+  <div class="flex min-w-0 flex-1 items-center justify-between gap-3">
+    <div class="min-w-0">
+      <p class="font-semibold">{site.meta.name}</p>
+      <p class="truncate text-[0.85em] opacity-60">{subtitle ?? site.meta.subtitle}</p>
+    </div>
+    <span class="flex h-8 min-w-14 shrink-0 items-center justify-center rounded-full px-3 text-[15px] font-bold uppercase" style={`background-color: ${fg === '#fff' ? 'rgba(255,255,255,.25)' : 'rgba(0,0,0,.15)'}`}>{site.apps.length} {site.apps.length === 1 ? 'app' : 'apps'}</span>
+  </div>
+</Tag>
