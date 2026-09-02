@@ -36,7 +36,7 @@ test('remaining pages: Apps search and rows with per-store empty states, News gr
   const apps = await page('apps/index.html');
   assert.match(apps, /<input type="search" placeholder="Search" data-search class="search-field"/, 'search field');
   assert.match(apps, /data-app-list[\s\S]*?class="approw"[^>]*data-stores="pal"/, 'rows in a store-aware list');
-  assert.match(apps, /data-empty="" data-empty-pal="Nothing for AltStore PAL yet\."/, 'per-store empty state on Apps');
+  assert.match(apps, /data-empty data-empty-pal="Nothing for AltStore PAL yet\."/, 'per-store empty state on Apps');
   assert.doesNotMatch(apps, /screenshot 1/, 'the Apps page no longer previews screenshots');
   const news = await page('news/index.html');
   assert.match(news, /<h1 class="[^"]*t-large-title-em[^"]*">News<\/h1>/, 'News large title');

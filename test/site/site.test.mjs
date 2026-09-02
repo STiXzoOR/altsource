@@ -91,7 +91,7 @@ test('nav bar: transparent fixed bar with a material layer, chevron-only back, l
   }
   const apps = await page('apps/index.html');
   assert.match(apps, /<a href="\/altsource\/" class="[^"]*" aria-label="Back"><svg/, 'back is a chevron with an accessible name and no text');
-  assert.match(apps, /<h1 class="[^"]*t-large-title-em[^"]*">Apps<\/h1>\s*<div data-nav-sentinel/, 'large title followed by the sentinel');
+  assert.match(apps, /<h1 class="[^"]*t-large-title-em[^"]*">Apps<\/h1>[\s\S]*?<div data-nav-sentinel/, 'large title followed by the sentinel');
   assert.match(apps, /data-nav-title aria-hidden="true"[\s\S]*?<p class="truncate">Apps<\/p>/, 'small title is hidden until collapsed');
   assert.doesNotMatch(await page('404.html'), /<div data-nav-sentinel/, 'no large title on the 404');
 });
@@ -99,7 +99,7 @@ test('nav bar: transparent fixed bar with a material layer, chevron-only back, l
 test('the "more" toggle on clamped text fades into the page background instead of painting over the words', async () => {
   const html = await page('index.html');
   assert.doesNotMatch(html, /ios-bg/, 'no undefined colour token');
-  assert.match(html, /data-toggle class="[^"]*to-background/, 'the fade ends in the real background token');
+  assert.match(html, /data-toggle class="[^"]*to-page/, 'the fade ends in the real page token');
 });
 
 test('app pages: GET follows the kinds, permissions are explained, screenshots, info and versions render', async () => {
@@ -267,4 +267,23 @@ test('app page: two heroes, ribbon facts, store-aware Get, description, What’s
   const pal = await page('apps/com.pal/index.html');
   assert.match(pal, /class="get get-blue[^"]*" data-store-only="all" href="https:\/\/altstore\.io\/source\/[^"]*\?app=com\.pal"/, 'single-store apps link directly under All');
   assert.match(pal, /<span class="get get-muted" data-store-only="sidestore">Not on SideStore<\/span>/, 'unavailable store is said plainly');
+});
+
+test('remaining pages: Apps search and rows with per-store empty states, News grid, 404, version history rows', async () => {
+  const apps = await page('apps/index.html');
+  assert.match(apps, /<input type="search" placeholder="Search" data-search class="search-field"/, 'search field');
+  assert.match(apps, /data-app-list[\s\S]*?class="approw"[^>]*data-stores="pal"/, 'rows in a store-aware list');
+  assert.match(apps, /data-empty data-empty-pal="Nothing for AltStore PAL yet\."/, 'per-store empty state on Apps');
+  assert.doesNotMatch(apps, /screenshot 1/, 'the Apps page no longer previews screenshots');
+  const news = await page('news/index.html');
+  assert.match(news, /<h1 class="[^"]*t-large-title-em[^"]*">News<\/h1>/, 'News large title');
+  assert.match(news, /class="newscard"[\s\S]*?First post/, 'news cards');
+  const nf = await page('404.html');
+  assert.match(nf, /<p class="t-header text-key">404<\/p>\s*<h1 class="[^"]*">That page does not exist\.<\/h1>/, '404 copy');
+  assert.match(nf, /<a href="\/altsource\/" class="get get-blue">Home<\/a>/, '404 home pill');
+  const versions = await page('apps/com.both/versions/index.html');
+  assert.equal((versions.match(/data-version-row/g) ?? []).length, 3, 'version rows');
+  for (const p of ['index.html', 'apps/index.html', 'apps/com.both/index.html', 'news/index.html', 'status/index.html', '404.html', 'apps/com.both/versions/index.html']) {
+    assert.doesNotMatch(await page(p), /\b(bg-card|text-muted-foreground|bg-glass|text-primary|border-border|bg-background|text-foreground)\b|var\(--radius\)|snap-strip/, `${p} uses no retired names`);
+  }
 });

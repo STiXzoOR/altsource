@@ -1,14 +1,14 @@
 ---
 import Base from '../layouts/Base.astro';
 import NavBar from '../components/NavBar.astro';
-import Pill from '../components/Pill.astro';
 const base = import.meta.env.BASE_URL;
 ---
 <Base title="Not found" noindex>
   <NavBar slot="nav" title="Not Found" back={base} />
   <div class="py-24 text-center">
-    <h1 class="text-6xl font-bold text-primary">404</h1>
-    <p class="mt-3 text-muted-foreground">That page does not exist.</p>
-    <div class="mt-6"><Pill href={base} label="Home" /></div>
+    <p class="t-header text-key">404</p>
+    <h1 class="mt-2 t-title-2-em">That page does not exist.</h1>
+    <p class="mt-1 t-body text-label-2">Check the address, or start again from the source.</p>
+    <p class="mt-6"><a href={base} class="get get-blue">Home</a></p>
   </div>
 </Base>

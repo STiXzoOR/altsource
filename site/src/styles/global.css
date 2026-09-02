@@ -45,15 +45,6 @@
   --color-key: var(--key);
   --color-tint: var(--tint);
   --color-red: var(--red);
-  /* M6 names, kept until every page has moved to the tokens above */
-  --color-background: var(--page);
-  --color-foreground: var(--label);
-  --color-card: var(--surface);
-  --color-muted-foreground: var(--label-2);
-  --color-border: var(--separator);
-  --color-glass: var(--material);
-  --color-primary: var(--key);
-  --color-primary-foreground: #ffffff;
 }
 
 /* ---------- colour ---------- */
@@ -80,7 +71,6 @@
   --tint-readable: #007aff;
   --tint-readable-dark: #0a84ff;
   --key: light-dark(var(--tint-readable), var(--tint-readable-dark));
-  --radius: 1.5rem; /* M6 card radius, still used by pages not yet migrated */
 }
 @media (min-width: 1000px) {
   :root {
@@ -228,7 +218,6 @@ html:not([data-store="sidestore"]) [data-store-only="sidestore"] { display: none
 .pill:active { opacity: 0.7; }
 .app-icon { border: 0.75px solid rgba(0, 0, 0, 0.12); }
 .dark .app-icon { border-color: rgba(255, 255, 255, 0.12); }
-.snap-strip { scrollbar-width: thin; }
 
 }
 
@@ -404,4 +393,14 @@ html:not([data-store="sidestore"]) [data-store-only="sidestore"] { display: none
 
   /* Back chevron over a tinted header: white in a translucent circle until the bar collapses */
   .navbar[data-tinted]:not([data-collapsed]) .navbar-back { color: #fff; background: rgba(0, 0, 0, 0.25); }
+}
+
+/* ==================== Search field (M8d): iOS on phones, App Store sidebar field from 1000px ==================== */
+@layer components {
+  .search-field { width: 100%; height: 38px; padding: 0 12px 0 36px; border-radius: 9px; border: 0; background: var(--fill); color: var(--label); font-size: max(16px, 1rem); outline: none; transition: box-shadow 0.14s ease-out; }
+  .search-field::placeholder { color: var(--label-3); }
+  .search-field:focus-visible { box-shadow: 0 0 0 4px color-mix(in srgb, var(--key) 60%, transparent); }
+  @media (min-width: 1000px) {
+    .search-field { height: 32px; padding-left: 30px; border-radius: 4px; border: 1px solid var(--label-divider); background: var(--page); font-size: calc(12 * var(--u)); }
+  }
 }

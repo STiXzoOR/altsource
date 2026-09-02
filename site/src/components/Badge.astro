@@ -1,6 +1,0 @@
----
-const { kind, class: cls = '' } = Astro.props;
-const label = kind === 'adp' ? 'PAL' : kind === 'ipa' ? 'Sideload' : kind;
-const tone = kind === 'adp' ? 'bg-tint text-white' : 'bg-black/15 text-black/70 dark:bg-white/20 dark:text-white/80';
----
-<span class={`inline-block rounded-full px-[6.5px] py-px align-middle text-[10px] leading-[1.33] font-bold uppercase ${tone} ${cls}`}>{label}</span>

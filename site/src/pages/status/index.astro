@@ -3,23 +3,23 @@ import Base from '../../layouts/Base.astro';
 import NavBar from '../../components/NavBar.astro';
 import SectionHeader from '../../components/SectionHeader.astro';
 const base = import.meta.env.BASE_URL;
-const table = 'w-full text-[0.9em] [&_th]:p-3 [&_th]:text-left [&_th]:text-[0.75em] [&_th]:uppercase [&_th]:text-muted-foreground [&_td]:p-3 [&_td]:align-top [&_tbody_tr]:border-t [&_tbody_tr]:border-border';
+const table = 'w-full t-body [&_th]:p-3 [&_th]:text-left [&_th]:t-subhead-em [&_th]:uppercase [&_th]:text-label-2 [&_td]:p-3 [&_td]:align-top [&_tbody_tr]:border-t [&_tbody_tr]:border-separator';
 ---
 <Base title="Status" description="Build status, upstream freshness and link health." noindex width="wide">
   <NavBar slot="nav" title="Status" back={base} />
   <h1 class="t-large-title-em pt-2 lg:pt-[11px]">Status</h1>
   <div data-nav-sentinel></div>
-  <p id="meta" class="mt-2 px-1 text-[0.85em] text-muted-foreground" aria-live="polite">Loading…</p>
+  <p id="meta" class="mt-2 px-1 t-subhead text-label-2" aria-live="polite">Loading…</p>
   <div id="tiles" class="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-7"></div>
   <section class="mt-8" aria-labelledby="sources-h"><SectionHeader id="sources-h" title="Sources" /><div id="sources" class="mt-3 grid gap-3 sm:grid-cols-2"></div></section>
   <section class="mt-8" aria-labelledby="apps-h"><SectionHeader id="apps-h" title="Apps" />
-    <div class="mt-3 overflow-x-auto rounded-[var(--radius)] bg-card"><table id="apps" class={table}><thead><tr><th>App</th><th>Kinds</th><th>Local</th><th>Upstream</th><th>State</th><th>Checked</th></tr></thead><tbody></tbody></table></div>
-    <p id="no-apps" class="mt-2 px-1 text-[0.9em] text-muted-foreground" hidden>No apps yet.</p></section>
+    <div class="mt-3 overflow-x-auto rounded-box bg-surface"><table id="apps" class={table}><thead><tr><th>App</th><th>Kinds</th><th>Local</th><th>Upstream</th><th>State</th><th>Checked</th></tr></thead><tbody></tbody></table></div>
+    <p id="no-apps" class="mt-2 px-1 t-body text-label-2" hidden>No apps yet.</p></section>
   <section class="mt-8" aria-labelledby="recent-h"><SectionHeader id="recent-h" title="Recent activity" />
-    <div class="mt-3 overflow-x-auto rounded-[var(--radius)] bg-card"><table id="recent" class={table}><thead><tr><th>When</th><th>App</th><th>Action</th><th>Version</th><th>Message</th></tr></thead><tbody></tbody></table></div>
-    <p id="no-recent" class="mt-2 px-1 text-[0.9em] text-muted-foreground" hidden>No sync activity recorded.</p></section>
-  <section class="mt-8" aria-labelledby="links-h"><SectionHeader id="links-h" title="Links" /><p id="links" class="mt-2 px-1 text-[0.9em] text-muted-foreground"></p>
-    <div class="mt-2 overflow-x-auto rounded-[var(--radius)] bg-card" id="broken-wrap" hidden><table id="broken" class={table}><thead><tr><th>URL</th><th>Status</th><th>Where</th></tr></thead><tbody></tbody></table></div></section>
+    <div class="mt-3 overflow-x-auto rounded-box bg-surface"><table id="recent" class={table}><thead><tr><th>When</th><th>App</th><th>Action</th><th>Version</th><th>Message</th></tr></thead><tbody></tbody></table></div>
+    <p id="no-recent" class="mt-2 px-1 t-body text-label-2" hidden>No sync activity recorded.</p></section>
+  <section class="mt-8" aria-labelledby="links-h"><SectionHeader id="links-h" title="Links" /><p id="links" class="mt-2 px-1 t-body text-label-2"></p>
+    <div class="mt-2 overflow-x-auto rounded-box bg-surface" id="broken-wrap" hidden><table id="broken" class={table}><thead><tr><th>URL</th><th>Status</th><th>Where</th></tr></thead><tbody></tbody></table></div></section>
 </Base>
 <script>
   const $ = (id) => document.getElementById(id);
@@ -47,19 +47,19 @@ const table = 'w-full text-[0.9em] [&_th]:p-3 [&_th]:text-left [&_th]:text-[0.75
     const behind = status.apps.filter((a) => a.upstream?.state === 'behind').length;
     const unknown = status.apps.filter((a) => a.upstream?.state === 'unknown').length;
     $('tiles').innerHTML = [['Apps', c.apps], ['PAL', c.pal], ['Classic', c.classic], ['News', c.news], ['Behind', behind], ['Unknown', unknown], ['Broken links', status.linkCheck ? status.linkCheck.broken.length : '-']]
-      .map(([t, v]) => `<div class="rounded-[var(--radius)] bg-card p-3"><div class="text-[0.75em] text-muted-foreground">${t}</div><div class="text-2xl font-bold">${v}</div></div>`).join('');
+      .map(([t, v]) => `<div class="rounded-box bg-surface p-3"><div class="t-subhead-em uppercase text-label-2">${t}</div><div class="t-title-1-em">${v}</div></div>`).join('');
     for (const [key, title] of [['pal', 'AltStore PAL'], ['classic', 'AltStore Classic / SideStore']]) {
       const url = status.sourceURLs[key];
       const div = document.createElement('div');
-      div.className = 'flex items-center gap-4 rounded-[var(--radius)] bg-card p-4';
-      div.innerHTML = `<div class="size-28 shrink-0 rounded-lg bg-white p-1 [&>svg]:h-full [&>svg]:w-full">${status.qr[key]}</div><div class="min-w-0"><div class="font-semibold">${title}</div><div class="truncate font-mono text-xs text-muted-foreground"></div><a class="mt-1 inline-block text-sm font-semibold text-primary" href="${universal(url)}">Add link</a></div>`;
+      div.className = 'flex items-center gap-4 rounded-box bg-surface p-4';
+      div.innerHTML = `<div class="size-28 shrink-0 rounded-lg bg-white p-1 [&>svg]:h-full [&>svg]:w-full">${status.qr[key]}</div><div class="min-w-0"><div class="font-semibold">${title}</div><div class="truncate font-mono text-xs text-label-2"></div><a class="mt-1 inline-block text-sm font-semibold text-key" href="${universal(url)}">Add link</a></div>`;
       div.querySelector('.font-mono').textContent = url;
       $('sources').appendChild(div);
     }
     for (const a of status.apps) {
       const up = a.upstream;
-      const name = document.createElement('div'); name.innerHTML = '<b></b><div class="font-mono text-xs text-muted-foreground"></div>'; name.querySelector('b').textContent = a.name; name.querySelector('div').textContent = a.bundleIdentifier;
-      $('apps').tBodies[0].appendChild(row([name, a.kinds.join(', '), label(a.latest) + (a.latest?.date ? ` · ${a.latest.date.slice(0, 10)}` : ''), up ? { html: `<a class="text-primary" href="${up.ref}">${up.type}</a> ${label(up.latest)}${up.latest?.tag ? ` <span class="text-muted-foreground">${up.latest.tag}</span>` : ''}${up.error ? `<div class="text-xs text-muted-foreground">${up.error}</div>` : ''}` } : 'none', { html: up ? badge(up.state) : badge('manual') }, up ? fmt(up.checkedAt) : '-']));
+      const name = document.createElement('div'); name.innerHTML = '<b></b><div class="font-mono text-xs text-label-2"></div>'; name.querySelector('b').textContent = a.name; name.querySelector('div').textContent = a.bundleIdentifier;
+      $('apps').tBodies[0].appendChild(row([name, a.kinds.join(', '), label(a.latest) + (a.latest?.date ? ` · ${a.latest.date.slice(0, 10)}` : ''), up ? { html: `<a class="text-key" href="${up.ref}">${up.type}</a> ${label(up.latest)}${up.latest?.tag ? ` <span class="text-label-2">${up.latest.tag}</span>` : ''}${up.error ? `<div class="text-xs text-label-2">${up.error}</div>` : ''}` } : 'none', { html: up ? badge(up.state) : badge('manual') }, up ? fmt(up.checkedAt) : '-']));
     }
     $('no-apps').hidden = status.apps.length > 0;
     for (const e of status.recent ?? []) $('recent').tBodies[0].appendChild(row([fmt(e.at), e.id, e.action, e.version ?? '-', e.message ?? '']));

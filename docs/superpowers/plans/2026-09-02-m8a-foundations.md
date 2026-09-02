@@ -61,7 +61,7 @@ test('nav bar: transparent fixed bar with a material layer, chevron-only back, l
   }
   const apps = await page('apps/index.html');
   assert.match(apps, /<a href="\/altsource\/" class="[^"]*" aria-label="Back"><svg/, 'back is a chevron with an accessible name and no text');
-  assert.match(apps, /<h1 class="[^"]*t-large-title-em[^"]*">Apps<\/h1>\s*<div data-nav-sentinel/, 'large title followed by the sentinel');
+  assert.match(apps, /<h1 class="[^"]*t-large-title-em[^"]*">Apps<\/h1>[\s\S]*?<div data-nav-sentinel/, 'large title followed by the sentinel');
   assert.match(apps, /data-nav-title aria-hidden="true"[\s\S]*?<p class="truncate">Apps<\/p>/, 'small title is hidden until collapsed');
   assert.doesNotMatch(await page('404.html'), /<div data-nav-sentinel/, 'no large title on the 404');
 });
