@@ -409,3 +409,15 @@ test('scrollable strips fade with the scroll position through shadcn’s scroll-
   assert.match(html, /<ul class="ribbon scroll-fade-x /, 'ribbon fades');
   assert.match(html, /<div class="shelf-list scroll-fade-x" data-shelf-list>/, 'shelves fade');
 });
+
+test('ribbon sub-lines never repeat the column label', async () => {
+  for (const p of ['index.html', 'apps/com.both/index.html', 'apps/com.pal/index.html']) {
+    const html = await page(p);
+    const items = [...html.matchAll(/<span class="ribbon-label">([^<]*)<\/span>\s*<span class="ribbon-value">[^<]*<\/span>(?:\s*<span class="ribbon-sub">([^<]*)<\/span>)?/g)];
+    assert.ok(items.length >= 4, `${p}: ribbon items found`);
+    for (const [, label, sub] of items) assert.notEqual((sub ?? '').trim().toLowerCase(), label.trim().toLowerCase(), `${p}: "${label}" repeats itself as its sub-line`);
+  }
+  const both = await page('apps/com.both/index.html');
+  assert.match(both, /<span class="ribbon-label">Developer<\/span>\s*<span class="ribbon-value">Dev<\/span>\s*<\/(?:a|div)>/, 'Developer has no sub-line');
+  assert.match(both, /<span class="ribbon-label">Category<\/span>\s*<span class="ribbon-value">Utilities<\/span>\s*<\/(?:a|div)>/, 'Category has no sub-line');
+});

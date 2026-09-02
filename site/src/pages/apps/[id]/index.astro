@@ -43,8 +43,8 @@ const facts = [
   { label: 'Size', value: sizeValue, sub: sizeUnit },
   { label: 'Version', value: latest.marketingVersion ?? latest.version, sub: formatDate(latest.date) },
   ...(latest.minOSVersion ? [{ label: 'Requires', value: `iOS ${latest.minOSVersion}`, sub: 'or later' }] : []),
-  { label: 'Developer', value: app.developerName, sub: 'developer' },
-  { label: 'Category', value: categoryLabel(app.category), sub: 'category' },
+  { label: 'Developer', value: app.developerName },
+  { label: 'Category', value: categoryLabel(app.category) },
   { label: 'Store', value: 'AltStore', sub: kinds.length === 2 ? 'PAL · Classic' : kinds[0] === 'adp' ? 'PAL' : 'Classic · SideStore' },
 ];
 const availableOn = kinds.map((k) => (k === 'adp' ? 'AltStore PAL' : 'AltStore Classic, SideStore')).join(', ');
