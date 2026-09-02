@@ -48,8 +48,4 @@ const groups = [['iphone', 'iPhone', shots.iphone], ['ipad', 'iPad', shots.ipad]
   for (const btn of document.querySelectorAll('[data-shot]')) {
     btn.addEventListener('click', () => { const d = btn.closest('[data-shots]').querySelector('[data-lightbox]'); d.querySelector('img').src = btn.dataset.shot; d.showModal(); });
   }
-  for (const d of document.querySelectorAll('[data-lightbox]')) {
-    d.querySelector('[data-close]').addEventListener('click', () => d.close());
-    d.addEventListener('click', (e) => { if (e.target === d) d.close(); });
-  }
 </script>

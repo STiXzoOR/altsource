@@ -1,0 +1,13 @@
+---
+import Icon from './Icon.astro';
+/** Modal sheet: slides up on phones, centred card from 640px. Open with a `[data-sheet="<id>"]` trigger; `wide` gives the 691px version-history width. */
+const { id, title, wide = false, class: cls = '' } = Astro.props;
+---
+<dialog id={id} class={`sheet ${wide ? 'sheet-wide' : ''} ${cls}`} aria-labelledby={`${id}-title`}>
+  <div class="sheet-grabber" aria-hidden="true"></div>
+  <div class="sheet-head">
+    <h2 id={`${id}-title`} tabindex="-1" autofocus class="t-large-title-em">{title}</h2>
+    <button type="button" data-close class="sheet-close" aria-label="Close"><Icon name="Cancel01Icon" class="size-4" strokeWidth={2.5} /></button>
+  </div>
+  <div class="sheet-body"><slot /></div>
+</dialog>

@@ -228,3 +228,11 @@ test('app page CSS: sheets slide on the iOS curve, the hero blurs its artwork, c
   assert.match(css, /\.permcard\{[^}]*padding:30px/, 'privacy card padding');
   assert.match(css, /@view-transition\{navigation:auto\}/, 'cross-document view transitions');
 });
+
+test('sheets: the add-source action sheet is a bottom sheet with grouped actions and a Cancel row, wired by one script in the layout', async () => {
+  const html = await page('index.html');
+  assert.match(html, /<dialog id="add-source" class="sheet sheet-actions"[^>]*aria-labelledby="add-source-title"/, 'action sheet uses the sheet contract');
+  assert.match(html, /<div class="sheet-group">\s*<div class="sheet-title">[\s\S]*?<a href="https:\/\/altstore\.io\/source\/[^"]*" class="sheet-action[^"]*">Add to AltStore PAL<\/a>/, 'grouped actions');
+  assert.match(html, /<button type="button" data-close class="sheet-cancel">Cancel<\/button>/, 'cancel row');
+  assert.equal((html.match(/dataset\.sheet\b/g) ?? []).length, 1, 'one trigger script');
+});

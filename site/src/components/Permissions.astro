@@ -38,8 +38,6 @@ const cards = [
 <script>
   const alert = document.querySelector('[data-alert]');
   if (alert) {
-    alert.querySelector('[data-close]').addEventListener('click', () => alert.close());
-    alert.addEventListener('click', (e) => { if (e.target === alert) alert.close(); });
     for (const b of document.querySelectorAll('[data-alert-title]')) {
       b.addEventListener('click', () => { alert.querySelector('[data-alert-heading]').textContent = b.dataset.alertTitle; alert.querySelector('[data-alert-body]').textContent = b.dataset.alertMessage; alert.showModal(); });
     }
