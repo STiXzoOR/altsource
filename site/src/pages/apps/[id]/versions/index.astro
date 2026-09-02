@@ -16,8 +16,10 @@ const base = import.meta.env.BASE_URL;
 const link = (v) => (inferKind(v) === 'ipa' ? { href: v.downloadURL, label: 'Download IPA', download: true } : { href: universalLink(site.urls.pal, app.bundleIdentifier), label: 'Get in AltStore PAL' });
 ---
 <Base title={`${app.name} versions`} description={`Version history of ${app.name}.`} image={app.iconURL} tint={app.tintColor}>
-  <NavBar slot="nav" title="Version History" back={{ href: `${base}apps/${encodeURIComponent(app.bundleIdentifier)}/`, label: 'Back' }} />
-  <h1 class="sr-only">{app.name} version history</h1>
+  <NavBar slot="nav" title="Version History" back={`${base}apps/${encodeURIComponent(app.bundleIdentifier)}/`} />
+  <h1 class="t-large-title-em pt-2 lg:pt-[11px]">Version History</h1>
+  <p class="t-subhead text-label-2">{app.name}</p>
+  <div data-nav-sentinel></div>
   <ol class="mt-2 divide-y divide-border px-1">
     {app.versions.map((v) => { const l = link(v); return (
       <li class="py-5 first:pt-2">

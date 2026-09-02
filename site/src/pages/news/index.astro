@@ -7,8 +7,9 @@ const { news, apps } = await getSite();
 const base = import.meta.env.BASE_URL;
 ---
 <Base title="News" description="Announcements and updates." width="wide">
-  <NavBar slot="nav" title="All News" back={{ href: base, label: 'Home' }} />
-  <h1 class="sr-only">All News</h1>
+  <NavBar slot="nav" title="News" back={base} />
+  <h1 class="t-large-title-em pt-2 lg:pt-[11px]">News</h1>
+  <div data-nav-sentinel></div>
   {news.length === 0 ? (
     <p class="mt-4 rounded-[var(--radius)] bg-card p-6 text-center text-muted-foreground">Nothing yet.</p>
   ) : (

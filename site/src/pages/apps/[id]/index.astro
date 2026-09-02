@@ -34,7 +34,7 @@ const info = [
 ].filter(([, v]) => v);
 ---
 <Base title={app.name} description={app.subtitle ?? app.localizedDescription.slice(0, 150)} image={app.iconURL} tint={app.tintColor} width="wide">
-  <NavBar slot="nav" title={app.name} icon={app.iconURL} back={{ href: `${base}apps/`, label: 'Back' }} revealOnScroll>
+  <NavBar slot="nav" title={app.name} icon={app.iconURL} back={`${base}apps/`}>
     <Pill slot="trailing" label="Get" {...getProps} />
   </NavBar>
 

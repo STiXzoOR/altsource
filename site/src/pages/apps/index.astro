@@ -8,8 +8,9 @@ const { apps } = await getSite();
 const base = import.meta.env.BASE_URL;
 ---
 <Base title="Apps" description="Every app in this source." width="wide">
-  <NavBar slot="nav" title="All Apps" back={{ href: base, label: 'Home' }} />
-  <h1 class="sr-only">All Apps</h1>
+  <NavBar slot="nav" title="Apps" back={base} />
+  <h1 class="t-large-title-em pt-2 lg:pt-[11px]">Apps</h1>
+  <div data-nav-sentinel></div>
   {apps.length > 0 && (
     <label class="relative mt-2 block">
       <span class="sr-only">Search apps</span>

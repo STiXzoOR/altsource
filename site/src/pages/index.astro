@@ -22,11 +22,11 @@ const addActions = [
 ];
 ---
 <Base width="wide">
-  <NavBar slot="nav" icon={meta.iconURL} revealOnScroll overlay>
+  <NavBar slot="nav" icon={meta.iconURL}>
     <Wordmark slot="title" name={meta.name} class="truncate text-[1.05em]" />
     <Pill slot="trailing" label="Add" data-sheet="add-source" />
   </NavBar>
-  <section class="hero-midnight relative -mx-4 -mt-3 overflow-hidden px-5 pt-[calc(1.75rem+env(safe-area-inset-top,0px))] pb-7 sm:px-6 lg:mx-0 lg:mt-2 lg:rounded-[var(--radius)] lg:px-12 lg:py-14" aria-labelledby="source-title">
+  <section class="hero-midnight relative -mx-4 overflow-hidden px-5 pt-[calc(1.75rem+env(safe-area-inset-top,0px))] pb-7 sm:px-6 lg:mx-0 lg:mt-2 lg:rounded-[var(--radius)] lg:px-12 lg:py-14" aria-labelledby="source-title">
     <div class="flex items-center gap-5 sm:gap-8 lg:gap-12">
       <div class="min-w-0 flex-1">
         <h1 id="source-title" class="leading-none tracking-tight"><Wordmark name={meta.name} stacked class="text-[2.75rem] sm:text-[3.5rem] lg:text-[6rem]" /></h1>
