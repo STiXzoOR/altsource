@@ -2,15 +2,18 @@
 import Base from '../../../layouts/Base.astro';
 import NavBar from '../../../components/NavBar.astro';
 import Pill from '../../../components/Pill.astro';
-import Badge from '../../../components/Badge.astro';
+import Icon from '../../../components/Icon.astro';
 import SectionHeader from '../../../components/SectionHeader.astro';
 import AppRow from '../../../components/AppRow.astro';
 import Text from '../../../components/Text.astro';
 import Screenshots from '../../../components/Screenshots.astro';
 import Permissions from '../../../components/Permissions.astro';
-import SourceCard from '../../../components/SourceCard.astro';
+import Ribbon from '../../../components/Ribbon.astro';
+import Sheet from '../../../components/Sheet.astro';
 import ActionSheet from '../../../components/ActionSheet.astro';
-import { getSite, installLinks, formatBytes, formatDate, versionLabel } from '../../../lib/data.mjs';
+import { getSite, installLinks, formatBytes, formatDate, versionLabel, screenshotsOf, universalLink, inferKind } from '../../../lib/data.mjs';
+import { normalizeTint, onTint } from '../../../lib/tint.mjs';
+import { STORES } from '../../../lib/stores.mjs';
 
 export async function getStaticPaths() {
   const site = await getSite();
@@ -20,80 +23,160 @@ const { entry } = Astro.props;
 const site = await getSite();
 const { app, kinds, latest } = entry;
 const base = import.meta.env.BASE_URL;
+const slug = app.bundleIdentifier.replace(/[^a-zA-Z0-9-]/g, '-');
+const tint = normalizeTint(app.tintColor ?? site.meta.tintColor);
+const onTintColor = onTint(tint);
+const cardTint = onTintColor === '#fff' ? 'rgba(255,255,255,0.35)' : 'rgba(0,0,0,0.2)';
 const links = installLinks(entry, site.urls);
 const single = links.length === 1 ? links[0] : null;
-const getProps = single ? { href: single.href } : { 'data-sheet': 'get', 'aria-haspopup': 'dialog' };
+const shots = screenshotsOf(app);
+const art = shots.iphone[0]?.imageURL ?? shots.ipad[0]?.imageURL ?? app.iconURL;
+const ipa = app.versions.find((v) => inferKind(v) === 'ipa');
+const storeLinks = [
+  { store: 'pal', label: 'AltStore PAL', href: kinds.includes('adp') ? universalLink(site.urls.pal, app.bundleIdentifier) : null },
+  { store: 'classic', label: 'AltStore Classic', href: kinds.includes('ipa') ? universalLink(site.urls.classic, app.bundleIdentifier) : null },
+  { store: 'sidestore', label: 'SideStore', href: ipa ? `sidestore://install?url=${encodeURIComponent(ipa.downloadURL)}` : null },
+];
+const stores = kinds.map((k) => (k === 'adp' ? 'AltStore PAL' : 'AltStore Classic'));
+const [sizeValue, sizeUnit] = latest.size ? formatBytes(latest.size).split(' ') : ['—', ''];
+const facts = [
+  { label: 'Size', value: sizeValue, sub: sizeUnit },
+  { label: 'Version', value: latest.marketingVersion ?? latest.version, sub: formatDate(latest.date) },
+  ...(latest.minOSVersion ? [{ label: 'Requires', value: `iOS ${latest.minOSVersion}`, sub: 'or later' }] : []),
+  { label: 'Developer', value: app.developerName, sub: 'developer' },
+  { label: 'Category', value: (app.category ?? 'other').replace('-', ' & '), sub: 'category' },
+  { label: 'Store', value: kinds.length === 2 ? 'Both' : kinds[0] === 'adp' ? 'PAL' : 'Classic', sub: kinds.length === 2 ? 'PAL · Classic' : 'AltStore' },
+];
 const info = [
-  ['Version', versionLabel(latest)],
-  ['Size', formatBytes(latest.size)],
-  ['Requires', latest.minOSVersion ? `iOS ${latest.minOSVersion} or later` : null],
-  ['Category', app.category ?? 'other'],
-  ['Updated', formatDate(latest.date)],
-  ['Available on', kinds.map((k) => (k === 'adp' ? 'AltStore PAL' : 'AltStore Classic / SideStore')).join(', ')],
+  ['Developer', app.developerName],
+  ['Size', latest.size ? formatBytes(latest.size) : null],
+  ['Category', (app.category ?? 'other').replace('-', ' & ')],
+  ['Compatibility', latest.minOSVersion ? `Requires iOS ${latest.minOSVersion} or later.` : null],
   ['Bundle ID', app.bundleIdentifier],
+  ['Available on', stores.join(', ')],
+  ['Latest', `${versionLabel(latest)} · ${formatDate(latest.date)}`],
 ].filter(([, v]) => v);
+const moreBy = site.apps.filter((e) => e.id !== entry.id && e.app.developerName === app.developerName);
+const versionLink = (v) => (inferKind(v) === 'ipa' ? { href: v.downloadURL, label: 'Download .ipa', download: true } : { href: universalLink(site.urls.pal, app.bundleIdentifier), label: 'Get in AltStore PAL' });
+const getAll = single ? { href: single.href } : { 'data-sheet': 'get', 'aria-haspopup': 'dialog' };
 ---
-<Base title={app.name} description={app.subtitle ?? app.localizedDescription.slice(0, 150)} image={app.iconURL} tint={app.tintColor} width="wide">
-  <NavBar slot="nav" title={app.name} icon={app.iconURL} back={`${base}apps/`}>
-    <Pill slot="trailing" label="Get" {...getProps} />
+<Base title={app.name} description={app.subtitle ?? app.localizedDescription.slice(0, 150)} image={app.iconURL} tint={app.tintColor} width="wide" flush>
+  <NavBar slot="nav" title={app.name} icon={app.iconURL} back={`${base}apps/`} tinted>
+    <span slot="trailing" class="contents">
+      <Pill label="Get" data-store-only="all" {...getAll} />
+      {storeLinks.map((l) => l.href && <Pill label="Get" href={l.href} data-store-only={l.store} />)}
+    </span>
   </NavBar>
 
-  <div class="lg:hidden">
-    <AppRow entry={entry} link={false} heading><Pill slot="button" label="Get" class="shrink-0" {...getProps} /></AppRow>
-    {app.subtitle && <p class="mx-4 mt-3 text-center text-[0.9em]">{app.subtitle}</p>}
-  </div>
-
-  <header class="hidden lg:flex lg:items-start lg:gap-8 lg:pt-6">
-    <img src={app.iconURL} alt="" width="160" height="160" class="app-icon size-40 shrink-0 rounded-[36px] bg-card" />
-    <div class="min-w-0 flex-1">
-      <h1 class="text-4xl font-bold tracking-tight">{app.name} {kinds.map((k) => <Badge kind={k} class="ml-1 align-middle" />)}</h1>
-      {app.subtitle && <p class="mt-1 text-xl text-muted-foreground">{app.subtitle}</p>}
-      <p class="mt-1 text-primary">{app.developerName}</p>
-      <div class="mt-5 flex flex-wrap items-center gap-4">
-        <Pill label="Get" class="!h-9 !min-w-24 !text-base" {...getProps} />
-        {links.length > 1 && links.slice(1).map((l) => <a href={l.href} download={l.download ? '' : undefined} class="text-[0.95em] text-primary hover:underline">{l.label}</a>)}
+  <!-- Desktop: App Store product hero -->
+  <section class="apphero hidden -mx-10 lg:block" style={`--hero-art: url("${art}")`} aria-labelledby="app-title">
+    <div class="apphero-art" aria-hidden="true"></div>
+    <div class="apphero-shade" aria-hidden="true"></div>
+    <div class="relative flex min-h-[286px] max-w-[840px] items-center gap-8 px-10">
+      <img src={app.iconURL} alt="" width="194" height="194" class="apphero-icon size-[194px] shrink-0" style={`view-transition-name: icon-${slug}`} />
+      <div class="min-w-0 flex-1">
+        <h1 id="app-title" class="line-clamp-3 t-header tracking-[-0.02em]">{app.name}</h1>
+        {app.subtitle && <p class="mt-1 t-title-2-em text-[rgba(246,246,246,.6)]">{app.subtitle}</p>}
+        <p class="mt-1 t-body text-[rgba(246,246,246,.6)]">Free · {stores.join(' · ')}</p>
+        <div class="mt-[10px] flex flex-wrap items-center gap-[10px]">
+          {single ? <a class="get get-blue" data-store-only="all" href={single.href}>Get</a> : <button type="button" class="get get-blue" data-store-only="all" data-sheet="get" aria-haspopup="dialog">Get</button>}
+          {storeLinks.map((l) => l.href ? <a href={l.href} class="get get-blue" data-store-only={l.store}>Get</a> : <span class="get get-muted" data-store-only={l.store}>Not on {l.label}</span>)}
+          <button type="button" class="get get-glass gap-2" data-share data-share-url={`${site.base}apps/${encodeURIComponent(app.bundleIdentifier)}/`} data-share-title={app.name}><Icon name="Share01Icon" class="size-4" strokeWidth={2} />Share</button>
+          <span class="sr-only" aria-live="polite" data-share-status></span>
+        </div>
       </div>
     </div>
-  </header>
-  <div data-nav-sentinel></div>
-
-  <section class="mt-6" aria-labelledby="preview-h">
-    <SectionHeader id="preview-h" title="Preview" />
-    <Screenshots app={app} />
   </section>
 
-  <div class="lg:mt-4 lg:grid lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] lg:gap-10">
-    <div>
-      <section class="mt-4" aria-labelledby="about-h">
-        <h2 id="about-h" class="sr-only">About</h2>
-        <div class="px-1"><Text text={app.localizedDescription} clamp={5} /></div>
-      </section>
+  <!-- Phone: AltStore app header -->
+  <section class="apphero-phone -mx-4 px-4 pt-[calc(56px+env(safe-area-inset-top,0px))] pb-10 xs:-mx-[25px] xs:px-[25px] lg:hidden" style={`--tint: ${tint}; --on-tint: ${onTintColor}; --card-tint: ${cardTint}`} aria-label={`${app.name} header`}>
+    <div class="apphero-card">
+      <img src={app.iconURL} alt="" width="59" height="59" class="app-icon size-[59px] shrink-0 rounded-[13px] bg-black/10" />
+      <div class="min-w-0 flex-1">
+        <p class="truncate t-body font-bold">{app.name}</p>
+        <p class="truncate t-subhead opacity-80">{app.developerName}</p>
+      </div>
+      <span class="contents">
+        <Pill label="Get" data-store-only="all" class="shrink-0" {...getAll} />
+        {storeLinks.map((l) => l.href && <Pill label="Get" href={l.href} data-store-only={l.store} class="shrink-0" />)}
+      </span>
+    </div>
+  </section>
+  <div data-nav-sentinel></div>
 
-      <section class="mt-8" aria-labelledby="new-h">
-        <SectionHeader id="new-h" title="What's New" href={app.versions.length > 1 ? `${base}apps/${encodeURIComponent(app.bundleIdentifier)}/versions/` : undefined} linkLabel="Version History" />
-        <div class="mt-2 flex items-baseline justify-between px-1 text-muted-foreground"><p>Version {versionLabel(latest)}</p><p>{formatDate(latest.date)}</p></div>
-        <div class="mt-1 px-1"><Text text={latest.localizedDescription ?? 'No release notes for this version.'} clamp={3} /></div>
-      </section>
+  <div class="relative -mx-4 -mt-6 rounded-t-[30px] bg-page px-4 pt-6 xs:-mx-[25px] xs:px-[25px] lg:mx-0 lg:mt-0 lg:rounded-none lg:px-0 lg:pt-0">
+    {app.subtitle && <p class="text-center t-body lg:hidden">{app.subtitle}</p>}
 
-      <section class="mt-8" aria-labelledby="perm-h">
-        <SectionHeader id="perm-h" title="App Permissions" />
-        <Permissions app={app} />
-      </section>
+    <div class="mt-[13px] border-b border-separator pb-4 lg:mt-[13px]">
+      <Ribbon items={facts} />
     </div>
 
-    <aside class="lg:sticky lg:top-16 lg:self-start" aria-label="Information and source">
-      <section class="mt-8 lg:mt-4" aria-labelledby="info-h">
-        <SectionHeader id="info-h" title="Information" />
-        <dl class="mt-3 divide-y divide-border rounded-[var(--radius)] bg-card px-4 text-[0.95em]">
-          {info.map(([k, v]) => <div class="flex items-baseline justify-between gap-4 py-2.5"><dt class="text-muted-foreground">{k}</dt><dd class="truncate text-right font-medium">{v}</dd></div>)}
-        </dl>
+    <div class="mt-6"><Screenshots app={app} /></div>
+
+    <section class="mt-6" aria-labelledby="about-h">
+      <h2 id="about-h" class="sr-only">Description</h2>
+      <div class="t-body lg:w-2/3 lg:t-body-tall 2xl:w-1/2"><Text text={app.localizedDescription} clamp={5} /></div>
+    </section>
+
+    <section class="mt-8" aria-labelledby="new-h">
+      <div class="mb-[13px] flex items-baseline justify-between gap-4">
+        <h2 id="new-h" class="t-large-title-em lg:t-title-1-em">What’s New</h2>
+        <button type="button" class="group flex items-center t-body text-key lg:t-callout-em" data-sheet="versions" aria-haspopup="dialog">Version History<Icon name="ArrowRight01Icon" class="ml-0.5 hidden size-3 transition-transform group-hover:translate-x-px lg:inline" strokeWidth={2.5} /></button>
+      </div>
+      <div class="lg:flex lg:gap-8">
+        <div class="flex items-baseline justify-between t-body text-label-2 lg:order-2 lg:w-1/3 lg:flex-col lg:items-end lg:gap-1 lg:t-body-em"><p>Version {versionLabel(latest)}</p><p>{formatDate(latest.date)}</p></div>
+        <div class="mt-2 t-body lg:order-1 lg:mt-0 lg:w-2/3 lg:t-body-tall"><Text text={latest.localizedDescription ?? 'No release notes for this version.'} clamp={3} /></div>
+      </div>
+    </section>
+
+    <section class="mt-8" aria-labelledby="perm-h">
+      <SectionHeader id="perm-h" title="Permissions" />
+      <Permissions app={app} />
+    </section>
+
+    <section class="mt-8" aria-labelledby="info-h">
+      <SectionHeader id="info-h" title="Information" />
+      <dl class="info">
+        {info.map(([k, v]) => <div class="info-row"><dt>{k}</dt><dd>{v}</dd></div>)}
+      </dl>
+      <p class="mt-6 flex flex-col gap-3 t-body text-key lg:flex-row lg:justify-center lg:gap-5 lg:t-callout-em">
+        {kinds.includes('adp') && <a href={site.urls.pal} class="hover:underline">PAL source JSON<span aria-hidden="true">↗</span></a>}
+        {kinds.includes('ipa') && <a href={site.urls.classic} class="hover:underline">Classic source JSON<span aria-hidden="true">↗</span></a>}
+        {ipa && <a href={ipa.downloadURL} download class="hover:underline">Download .ipa<span aria-hidden="true">↗</span></a>}
+      </p>
+    </section>
+
+    {moreBy.length > 0 && (
+      <section class="mt-8" aria-labelledby="more-h">
+        <SectionHeader id="more-h" title={`More by ${app.developerName}`} />
+        <div class="grid gap-2.5 lg:grid-cols-2 xl:grid-cols-3 lg:gap-x-5 lg:gap-y-6" data-app-list>{moreBy.map((e) => <AppRow entry={e} />)}</div>
       </section>
-      <section class="mt-8" aria-labelledby="src-h">
-        <SectionHeader id="src-h" title="Discover More On" />
-        <div class="mt-3"><SourceCard href={base} /></div>
-      </section>
-    </aside>
+    )}
   </div>
 
-  {!single && <ActionSheet id="get" title={`Get "${app.name}"`} message="Choose how to install." actions={links} />}
+  <Sheet id="versions" title="Version History" wide>
+    <ol class="flex flex-col divide-y divide-separator">
+      {app.versions.map((v) => { const l = versionLink(v); return (
+        <li class="py-4 first:pt-0" data-version-row>
+          <div class="flex items-baseline justify-between gap-4"><p class="t-headline">{versionLabel(v)}</p><p class="t-subhead text-label-2">{formatDate(v.date)}</p></div>
+          <p class="mt-0.5 t-footnote text-label-2">{[inferKind(v) === 'adp' ? 'AltStore PAL' : 'IPA', v.size ? formatBytes(v.size) : null, v.minOSVersion ? `iOS ${v.minOSVersion}+` : null].filter(Boolean).join(' · ')}</p>
+          <div class="mt-2 t-subhead lg:t-title-3"><Text text={v.localizedDescription ?? 'No release notes.'} clamp={3} /></div>
+          <a href={l.href} download={l.download ? '' : undefined} class="mt-2 inline-block t-subhead-em text-key hover:underline">{l.label}</a>
+        </li>
+      ); })}
+    </ol>
+  </Sheet>
+  {!single && <ActionSheet id="get" title={`Get ${app.name}`} message="Choose how to install." actions={links} />}
 </Base>
+<script>
+  for (const b of document.querySelectorAll('[data-share]')) {
+    b.addEventListener('click', async () => {
+      const url = b.dataset.shareUrl, title = b.dataset.shareTitle;
+      const status = document.querySelector('[data-share-status]');
+      try {
+        if (navigator.share) await navigator.share({ title, url });
+        else { await navigator.clipboard.writeText(url); if (status) { status.textContent = 'Link copied'; setTimeout(() => { status.textContent = ''; }, 1500); } }
+      } catch {}
+    });
+  }
+</script>

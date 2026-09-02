@@ -1,29 +1,28 @@
 ---
 import Icon from './Icon.astro';
 import { entitlementInfo, privacyInfo } from '../lib/permissions.mjs';
+/** App Privacy-style cards: what the app may access, and its entitlements. Items open a small alert with the developer's explanation. */
 const { app } = Astro.props;
 const ents = (app.appPermissions?.entitlements ?? []).map(entitlementInfo);
 const priv = Object.entries(app.appPermissions?.privacy ?? {}).map(([k, v]) => privacyInfo(k, v));
 const cards = [
   priv.length
-    ? { icon: 'UserLock01Icon', title: 'Privacy', text: `"${app.name}" may request to access the following:`, items: priv }
-    : { icon: 'UserRemove01Icon', title: 'Unknown', text: app.appPermissions ? 'This app declares no privacy usage.' : 'The developer has not specified any permissions for this app.', items: [] },
-  ents.length ? { icon: 'Key01Icon', title: 'Entitlements', text: 'Entitlements are additional permissions that grant access to certain system services, including potentially sensitive information.', items: ents } : null,
+    ? { icon: 'UserLock01Icon', title: 'Privacy', text: `${app.name} may ask to use the following.`, items: priv }
+    : { icon: 'UserRemove01Icon', title: 'No Privacy Usage Declared', text: app.appPermissions ? 'This app declares no privacy usage.' : 'The developer has not specified any permissions for this app.', items: [] },
+  ents.length ? { icon: 'Key01Icon', title: 'Entitlements', text: 'Extra permissions that grant access to system services, some of them sensitive.', items: ents } : null,
 ].filter(Boolean);
 ---
-<div class="mt-4 flex flex-col gap-7">
+<div class="grid gap-4 lg:grid-cols-2 xl:grid-cols-3 lg:gap-x-5 lg:gap-y-6">
   {cards.map((c) => (
-    <div class="rounded-[1.5em] bg-card p-5 shadow-[0_4px_10px_rgba(0,0,0,.15)]">
-      <div class="flex flex-col items-center gap-1 text-center">
-        <Icon name={c.icon} class="size-8 text-primary" />
-        <p class="text-[1.25em] font-bold">{c.title}</p>
-        <p class="text-[0.9em] leading-relaxed opacity-50">{c.text}</p>
-      </div>
+    <div class="permcard">
+      <Icon name={c.icon} class="size-[30px] text-key" strokeWidth={1.75} />
+      <h3 class="mt-2 t-title-3-em">{c.title}</h3>
+      <p class="mt-1 t-body-tall text-label-2">{c.text}</p>
       {c.items.length > 0 && (
-        <div class="mt-4 mb-2 grid grid-cols-2 gap-x-2 gap-y-2">
+        <div class="permcard-items">
           {c.items.map((p) => (
-            <button type="button" data-alert-title={p.name} data-alert-message={p.description} class="flex w-fit max-w-full items-center gap-2 text-left text-[0.85em] hover:underline">
-              <Icon name={p.icon} class="size-5 shrink-0" /><span class="min-w-0">{p.name}</span>
+            <button type="button" data-alert-title={p.name} data-alert-message={p.description} class="flex min-h-11 w-full items-center gap-2 text-left t-callout hover:underline">
+              <Icon name={p.icon} class="size-5 shrink-0 text-label-2" /><span class="min-w-0">{p.name}</span>
             </button>
           ))}
         </div>
@@ -31,9 +30,9 @@ const cards = [
     </div>
   ))}
 </div>
-<dialog data-alert aria-labelledby="perm-alert-title" class="m-auto w-[17rem] rounded-[1em] bg-glass p-0 text-center backdrop-blur-xl backdrop:bg-black/40">
-  <div class="px-4 pt-5 pb-4"><p id="perm-alert-title" class="font-semibold" data-alert-heading></p><p class="mt-1 text-[0.85em] opacity-70" data-alert-body></p></div>
-  <button type="button" data-close class="block w-full border-t border-border py-3 text-primary hover:bg-black/5 dark:hover:bg-white/5">OK</button>
+<dialog data-alert aria-labelledby="perm-alert-title" class="sheet !w-[17rem] text-center sm:!p-0">
+  <div class="px-4 pt-5 pb-4"><p id="perm-alert-title" class="t-headline" data-alert-heading></p><p class="mt-1 t-footnote text-label-2" data-alert-body></p></div>
+  <button type="button" data-close class="block w-full border-t border-separator py-3 t-body text-key">OK</button>
 </dialog>
 <script>
   const alert = document.querySelector('[data-alert]');

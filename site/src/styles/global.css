@@ -299,6 +299,7 @@ html:not([data-store="sidestore"]) [data-store-only="sidestore"] { display: none
 .get-glass { color: #fff; background: rgba(255, 255, 255, 0.25); backdrop-filter: saturate(180%) blur(10px); }
 .get-glass:hover { background: rgba(255, 255, 255, 0.35); }
 .get-glass:active { background: rgba(255, 255, 255, 0.2); }
+.get-muted { color: var(--label-3); background: var(--fill-2); cursor: default; }
 
 /* AltStore-style tinted app row on phones; plain App Store lockup from 1000px */
 .approw { position: relative; display: flex; align-items: center; gap: 12px; min-height: 87px; padding: 14px 16px; border-radius: 20px; overflow: hidden; color: inherit; text-decoration: none; transition: opacity 0.12s ease-out; }

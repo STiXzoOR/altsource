@@ -57,7 +57,7 @@ test('tokens: light-dark colours, the two type scales, the store filter rule, an
 
 test('nav bar: transparent fixed bar with a material layer, chevron-only back, large titles with a sentinel; the 404 has no large title', async () => {
   for (const p of ['index.html', 'apps/index.html', 'apps/com.pal/index.html', '404.html']) {
-    assert.match(await page(p), /<header class="navbar[^"]*" data-navbar>\s*<div class="navbar-material" aria-hidden="true"><\/div>/, `${p} bar`);
+    assert.match(await page(p), /<header class="navbar[^"]*" data-navbar(?: data-tinted)?>\s*<div class="navbar-material" aria-hidden="true"><\/div>/, `${p} bar`);
   }
   const apps = await page('apps/index.html');
   assert.match(apps, /<a href="\/altsource\/" class="[^"]*" aria-label="Back"><svg/, 'back is a chevron with an accessible name and no text');

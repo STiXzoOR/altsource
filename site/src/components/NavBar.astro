@@ -3,15 +3,16 @@ import Icon from './Icon.astro';
 /**
  * Phone nav bar (hidden from 1000px, where the sidebar takes over). Fixed and transparent; the material
  * child and the title fade in once the page's large title or hero has scrolled under it (a page marks that
- * point with `<div data-nav-sentinel>`). Pages without a sentinel start collapsed. `back` is an href.
+ * point with `<div data-nav-sentinel>`). Pages without a sentinel start collapsed. `back` is an href; `tinted` keeps the
+ * back chevron white over a tinted header until the bar collapses.
  */
-const { title, icon, back } = Astro.props;
+const { title, icon, back, tinted = false } = Astro.props;
 ---
-<header class="navbar lg:hidden" data-navbar>
+<header class="navbar lg:hidden" data-navbar data-tinted={tinted ? '' : undefined}>
   <div class="navbar-material" aria-hidden="true"></div>
   <nav class="relative mx-auto flex h-11 items-center gap-2 px-1" aria-label="Page">
     <div class="flex min-w-11 items-center">
-      {back && <a href={back} class="grid size-11 place-items-center rounded-full text-key active:opacity-60" aria-label="Back"><Icon name="ArrowLeft01Icon" class="size-6" strokeWidth={2.25} /></a>}
+      {back && <a href={back} class="navbar-back grid size-11 place-items-center rounded-full text-key active:opacity-60" aria-label="Back"><Icon name="ArrowLeft01Icon" class="size-6" strokeWidth={2.25} /></a>}
     </div>
     <div class="navbar-title flex min-w-0 flex-1 items-center justify-center gap-1.5 t-headline" data-nav-title aria-hidden="true">
       {icon && <img src={icon} alt="" width="28" height="28" class="app-icon size-7 rounded-lg" />}

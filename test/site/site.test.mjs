@@ -87,7 +87,7 @@ test('tokens: light-dark colours, the two type scales, the store filter rule, an
 
 test('nav bar: transparent fixed bar with a material layer, chevron-only back, large titles with a sentinel; the 404 has no large title', async () => {
   for (const p of ['index.html', 'apps/index.html', 'apps/com.pal/index.html', '404.html']) {
-    assert.match(await page(p), /<header class="navbar[^"]*" data-navbar>\s*<div class="navbar-material" aria-hidden="true"><\/div>/, `${p} bar`);
+    assert.match(await page(p), /<header class="navbar[^"]*" data-navbar(?: data-tinted)?>\s*<div class="navbar-material" aria-hidden="true"><\/div>/, `${p} bar`);
   }
   const apps = await page('apps/index.html');
   assert.match(apps, /<a href="\/altsource\/" class="[^"]*" aria-label="Back"><svg/, 'back is a chevron with an accessible name and no text');
@@ -235,4 +235,36 @@ test('sheets: the add-source action sheet is a bottom sheet with grouped actions
   assert.match(html, /<div class="sheet-group">\s*<div class="sheet-title">[\s\S]*?<a href="https:\/\/altstore\.io\/source\/[^"]*" class="sheet-action[^"]*">Add to AltStore PAL<\/a>/, 'grouped actions');
   assert.match(html, /<button type="button" data-close class="sheet-cancel">Cancel<\/button>/, 'cancel row');
   assert.equal((html.match(/dataset\.sheet\b/g) ?? []).length, 1, 'one trigger script');
+});
+
+test('app page pieces: screenshots ride the shelf, permissions are App Privacy cards, the back chevron knows it sits on a tinted header', async () => {
+  const both = await page('apps/com.both/index.html');
+  assert.match(both, /id="shots-iphone"[^>]*>\s*<div class="shelf[^"]*" data-shelf>/, 'iPhone screenshots on a shelf');
+  assert.match(both, /role="tablist"/, 'device tabs when both exist');
+  assert.match(both, /<header class="navbar[^"]*" data-navbar data-tinted>/, 'tinted bar on the app page');
+  const pal = await page('apps/com.pal/index.html');
+  assert.match(pal, /<div class="permcard">[\s\S]*?<h3 class="[^"]*">Privacy<\/h3>[\s\S]*?Camera/, 'privacy card lists the camera');
+  assert.match(pal, /<div class="permcard">[\s\S]*?<h3 class="[^"]*">Entitlements<\/h3>[\s\S]*?App Groups/, 'entitlements card');
+});
+
+test('app page: two heroes, ribbon facts, store-aware Get, description, What’s New with the version sheet, information rows, links and More by', async () => {
+  const both = await page('apps/com.both/index.html');
+  assert.match(both, /<section class="apphero[^"]*" style="--hero-art: url\(&quot;https:\/\/stixzoor\.github\.io\/altsource\/assets\/s\.png&quot;\)/, 'desktop hero takes the first screenshot as artwork');
+  assert.match(both, /<img[^>]*class="apphero-icon[^"]*"[^>]*style="view-transition-name: icon-com-both"/, 'hero icon named for the morph');
+  assert.match(both, /<section class="apphero-phone[^"]*"[\s\S]*?<div class="apphero-card">/, 'phone hero card');
+  assert.match(both, /Free · AltStore PAL · AltStore Classic/, 'price line lists the stores');
+  assert.match(both, /<span class="ribbon-label">Version<\/span>\s*<span class="ribbon-value">2\.0<\/span>/, 'ribbon version');
+  assert.match(both, /<span class="ribbon-label">Requires<\/span>\s*<span class="ribbon-value">iOS 16\.0<\/span>/, 'ribbon requirement');
+  assert.match(both, /data-store-only="all"[^>]*data-sheet="get"/, 'Get opens the sheet under All');
+  assert.match(both, /<a href="https:\/\/altstore\.io\/source\/[^"]*\?app=com\.both" class="get get-blue[^"]*" data-store-only="pal">Get<\/a>/, 'direct PAL Get');
+  assert.match(both, /<a href="sidestore:\/\/install\?url=[^"]*" class="get get-blue[^"]*" data-store-only="sidestore">Get<\/a>/, 'direct SideStore Get');
+  assert.match(both, /data-sheet="versions"/, 'Version History opens the sheet');
+  assert.match(both, /<dialog id="versions" class="sheet sheet-wide"/, 'version history is the wide sheet');
+  assert.equal((both.match(/data-version-row/g) ?? []).length, 3, 'three versions listed');
+  assert.match(both, /<dl class="info">[\s\S]*?<dt>Bundle ID<\/dt>\s*<dd>com\.both<\/dd>/, 'information rows');
+  assert.match(both, /More by Dev/, 'More by the developer');
+  assert.match(both, /Download \.ipa<span aria-hidden="true">↗<\/span>/, 'download link with the arrow');
+  const pal = await page('apps/com.pal/index.html');
+  assert.match(pal, /class="get get-blue[^"]*" data-store-only="all" href="https:\/\/altstore\.io\/source\/[^"]*\?app=com\.pal"/, 'single-store apps link directly under All');
+  assert.match(pal, /<span class="get get-muted" data-store-only="sidestore">Not on SideStore<\/span>/, 'unavailable store is said plainly');
 });

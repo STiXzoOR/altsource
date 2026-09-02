@@ -1,26 +1,30 @@
 ---
 import Icon from './Icon.astro';
+import Shelf from './Shelf.astro';
 import { screenshotsOf } from '../lib/data.mjs';
+/** Screenshots: 184px snapping strip on phones, 3 / 4 / 5 columns from 1000px (iPad: 298px, 2 / 3 columns); device tabs when both exist; tap opens the lightbox. */
 const { app } = Astro.props;
 const shots = screenshotsOf(app);
-const groups = [['iphone', 'iPhone', shots.iphone], ['ipad', 'iPad', shots.ipad]].filter(([, , list]) => list.length > 0);
+const groups = [['iphone', 'iPhone', shots.iphone, '[--shelf-col:184px] [--shelf-gap:12px] [--shelf-n:3] xl:[--shelf-n:4] 2xl:[--shelf-n:5]'], ['ipad', 'iPad', shots.ipad, '[--shelf-col:298px] [--shelf-gap:12px] [--shelf-n:2] 2xl:[--shelf-n:3]']].filter(([, , list]) => list.length > 0);
 ---
 {groups.length > 0 && (
-  <section class="mt-4" data-shots>
+  <section data-shots aria-label="Screenshots">
     {groups.length > 1 && (
-      <div class="mb-3 flex justify-center">
-        <div class="flex rounded-lg bg-card p-0.5 text-[0.8em] font-semibold" role="tablist">
-          {groups.map(([key, label], i) => <button type="button" role="tab" aria-selected={i === 0 ? 'true' : 'false'} aria-controls={`shots-${key}`} tabindex={i === 0 ? 0 : -1} data-tab={key} class="rounded-md px-3 py-1 aria-selected:bg-background aria-selected:shadow">{label}</button>)}
+      <div class="mb-3 flex justify-center lg:justify-start">
+        <div class="segmented" role="tablist">
+          {groups.map(([key, label], i) => <button type="button" role="tab" aria-selected={i === 0 ? 'true' : 'false'} aria-controls={`shots-${key}`} tabindex={i === 0 ? 0 : -1} data-tab={key} class="segment aria-selected:bg-page">{label}</button>)}
         </div>
       </div>
     )}
-    {groups.map(([key, label, list], i) => (
-      <div data-panel={key} id={`shots-${key}`} role={groups.length > 1 ? 'tabpanel' : undefined} hidden={i !== 0} class="snap-strip -mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-2 lg:mx-0 lg:px-0">
-        {list.map((s, n) => (
-          <button type="button" data-shot={s.imageURL} class="max-w-[70%] shrink-0 snap-start sm:max-w-none" aria-label={`Open ${label} screenshot ${n + 1}`}>
-            <img src={s.imageURL} alt={`${app.name} ${label} screenshot ${n + 1}`} loading="lazy" width={s.width} height={s.height} class={`app-icon ${key === 'ipad' ? 'sm:h-72' : 'sm:h-[26rem]'} w-auto min-w-36 rounded-lg bg-card object-contain`} />
-          </button>
-        ))}
+    {groups.map(([key, label, list, cols], i) => (
+      <div data-panel={key} id={`shots-${key}`} role={groups.length > 1 ? 'tabpanel' : undefined} hidden={i !== 0}>
+        <Shelf class={cols}>
+          {list.map((s, n) => (
+            <button type="button" data-shot={s.imageURL} class="block w-full" aria-label={`Open ${label} screenshot ${n + 1}`}>
+              <img src={s.imageURL} alt={`${app.name} ${label} screenshot ${n + 1}`} loading="lazy" width={s.width} height={s.height} class="app-icon w-full rounded-[14px] bg-surface object-cover lg:rounded-box" />
+            </button>
+          ))}
+        </Shelf>
       </div>
     ))}
     <dialog data-lightbox aria-label="Screenshot" class="m-auto max-h-[92vh] max-w-[92vw] rounded-2xl bg-transparent p-0 backdrop:bg-black/85">
