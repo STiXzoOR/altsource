@@ -36,3 +36,14 @@ test('mergeScreenshots appends per device, keeps the list form for iPhone-only, 
   assert.deepEqual(mergeScreenshots([s1], { ipad: [p1] }), { iphone: [s1], ipad: [p1] });
   assert.deepEqual(mergeScreenshots({ iphone: [s1], ipad: [p1] }, { iphone: [s2] }, { replace: true }), { iphone: [s2], ipad: [p1] });
 });
+
+test('normalizeIcon falls back to JPEG when the PNG would be heavy (over 300 KB)', async () => {
+  const { randomBytes } = await import('node:crypto');
+  const rnd = randomBytes(1024 * 1024);
+  const textured = (x, y) => { const n = rnd[y * 1024 + x] & 31; return [((x >> 2) + n) & 255, ((y >> 2) + n) & 255, (((x + y) >> 3) + n) & 255]; };
+  const icon = await normalizeIcon(encodePNG(1024, 1024, textured));
+  assert.equal(icon.ext, 'jpg');
+  assert.deepEqual([icon.data[0], icon.data[1]], [0xff, 0xd8], 'JPEG magic');
+  assert.ok(icon.data.length < 800 * 1024, `icon is ${icon.data.length} bytes`);
+  assert.equal(iconPath('com.x', 'jpg'), 'assets/apps/com.x/icon.jpg');
+});

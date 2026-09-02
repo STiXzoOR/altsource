@@ -195,9 +195,11 @@ async function assets(argv, ctx) {
   if (values.icon) {
     const { buffer } = await loadBytes(values.icon, { cwd: ctx.cwd, fetch: ctx.fetch });
     const icon = await normalizeIcon(buffer);
-    await writeFile(path.join(ctx.cwd, iconPath(id)), icon.data);
-    next.iconURL = iconPath(id);
-    written.push(iconPath(id));
+    const rel = iconPath(id, icon.ext);
+    await writeFile(path.join(ctx.cwd, rel), icon.data);
+    for (const other of ['png', 'jpg'].filter((e) => e !== icon.ext)) await unlink(path.join(ctx.cwd, iconPath(id, other))).catch(() => {});
+    next.iconURL = rel;
+    written.push(rel);
   }
   const added = {};
   for (const [device, inputs] of [['iphone', values.screenshot], ['ipad', values.ipad]]) {

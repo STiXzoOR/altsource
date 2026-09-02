@@ -156,3 +156,15 @@ test('app assets needs an existing app and at least one input', async () => {
   assert.equal(await run(['assets', 'com.example.demo'], c), 1);
   assert.match(c.out.text, /--icon and\/or --screenshot/);
 });
+
+test('app assets stores a heavy icon as icon.jpg and removes a stale icon.png', async () => {
+  const { randomBytes } = await import('node:crypto');
+  const rnd = randomBytes(1024 * 1024);
+  const textured = (x, y) => { const n = rnd[y * 1024 + x] & 31; return [((x >> 2) + n) & 255, ((y >> 2) + n) & 255, (((x + y) >> 3) + n) & 255]; };
+  const c = await ctx({ fetch: makeFetch({ ...routes, ...images, 'https://img/noisy.png': { bytes: encodePNG(1024, 1024, textured) } }) });
+  await run(['add', '--from-github', 'o/r', '--tag', 'v1.8'], c);
+  await run(['assets', 'com.example.demo', '--icon', 'https://img/icon.png'], c);
+  assert.equal(await run(['assets', 'com.example.demo', '--icon', 'https://img/noisy.png'], c), 0, c.out.text);
+  assert.equal((await read(c, 'com.example.demo')).iconURL, 'assets/apps/com.example.demo/icon.jpg');
+  assert.deepEqual((await readdir(`${c.cwd}/assets/apps/com.example.demo`)).sort(), ['icon.jpg']);
+});
