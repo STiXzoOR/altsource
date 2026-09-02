@@ -1,0 +1,9 @@
+{
+  "$schema": "../schema/news.schema.json",
+  "title": "Welcome to STiX Apps",
+  "identifier": "welcome",
+  "caption": "The source is live. Apps will appear here as they are added.",
+  "date": "2026-09-02",
+  "tintColor": "#3B82F6",
+  "url": "https://github.com/STiXzoOR/altsource"
+}

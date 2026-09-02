@@ -1,0 +1,18 @@
+{
+  "$schema": "./schema/meta.schema.json",
+  "baseURL": "https://stixzoor.github.io/altsource/",
+  "name": "STiX Apps",
+  "identifier": "com.stixzoor.altsource",
+  "subtitle": "Hand-picked apps for AltStore PAL and AltStore Classic",
+  "description": "Welcome to STiX Apps, a source curated by STiX.\n\nThe PAL source lists notarized apps for AltStore PAL (EU, Japan, Brazil). The Classic source lists sideloadable apps for AltStore Classic and SideStore everywhere else.\n\nEverything here is built and validated automatically from https://github.com/STiXzoOR/altsource. Apps are added over time.",
+  "iconURL": "assets/icon.png",
+  "headerURL": "assets/header.png",
+  "website": "https://github.com/STiXzoOR/altsource",
+  "tintColor": "#3B82F6",
+  "nsfw": false,
+  "featuredApps": [],
+  "overrides": {
+    "pal": { "subtitle": "Notarized apps for AltStore PAL" },
+    "classic": { "subtitle": "Sideloadable apps for AltStore Classic and SideStore" }
+  }
+}
