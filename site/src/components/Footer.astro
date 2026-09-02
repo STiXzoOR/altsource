@@ -1,0 +1,17 @@
+---
+import ThemeToggle from './ThemeToggle.astro';
+import { getSite } from '../lib/data.mjs';
+/** App Store footer: grey band, small type, source URLs; carries the appearance control on phones. */
+const site = await getSite();
+---
+<footer class="bg-footer px-4 pt-[15px] pb-[calc(100px+env(safe-area-inset-bottom))] text-label-2 t-footnote xs:px-[25px] lg:px-10 lg:pb-[15px]">
+  <div class="mx-auto flex max-w-[1680px] min-h-[58px] flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+    <p>{site.meta.name} · AltStore PAL installs notarized apps in the EU, Japan and Brazil; AltStore Classic and SideStore sideload IPAs everywhere.</p>
+    <p class="flex flex-wrap gap-x-3 gap-y-1">
+      <a class="hover:text-key" href={site.urls.pal}>source.pal.json</a>
+      <a class="hover:text-key" href={site.urls.classic}>source.json</a>
+      {site.meta.website && <a class="hover:text-key" href={site.meta.website} rel="noopener">Source code</a>}
+    </p>
+    <div class="lg:hidden"><ThemeToggle /></div>
+  </div>
+</footer>

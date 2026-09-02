@@ -1,0 +1,33 @@
+---
+import Icon from './Icon.astro';
+import Wordmark from './Wordmark.astro';
+import StoreSwitch from './StoreSwitch.astro';
+import ThemeToggle from './ThemeToggle.astro';
+import { getSite } from '../lib/data.mjs';
+import { navItems, isCurrent } from '../lib/nav.mjs';
+/** Desktop sidebar (from 1000px): lockup, primary navigation, store switch, appearance, source URLs. */
+const site = await getSite();
+const base = import.meta.env.BASE_URL;
+const path = Astro.url.pathname;
+---
+<aside class="sticky top-0 hidden h-dvh w-[260px] shrink-0 flex-col self-start border-r border-divider bg-sidebar lg:flex" aria-label="Site">
+  <a href={base} class="flex items-center gap-2.5 px-[25px] pt-[19px] pb-[14px]">
+    <img src={site.meta.iconURL} alt="" width="28" height="28" class="size-7 rounded-lg" />
+    <Wordmark name={site.meta.name} class="text-[22px] leading-none" />
+  </a>
+  <nav aria-label="Primary" class="px-[25px]">
+    <ul class="flex flex-col gap-0.5">
+      {navItems(base).map((item) => { const current = isCurrent(path, item.href, base); return (
+        <li><a href={item.href} aria-current={current ? 'page' : undefined} class={`flex h-8 items-center gap-2 rounded-[6px] p-1 t-title-3 ${current ? 'bg-sidebar-selected font-medium' : 'hover:bg-fill-2'}`}><span class="grid size-6 place-items-center"><Icon name={item.icon} class="size-[18px] text-key" strokeWidth={1.75} /></span>{item.label}</a></li>
+      ); })}
+    </ul>
+  </nav>
+  <StoreSwitch variant="rows" class="mt-6 px-[25px]" />
+  <div class="mt-auto px-[25px] pb-5">
+    <ThemeToggle />
+    <p class="mt-3 flex flex-col gap-1 t-subhead text-label-2">
+      <a class="truncate hover:text-key" href={site.urls.pal}>source.pal.json</a>
+      <a class="truncate hover:text-key" href={site.urls.classic}>source.json</a>
+    </p>
+  </div>
+</aside>

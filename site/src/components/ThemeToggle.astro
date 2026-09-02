@@ -1,0 +1,26 @@
+---
+/** iOS segmented control for appearance: System, Light, Dark. Persists to localStorage.theme; "system" clears it. */
+const options = [['system', 'System'], ['light', 'Light'], ['dark', 'Dark']];
+---
+<div class="segmented w-full" role="radiogroup" aria-label="Appearance" data-theme-toggle>
+  {options.map(([value, label]) => <button type="button" role="radio" aria-checked="false" data-theme-set={value} class="segment">{label}</button>)}
+</div>
+<script>
+  const buttons = document.querySelectorAll('[data-theme-set]');
+  const apply = (value) => {
+    const root = document.documentElement;
+    const dark = value === 'dark' || (value === 'system' && matchMedia('(prefers-color-scheme: dark)').matches);
+    root.classList.toggle('dark', dark);
+    root.classList.toggle('light', !dark);
+    for (const b of buttons) b.setAttribute('aria-checked', String(b.dataset.themeSet === value));
+  };
+  let current = 'system';
+  try { const t = localStorage.getItem('theme'); if (t === 'dark' || t === 'light') current = t; } catch {}
+  apply(current);
+  for (const b of buttons) b.addEventListener('click', () => {
+    current = b.dataset.themeSet;
+    try { if (current === 'system') localStorage.removeItem('theme'); else localStorage.setItem('theme', current); } catch {}
+    apply(current);
+  });
+  matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => { if (current === 'system') apply(current); });
+</script>

@@ -128,7 +128,7 @@ test('app pages: GET follows the kinds, permissions are explained, screenshots, 
   assert.doesNotMatch(pal, /bootstrap/i);
   const versions = await page('apps/com.both/versions/index.html');
   assert.match(versions, /old notes/);
-  assert.equal((versions.match(/<li[\s>]/g) ?? []).length, 3);
+  assert.equal((versions.match(/<ol[\s\S]*?<\/ol>/)[0].match(/<li[\s>]/g) ?? []).length, 3, 'three versions listed (the shell has its own lists)');
   const news = await page('news/index.html');
   assert.match(news, /Both updated/);
   assert.match(news, /Both Kinds/, 'news with an appID shows the app row');
@@ -145,4 +145,32 @@ test('every internal link resolves to a built file and nothing points at GitHub 
       assert.ok(await exists(target), `${p} links to missing ${m[1]}`);
     }
   }
+});
+
+test('shell: sidebar with the current row, floating tab bar, store switch, three-state appearance control, PWA head and manifest', async () => {
+  const html = await page('index.html');
+  assert.match(html, /<aside class="[^"]*" aria-label="Site">/, 'sidebar');
+  assert.match(html, /<a href="\/altsource\/" aria-current="page"/, 'Home is current in the sidebar');
+  assert.match(html, /<nav class="tabbar[^"]*" aria-label="Primary" data-tabbar>/, 'tab bar');
+  assert.equal((html.match(/data-tabbar>[\s\S]*?<\/nav>/)[0].match(/<a /g) ?? []).length, 4, 'four tabs');
+  assert.match(html, /role="radiogroup" aria-label="Store"/, 'store switch');
+  for (const s of ['all', 'pal', 'classic', 'sidestore']) assert.match(html, new RegExp(`data-store-set="${s}"`), `${s} option`);
+  assert.match(html, /<div role="radiogroup" aria-label="Store" data-store-switch class="segmented/, 'phone segmented control on the home page');
+  assert.match(html, /root\.dataset\.store/, 'store restored before paint');
+  assert.match(html, /role="radiogroup" aria-label="Appearance"/, 'appearance control');
+  assert.doesNotMatch(html, /aria-pressed/, 'the floating toggle button is gone');
+  assert.match(html, /<meta name="theme-color" content="#ffffff" media="\(prefers-color-scheme: light\)"/);
+  assert.match(html, /<meta name="theme-color" content="#000000" media="\(prefers-color-scheme: dark\)"/);
+  assert.match(html, /<meta name="mobile-web-app-capable" content="yes"/);
+  assert.match(html, /<meta name="apple-mobile-web-app-capable" content="yes"/);
+  assert.match(html, /<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/);
+  assert.match(html, /<link rel="apple-touch-icon" sizes="180x180" href="[^"]*assets\/apple-touch-icon\.png"/);
+  assert.match(html, /<link rel="manifest" href="\/altsource\/manifest\.webmanifest"/);
+  assert.match(html, /<footer class="[^"]*bg-footer/, 'App Store footer');
+  assert.match(await page('apps/index.html'), /<a href="\/altsource\/apps\/" aria-current="page"/, 'Apps is current on the apps page');
+  const manifest = JSON.parse(await page('manifest.webmanifest'));
+  assert.equal(manifest.name, 'Fixture Source');
+  assert.equal(manifest.display, 'standalone');
+  assert.equal(manifest.start_url, '/altsource/');
+  assert.ok(manifest.icons.some((i) => i.sizes === '180x180'), 'touch icon in the manifest');
 });

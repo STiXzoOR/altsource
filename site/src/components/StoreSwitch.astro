@@ -1,0 +1,31 @@
+---
+import Icon from './Icon.astro';
+import { STORES } from '../lib/stores.mjs';
+/** The store switch: `rows` for the sidebar, `segmented` (default) for phones. Both write html[data-store] and localStorage.store. */
+const { variant = 'segmented', class: cls = '' } = Astro.props;
+---
+{variant === 'rows' ? (
+  <div class={cls}>
+    <p class="t-footnote-em uppercase text-label-3">Store</p>
+    <div role="radiogroup" aria-label="Store" data-store-switch class="mt-1 flex flex-col">
+      {STORES.map((s) => <button type="button" role="radio" aria-checked="false" data-store-set={s.id} class="flex min-h-11 items-center gap-2.5 py-2 text-left t-body text-label-2 hover:text-label aria-checked:font-semibold aria-checked:text-label"><Icon name={s.icon} class="size-[18px]" />{s.label}</button>)}
+    </div>
+  </div>
+) : (
+  <div role="radiogroup" aria-label="Store" data-store-switch class={`segmented ${cls}`}>
+    {STORES.map((s) => <button type="button" role="radio" aria-checked="false" data-store-set={s.id} class="segment">{s.short}</button>)}
+  </div>
+)}
+<script>
+  const buttons = document.querySelectorAll('[data-store-set]');
+  const apply = (value) => {
+    document.documentElement.dataset.store = value;
+    for (const b of buttons) b.setAttribute('aria-checked', String(b.dataset.storeSet === value));
+  };
+  apply(document.documentElement.dataset.store || 'all');
+  for (const b of buttons) b.addEventListener('click', () => {
+    const value = b.dataset.storeSet;
+    try { localStorage.setItem('store', value); } catch {}
+    apply(value);
+  });
+</script>

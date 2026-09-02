@@ -1,27 +1,45 @@
 ---
 import '../styles/global.css';
-import Icon from '../components/Icon.astro';
+import Sidebar from '../components/Sidebar.astro';
+import TabBar from '../components/TabBar.astro';
+import Footer from '../components/Footer.astro';
 import { getSite } from '../lib/data.mjs';
 import { normalizeTint, readableTint } from '../lib/tint.mjs';
-const { title, description, image, noindex = false, tint, width = 'narrow' } = Astro.props;
+/**
+ * Page shell. Desktop (≥1000px): sidebar + content column. Phones: fixed nav bar (the page's `nav` slot),
+ * content, footer, floating tab bar. `flush` lets a hero start under the transparent bar.
+ */
+const { title, description, image, noindex = false, tint, width = 'narrow', flush = false } = Astro.props;
 const site = await getSite();
 const fullTitle = title ? `${title} · ${site.meta.name}` : site.meta.name;
 const desc = description ?? site.meta.subtitle ?? '';
 const color = normalizeTint(tint ?? site.meta.tintColor);
 const vars = `--tint: ${color}; --tint-readable: ${readableTint(color, false)}; --tint-readable-dark: ${readableTint(color, true)}`;
 const canonical = new URL(Astro.url.pathname, Astro.site).href;
+const base = import.meta.env.BASE_URL;
+const touchIcon = new URL('assets/apple-touch-icon.png', site.base).href;
+const mainWidth = width === 'wide' ? 'max-w-[1680px]' : 'max-w-2xl';
+const mainTop = flush ? '' : 'pt-[calc(44px+env(safe-area-inset-top))] lg:pt-0';
 ---
 <!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="color-scheme" content="light dark" />
   <title>{fullTitle}</title>
   <meta name="description" content={desc} />
   {noindex && <meta name="robots" content="noindex" />}
   <link rel="canonical" href={canonical} />
-  <link rel="icon" href={site.meta.iconURL} />
-  <link rel="apple-touch-icon" href={site.meta.iconURL} />
+  <link rel="icon" type="image/png" sizes="180x180" href={touchIcon} />
+  <link rel="apple-touch-icon" sizes="180x180" href={touchIcon} />
+  <link rel="manifest" href={`${base}manifest.webmanifest`} />
+  <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content={site.meta.name} />
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content={site.meta.name} />
   <meta property="og:title" content={fullTitle} />
@@ -29,42 +47,33 @@ const canonical = new URL(Astro.url.pathname, Astro.site).href;
   <meta property="og:image" content={image ?? site.meta.headerURL ?? site.meta.iconURL} />
   <meta property="og:url" content={canonical} />
   <meta name="twitter:card" content="summary" />
-  <meta name="theme-color" content={color} />
   <script is:inline>
     (function () {
+      var root = document.documentElement;
+      var dark = false, store = 'all';
       try {
         var t = localStorage.getItem('theme');
-        var dark = t ? t === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
-        document.documentElement.classList.toggle('dark', dark);
+        dark = t === 'dark' || (t !== 'light' && matchMedia('(prefers-color-scheme: dark)').matches);
+        var s = localStorage.getItem('store');
+        if (s === 'pal' || s === 'classic' || s === 'sidestore') store = s;
       } catch (e) {}
+      root.classList.add(dark ? 'dark' : 'light');
+      root.dataset.store = store;
     })();
   </script>
 </head>
-<body class="min-h-dvh bg-background text-foreground antialiased" style={vars}>
+<body class="min-h-dvh bg-page text-label antialiased" style={vars}>
   <a href="#main" class="skip-link">Skip to content</a>
-  <slot name="nav" />
-  <main id="main" tabindex="-1" class={`mx-auto w-full px-4 pt-3 pb-16 outline-none ${width === 'wide' ? 'max-w-6xl' : 'max-w-2xl'}`}>
-    <slot />
-  </main>
-  <footer class="mx-auto max-w-6xl px-5 pb-10 text-[0.8rem] text-muted-foreground">
-    <div class="flex flex-wrap items-center justify-between gap-2 border-t border-border pt-4">
-      <p>{site.meta.name} · AltStore PAL installs notarized apps in the EU, Japan and Brazil; AltStore Classic and SideStore sideload IPAs everywhere.</p>
-      <p class="flex gap-3"><a class="hover:text-primary" href={site.urls.pal}>source.pal.json</a><a class="hover:text-primary" href={site.urls.classic}>source.json</a></p>
+  <div class="lg:grid lg:grid-cols-[260px_minmax(0,1fr)]">
+    <Sidebar />
+    <div class="min-w-0">
+      <slot name="nav" />
+      <main id="main" tabindex="-1" class={`mx-auto w-full px-4 pb-10 outline-none xs:px-[25px] lg:px-10 ${mainTop} ${mainWidth}`}>
+        <slot />
+      </main>
+      <Footer />
     </div>
-  </footer>
-  <button type="button" data-theme-toggle class="fixed right-4 bottom-4 z-30 flex size-11 items-center justify-center rounded-full bg-card text-muted-foreground shadow-md hover:text-primary" aria-label="Toggle dark mode" aria-pressed="false">
-    <span class="dark:hidden"><Icon name="Moon02Icon" class="size-5" /></span>
-    <span class="hidden dark:inline"><Icon name="Sun03Icon" class="size-5" /></span>
-  </button>
-  <script>
-    const toggle = document.querySelector('[data-theme-toggle]');
-    const sync = () => toggle?.setAttribute('aria-pressed', String(document.documentElement.classList.contains('dark')));
-    sync();
-    toggle?.addEventListener('click', () => {
-      const dark = document.documentElement.classList.toggle('dark');
-      try { localStorage.setItem('theme', dark ? 'dark' : 'light'); } catch {}
-      sync();
-    });
-  </script>
+  </div>
+  <TabBar />
 </body>
 </html>

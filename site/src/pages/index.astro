@@ -10,6 +10,7 @@ import NewsCard from '../components/NewsCard.astro';
 import Text from '../components/Text.astro';
 import ActionSheet from '../components/ActionSheet.astro';
 import Wordmark from '../components/Wordmark.astro';
+import StoreSwitch from '../components/StoreSwitch.astro';
 import { getSite, universalLink } from '../lib/data.mjs';
 const site = await getSite();
 const base = import.meta.env.BASE_URL;
@@ -21,7 +22,7 @@ const addActions = [
   { label: 'Add to SideStore', href: `sidestore://source?url=${encodeURIComponent(site.urls.classic)}` },
 ];
 ---
-<Base width="wide">
+<Base width="wide" flush>
   <NavBar slot="nav" icon={meta.iconURL}>
     <Wordmark slot="title" name={meta.name} class="truncate text-[1.05em]" />
     <Pill slot="trailing" label="Add" data-sheet="add-source" />
@@ -38,6 +39,7 @@ const addActions = [
     </div>
   </section>
   <div data-nav-sentinel></div>
+  <div class="mt-3 lg:hidden"><StoreSwitch class="w-full" /></div>
   <div class="mt-3 grid gap-2 sm:grid-cols-2">
     <SourceURLChip label="PAL" url={site.urls.pal} />
     <SourceURLChip label="Classic" url={site.urls.classic} />

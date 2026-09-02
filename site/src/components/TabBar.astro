@@ -1,0 +1,31 @@
+---
+import Icon from './Icon.astro';
+import { navItems, isCurrent } from '../lib/nav.mjs';
+/** Floating glass tab bar on phones and tablets. Slides away on scroll down, returns on scroll up. */
+const base = import.meta.env.BASE_URL;
+const path = Astro.url.pathname;
+---
+<nav class="tabbar lg:hidden" aria-label="Primary" data-tabbar>
+  <ul class="flex h-14 items-stretch px-2">
+    {navItems(base).map((item) => { const current = isCurrent(path, item.href, base); return (
+      <li class="flex-1"><a href={item.href} aria-current={current ? 'page' : undefined} class={`flex h-full flex-col items-center justify-center gap-0.5 rounded-full ${current ? 'text-key' : 'text-label-2'} active:opacity-60`}><Icon name={item.icon} class="size-6" strokeWidth={current ? 2 : 1.5} /><span class="text-[11px] leading-none font-medium">{item.label}</span></a></li>
+    ); })}
+  </ul>
+</nav>
+<script>
+  const bar = document.querySelector('[data-tabbar]');
+  if (bar && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    let last = window.scrollY, ticking = false;
+    addEventListener('scroll', () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => {
+        const y = window.scrollY;
+        const max = document.documentElement.scrollHeight - innerHeight;
+        bar.toggleAttribute('data-hidden', y > last && y > 80 && y < max - 8);
+        last = y;
+        ticking = false;
+      });
+    }, { passive: true });
+  }
+</script>
