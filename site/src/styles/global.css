@@ -240,7 +240,7 @@ html:not([data-store="sidestore"]) [data-store-only="sidestore"] { display: none
 
 @layer components {
 /* App Store information ribbon */
-.ribbon { display: grid; grid-auto-flow: column; grid-auto-columns: 144px; gap: 10px; overflow-x: auto; overscroll-behavior-x: contain; scroll-snap-type: x proximity; scrollbar-width: none; margin-inline: calc(-1 * var(--gutter)); padding-inline: var(--gutter); }
+.ribbon { display: grid; grid-auto-flow: column; grid-auto-columns: 144px; gap: 10px; overflow-x: auto; overscroll-behavior-x: contain; scroll-snap-type: x proximity; scrollbar-width: none; margin-inline: calc(-1 * var(--gutter)); padding-inline: var(--gutter); mask-image: linear-gradient(to right, #000 calc(100% - 40px), transparent); }
 .ribbon::-webkit-scrollbar { display: none; }
 .ribbon-item { display: flex; flex-direction: column; align-items: center; text-align: center; scroll-snap-align: start; color: inherit; text-decoration: none; }
 .ribbon-label { font-size: calc(11 * var(--u)); line-height: 1.27; font-weight: 600; text-transform: uppercase; color: var(--label-2); margin-bottom: 4px; white-space: nowrap; }
@@ -249,7 +249,7 @@ html:not([data-store="sidestore"]) [data-store-only="sidestore"] { display: none
 .ribbon[data-on-dark] .ribbon-label { color: rgba(246, 246, 246, 0.6); }
 .ribbon[data-on-dark] :is(.ribbon-value, .ribbon-sub) { color: #fff; }
 @media (min-width: 1000px) {
-  .ribbon { display: flex; justify-content: space-between; overflow: visible; margin-inline: 0; padding-inline: 0; }
+  .ribbon { display: flex; justify-content: space-between; overflow: visible; margin-inline: 0; padding-inline: 0; mask-image: none; }
   .ribbon-item { flex: 0 1 auto; min-width: 0; }
 }
 

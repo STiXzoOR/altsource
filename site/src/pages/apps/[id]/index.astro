@@ -45,16 +45,16 @@ const facts = [
   ...(latest.minOSVersion ? [{ label: 'Requires', value: `iOS ${latest.minOSVersion}`, sub: 'or later' }] : []),
   { label: 'Developer', value: app.developerName, sub: 'developer' },
   { label: 'Category', value: categoryLabel(app.category), sub: 'category' },
-  { label: 'Store', value: kinds.length === 2 ? 'Both' : kinds[0] === 'adp' ? 'PAL' : 'Classic', sub: kinds.length === 2 ? 'PAL · Classic' : 'AltStore' },
+  { label: 'Store', value: 'AltStore', sub: kinds.length === 2 ? 'PAL · Classic' : kinds[0] === 'adp' ? 'PAL' : 'Classic · SideStore' },
 ];
+const availableOn = kinds.map((k) => (k === 'adp' ? 'AltStore PAL' : 'AltStore Classic, SideStore')).join(', ');
 const info = [
   ['Developer', app.developerName],
   ['Size', latest.size ? formatBytes(latest.size) : null],
   ['Category', categoryLabel(app.category)],
   ['Compatibility', latest.minOSVersion ? `Requires iOS ${latest.minOSVersion} or later.` : null],
-  ['Bundle ID', app.bundleIdentifier],
-  ['Available on', stores.join(', ')],
-  ['Latest', `${versionLabel(latest)} · ${formatDate(latest.date)}`],
+  ['Version', `${versionLabel(latest)} · ${formatDate(latest.date)}`],
+  ['Available on', availableOn],
 ].filter(([, v]) => v);
 const moreBy = site.apps.filter((e) => e.id !== entry.id && e.app.developerName === app.developerName);
 const versionLink = (v) => (inferKind(v) === 'ipa' ? { href: v.downloadURL, label: 'Download .ipa', download: true } : { href: universalLink(site.urls.pal, app.bundleIdentifier), label: 'Get in AltStore PAL' });
@@ -139,17 +139,13 @@ const getAll = single ? { href: single.href } : { 'data-sheet': 'get', 'aria-has
       <dl class="info">
         {info.map(([k, v]) => <div class="info-row"><dt>{k}</dt><dd>{v}</dd></div>)}
       </dl>
-      <p class="mt-6 flex flex-col gap-3 t-body text-key lg:flex-row lg:justify-center lg:gap-5 lg:t-callout-em">
-        {kinds.includes('adp') && <a href={site.urls.pal} class="hover:underline">PAL source JSON<span aria-hidden="true">↗</span></a>}
-        {kinds.includes('ipa') && <a href={site.urls.classic} class="hover:underline">Classic source JSON<span aria-hidden="true">↗</span></a>}
-        {ipa && <a href={ipa.downloadURL} download class="hover:underline">Download .ipa<span aria-hidden="true">↗</span></a>}
-      </p>
+      {entry.project && <p class="mt-6 flex t-body text-key lg:justify-center lg:t-callout-em"><a href={entry.project.href} rel="noopener" class="hover:underline">{entry.project.label}<span aria-hidden="true">↗</span></a></p>}
     </section>
 
     {moreBy.length > 0 && (
       <section class="mt-8" aria-labelledby="more-h">
         <SectionHeader id="more-h" title={`More by ${app.developerName}`} />
-        <div class="grid gap-2.5 lg:grid-cols-2 xl:grid-cols-3 lg:gap-x-5 lg:gap-y-6" data-app-list>{moreBy.map((e) => <AppRow entry={e} />)}</div>
+        <div class="grid gap-2.5 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 lg:gap-x-5 lg:gap-y-6" data-app-list>{moreBy.map((e) => <AppRow entry={e} />)}</div>
       </section>
     )}
   </div>

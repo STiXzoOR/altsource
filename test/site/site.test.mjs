@@ -13,7 +13,7 @@ const ipa = (o = {}) => version({ downloadURL: 'https://gh/d/a.ipa', ...o });
 const fixture = await root({
   'source.meta.json': { name: 'Fixture Source', baseURL: BASE, subtitle: 'sub', description: 'Hello https://example.com', iconURL: 'assets/icon.png', headerURL: 'assets/header.png', website: 'https://example.org/repo', tintColor: '#123456', featuredApps: ['com.both'] },
   'apps/com.pal.json': app('com.pal', { name: 'Pal Only', marketplaceID: '1', versions: [adp()], appPermissions: { entitlements: ['com.apple.security.application-groups'], privacy: { NSCameraUsageDescription: 'Snap' } } }),
-  'apps/com.both.json': app('com.both', { name: 'Both Kinds', marketplaceID: '2', appPermissions: { entitlements: ['get-task-allow', 'com.apple.private.foo', 'com.apple.private.bar'], privacy: {} }, screenshots: { iphone: ['assets/s.png'], ipad: [{ imageURL: 'https://x/i.png', width: 10, height: 20 }] }, versions: [adp({ version: '2.0', localizedDescription: '## Highlights\n* **Faster** sync\n\n| a | b |\n|---|---|\n| 1 | 2 |\n\n## Installation\nsee docs' }), ipa({ version: '2.0', kind: 'ipa' }), ipa({ version: '1.0', date: '2026-01-01', localizedDescription: 'old notes' })] }),
+  'apps/com.both.json': app('com.both', { name: 'Both Kinds', marketplaceID: '2', upstream: { type: 'github', repo: 'o/r' }, appPermissions: { entitlements: ['get-task-allow', 'com.apple.private.foo', 'com.apple.private.bar'], privacy: {} }, screenshots: { iphone: ['assets/s.png'], ipad: [{ imageURL: 'https://x/i.png', width: 10, height: 20 }] }, versions: [adp({ version: '2.0', localizedDescription: '## Highlights\n* **Faster** sync\n\n| a | b |\n|---|---|\n| 1 | 2 |\n\n## Installation\nsee docs' }), ipa({ version: '2.0', kind: 'ipa' }), ipa({ version: '1.0', date: '2026-01-01', localizedDescription: 'old notes' })] }),
   'news/a.json': news('a', { title: 'First post', date: '2026-01-01' }),
   'news/b.json': news('b', { title: 'Both updated', date: '2026-02-01', appID: 'com.both' }),
   'assets/icon.png': 'png:4x4', 'assets/header.png': 'png:6x4', 'assets/s.png': 'png:1179x2556',
@@ -116,7 +116,7 @@ test('app pages: GET follows the kinds, permissions are explained, screenshots, 
   assert.match(both, /Version History/);
   assert.match(both, /--tint: #123456/, 'the page tint comes from the source when the app has none');
   assert.match(both, /--tint-readable: #[0-9a-f]{6}/);
-  assert.match(both, /Bundle ID/);
+  assert.doesNotMatch(both, /Bundle ID/);
   const pal = await page('apps/com.pal/index.html');
   assert.doesNotMatch(pal, /data-sheet="get"/, 'a single install target links directly');
   assert.match(pal, /href="https:\/\/altstore\.io\/source\/stixzoor\.github\.io\/altsource\/source\.pal\.json\?app=com\.pal"/);
@@ -232,6 +232,7 @@ test('app page CSS: sheets slide on the iOS curve, the hero blurs its artwork, c
   assert.match(css, /\.permcard\{[^}]*border-radius:10px/, 'privacy card radius');
   assert.match(css, /\.permcard\{[^}]*padding:30px/, 'privacy card padding');
   assert.match(css, /@view-transition\{navigation:auto\}/, 'cross-document view transitions');
+  assert.match(css, /\.ribbon\{[^}]*mask-image:linear-gradient\((?:to right|90deg),\s*#000 calc\(100% - 40px\),\s*(?:transparent|#0000)\)/, 'ribbon fade on phones');
 });
 
 test('sheets: the add-source action sheet is a bottom sheet with grouped actions and a Cancel row, wired by one script in the layout', async () => {
@@ -272,9 +273,14 @@ test('app page: two heroes, ribbon facts, store-aware Get, description, What’s
   assert.doesNotMatch(both, /2\.0 \(1\)/, 'no build numbers');
   assert.match(both, /<dialog id="versions" class="sheet sheet-wide"/, 'version history is the wide sheet');
   assert.equal((both.match(/data-version-row/g) ?? []).length, 3, 'three versions listed');
-  assert.match(both, /<dl class="info">[\s\S]*?<dt>Bundle ID<\/dt>\s*<dd>com\.both<\/dd>/, 'information rows');
+  assert.match(both, /<span class="ribbon-label">Store<\/span>\s*<span class="ribbon-value">AltStore<\/span>\s*<span class="ribbon-sub">PAL · Classic<\/span>/, 'store fact');
+  assert.match(both, /<dl class="info">[\s\S]*?<dt>Version<\/dt>\s*<dd>2\.0 · 1 Sept 2026<\/dd>/, 'version row without build');
+  assert.match(both, /<dt>Available on<\/dt>\s*<dd>AltStore PAL, AltStore Classic, SideStore<\/dd>/, 'stores in words');
+  assert.doesNotMatch(both, /<dt>Bundle ID|source JSON|Download \.ipa<span/, 'no identifiers or file links on the page');
+  assert.match(both, /class="sheet-action[^"]*">Download \.ipa<\/a>/, 'the download stays in the Get sheet');
+  assert.match(both, /<a href="https:\/\/github\.com\/o\/r" rel="noopener" class="[^"]*">Project on GitHub<span aria-hidden="true">↗<\/span><\/a>/, 'project link');
+  assert.doesNotMatch(await page('apps/com.pal/index.html'), /Project on GitHub/, 'no project link without a GitHub upstream');
   assert.match(both, /More by Dev/, 'More by the developer');
-  assert.match(both, /Download \.ipa<span aria-hidden="true">↗<\/span>/, 'download link with the arrow');
   const pal = await page('apps/com.pal/index.html');
   assert.match(pal, /class="get get-blue[^"]*" data-store-only="all" href="https:\/\/altstore\.io\/source\/[^"]*\?app=com\.pal"/, 'single-store apps link directly under All');
   assert.match(pal, /<span class="get get-muted" data-store-only="sidestore">Not on SideStore<\/span>/, 'unavailable store is said plainly');
