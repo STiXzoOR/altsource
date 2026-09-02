@@ -4,8 +4,12 @@
   "private": true,
   "type": "module",
   "description": "STiX Apps — an AltStore PAL and AltStore Classic source",
-  "bin": { "altsource": "bin/altsource.mjs" },
-  "engines": { "node": ">=24" },
+  "bin": {
+    "altsource": "bin/altsource.mjs"
+  },
+  "engines": {
+    "node": ">=24"
+  },
   "scripts": {
     "test": "node --test 'test/**/*.test.mjs'",
     "validate": "node bin/altsource.mjs validate",
@@ -13,5 +17,9 @@
     "serve": "node bin/altsource.mjs serve",
     "assets:placeholder": "node scripts/make-placeholder-assets.mjs"
   },
-  "dependencies": { "ajv": "^8.17.1" }
+  "dependencies": {
+    "ajv": "^8.17.1",
+    "bplist-parser": "^0.3.2",
+    "fflate": "^0.8.3"
+  }
 }
