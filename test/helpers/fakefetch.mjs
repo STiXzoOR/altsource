@@ -2,7 +2,7 @@
 export function makeFetch(routes) {
   const calls = [];
   const fetch = async (url, init = {}) => {
-    calls.push({ url, method: init.method ?? 'GET', headers: init.headers ?? {} });
+    calls.push({ url, method: init.method ?? 'GET', headers: init.headers ?? {}, body: init.body });
     const key = Object.keys(routes).find((k) => (k.endsWith('*') ? url.startsWith(k.slice(0, -1)) : url === k));
     const r = key ? routes[key] : { status: 404 };
     const status = r.status ?? 200;
