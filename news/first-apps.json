@@ -1,0 +1,9 @@
+{
+  "$schema": "../schema/news.schema.json",
+  "title": "The first apps are in",
+  "identifier": "first-apps",
+  "caption": "UTM, Provenance, PojavLauncher and Nuvio Enhanced are now sideloadable from STiX Apps.",
+  "date": "2026-09-02",
+  "tintColor": "#5856D6",
+  "appID": "com.utmapp.UTM"
+}

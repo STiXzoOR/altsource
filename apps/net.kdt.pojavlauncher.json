@@ -1,0 +1,46 @@
+{
+  "$schema": "../schema/app.schema.json",
+  "name": "PojavLauncher",
+  "bundleIdentifier": "net.kdt.pojavlauncher",
+  "developerName": "PojavLauncherTeam",
+  "localizedDescription": "A Minecraft: Java Edition Launcher for Android and iOS based on Boardwalk. Succeeded by https://github.com/AngelAuraMC/Amethyst-iOS",
+  "iconURL": "https://github.com/PojavLauncherTeam.png",
+  "category": "games",
+  "versions": [
+    {
+      "version": "2.2",
+      "buildVersion": "2.2",
+      "date": "2023-05-06T20:56:25Z",
+      "localizedDescription": "_Added in Minecraft 1.17, Deepslate makes up the foundation of a Minecraft world, just above bedrock. We chose this name because of the majority of changes in this version targeting core changes._\r\n\r\n----\r\nWith this release of PojavLauncher, we refined features, fixed bugs, and implemented small additions to existing ones to buff user experience. While there are not many notable changes to discuss here, there are some we can show:\r\n- Implemented a controller configurator\r\n- Increased reliability in various places\r\n- Added haptics to the on-screen controls\r\n- Switched to new input methods to speed up control times\r\n- Secured demo mode\r\n- Added new preferences to control more of the app\r\n- Resolve various issues with windowing in older versions\r\n- and many, many more!\r\n----\r\n\r\nThis is the last major release of PojavLauncher that will support iOS 12 and 13. Important security patches and bug fixes will be applied when required for a limited time, however take note that issues encountered will not be considered high priority. See more information in #547.\r\n\r\n---\r\nA full commit changelog is available [here](https://github.com/PojavLauncherTeam/PojavLauncher_iOS/compare/v2.1.3...v2.2).\r\n",
+      "downloadURL": "https://github.com/PojavLauncherTeam/PojavLauncher_iOS/releases/download/v2.2/net.kdt.pojavlauncher-2.2-ios.ipa",
+      "size": 108175347,
+      "sha256": "1be34026bb9e045ecb3bc483c53419d0f2f16f7a89c3db69f02c45df97e4f02b",
+      "minOSVersion": "12.2"
+    }
+  ],
+  "appPermissions": {
+    "entitlements": [
+      "com.apple.developer.kernel.extended-virtual-addressing",
+      "com.apple.developer.kernel.increased-memory-limit",
+      "com.apple.private.memorystatus",
+      "com.apple.private.mobileinstall.upgrade-enabled",
+      "com.apple.private.security.no-sandbox",
+      "com.apple.private.security.storage.AppDataContainers",
+      "com.apple.private.security.storage.MobileDocuments",
+      "com.apple.security.iokit-user-client-class",
+      "get-task-allow",
+      "platform-application"
+    ],
+    "privacy": {
+      "NSLocalNetworkUsageDescription": "PojavLauncher uses the local network to find and communicate with AltServer and LAN servers.",
+      "NSMicrophoneUsageDescription": "PojavLauncher uses the microphone to enable support for voice chat mods."
+    }
+  },
+  "upstream": {
+    "type": "github",
+    "repo": "PojavLauncherTeam/PojavLauncher_iOS",
+    "asset": "*.ipa"
+  },
+  "subtitle": "Minecraft: Java Edition launcher",
+  "tintColor": "#34C759"
+}

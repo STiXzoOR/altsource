@@ -1,0 +1,31 @@
+{
+  "$schema": "../schema/app.schema.json",
+  "name": "Nuvio Enhanced",
+  "bundleIdentifier": "com.nuvio.enhanced",
+  "developerName": "illuminati945",
+  "localizedDescription": "Unofficial iOS and iPadOS fork of Nuvio Enhanced with automated GitHub Actions CI/CD compilation and SideStore / AltStore community sources.",
+  "iconURL": "https://github.com/illuminati945.png",
+  "category": "entertainment",
+  "versions": [
+    {
+      "version": "0.4.18",
+      "buildVersion": "122",
+      "date": "2026-08-26T09:07:58Z",
+      "localizedDescription": "Release of Nuvio Enhanced iOS v0.4.18",
+      "downloadURL": "https://github.com/illuminati945/NuvioMobile-iOS/releases/download/v0.4.18/Nuvio-v0.4.18-Enhanced.ipa",
+      "size": 61310926,
+      "sha256": "f40a3c77b8513f958658403cba413a51ca114ff408168250af997b513870b5d8",
+      "minOSVersion": "17.0"
+    }
+  ],
+  "appPermissions": {
+    "entitlements": [],
+    "privacy": {}
+  },
+  "upstream": {
+    "type": "github",
+    "repo": "illuminati945/NuvioMobile-iOS"
+  },
+  "subtitle": "Media streaming client",
+  "tintColor": "#FF2D55"
+}

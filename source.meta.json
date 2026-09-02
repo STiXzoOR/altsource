@@ -10,9 +10,18 @@
   "website": "https://github.com/STiXzoOR/altsource",
   "tintColor": "#3B82F6",
   "nsfw": false,
-  "featuredApps": [],
+  "featuredApps": [
+    "com.utmapp.UTM",
+    "org.provenance-emu.provenance",
+    "net.kdt.pojavlauncher",
+    "com.nuvio.enhanced"
+  ],
   "overrides": {
-    "pal": { "subtitle": "Notarized apps for AltStore PAL" },
-    "classic": { "subtitle": "Sideloadable apps for AltStore Classic and SideStore" }
+    "pal": {
+      "subtitle": "Notarized apps for AltStore PAL"
+    },
+    "classic": {
+      "subtitle": "Sideloadable apps for AltStore Classic and SideStore"
+    }
   }
 }
