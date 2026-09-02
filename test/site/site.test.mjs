@@ -69,6 +69,25 @@ test('home hero and nav carry the wordmark, the hero is the midnight panel, the 
   assert.ok(css.some((c) => /font-family:\s*["']?Chakra Petch/.test(c) && c.includes(font)), 'the CSS declares the font face and points at the shipped file');
 });
 
+test('home nav bar overlays the hero, transparent until scrolled, with the lockup on the left; other pages keep the sticky bar with a centred title', async () => {
+  const html = await page('index.html');
+  assert.match(html, /<header class="[^"]*\bfixed\b[^"]*"[^>]*data-navbar[^>]*data-overlay/, 'home bar is fixed over the hero and marked as an overlay');
+  assert.match(html, /<nav[^>]*>\s*<div class="nav-fade[^"]*justify-start/, 'no back-link spacer: the lockup starts at the left edge');
+  const pal = await page('apps/com.pal/index.html');
+  assert.match(pal, /<header class="[^"]*\bsticky\b/, 'app pages keep the sticky bar');
+  assert.match(pal, /<nav[^>]*>\s*<div class="flex min-w-\[78px\]/, 'app pages keep the back-link column');
+  assert.match(pal, /data-nav-title[^>]*>/, 'app title still present');
+  assert.match(pal, /<div class="nav-fade[^"]*justify-center[^"]*" data-nav-title/, 'app pages centre the title between back and trailing');
+  const css = (await Promise.all((await readdir(path.join(out, '_astro'))).filter((f) => f.endsWith('.css')).map((f) => page(path.join('_astro', f))))).join('');
+  assert.match(css, /data-overlay\]:not\(\[data-scrolled\]\)\{(?:[^}]*;)?backdrop-filter:none/, 'the unprefixed backdrop-filter is switched off while the overlay is transparent (the minifier drops it if a -webkit- copy comes last)');
+});
+
+test('the "more" toggle on clamped text fades into the page background instead of painting over the words', async () => {
+  const html = await page('index.html');
+  assert.doesNotMatch(html, /ios-bg/, 'no undefined colour token');
+  assert.match(html, /data-toggle class="[^"]*to-background/, 'the fade ends in the real background token');
+});
+
 test('app pages: GET follows the kinds, permissions are explained, screenshots, info and versions render', async () => {
   const both = await page('apps/com.both/index.html');
   assert.match(both, /data-sheet="get"/, 'two or more install targets open the action sheet');

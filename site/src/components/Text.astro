@@ -7,7 +7,7 @@ const lines = clamp === 3 ? 'line-clamp-3' : clamp === 5 ? 'line-clamp-5' : '';
 {clamp ? (
   <div class={`group relative ${cls}`} data-clamp>
     <p class={`${lines} whitespace-pre-line break-words group-data-[open]:line-clamp-none`} set:html={html}></p>
-    <button type="button" data-toggle class="absolute right-0 bottom-0 hidden bg-gradient-to-r from-transparent from-0% via-ios-bg via-35% to-ios-bg pl-9 text-[15px] font-medium leading-[1.5em] text-primary group-data-[overflow]:inline">more</button>
+    <button type="button" data-toggle class="absolute right-0 bottom-0 hidden bg-gradient-to-r from-transparent from-0% via-background via-35% to-background pl-9 text-[15px] font-medium leading-[1.5em] text-primary group-data-[overflow]:inline">more</button>
   </div>
 ) : (
   <p class={`whitespace-pre-line break-words ${cls}`} set:html={html}></p>

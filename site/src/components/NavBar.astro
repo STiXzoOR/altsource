@@ -1,18 +1,19 @@
 ---
 import Icon from './Icon.astro';
-const { title, icon, back, revealOnScroll = false } = Astro.props;
+/** overlay: fixed over the page and transparent until scrolled (home); revealOnScroll: title and trailing fade in past the sentinel. */
+const { title, icon, back, revealOnScroll = false, overlay = false } = Astro.props;
 const hasTrailing = Astro.slots.has('trailing');
 ---
-<header class="sticky top-0 z-40 border-b border-border bg-glass backdrop-blur-xl" data-navbar data-reveal={revealOnScroll ? '' : undefined}>
+<header class={`${overlay ? 'fixed inset-x-0' : 'sticky'} top-0 z-40 border-b border-border bg-glass pt-[env(safe-area-inset-top)] backdrop-blur-xl`} data-navbar data-reveal={revealOnScroll ? '' : undefined} data-overlay={overlay ? '' : undefined}>
   <nav class="mx-auto flex h-11 max-w-6xl items-center gap-2 px-4" aria-label="Page">
-    <div class="flex min-w-[78px] items-center">
-      {back && <a href={back.href} class="-ml-1 flex items-center gap-0.5 text-[1.05em] font-[450] text-primary hover:underline"><Icon name="ArrowLeft01Icon" class="size-5" strokeWidth={2} />{back.label}</a>}
-    </div>
-    <div class="nav-fade flex min-w-0 flex-1 items-center justify-center gap-1.5 font-semibold" data-nav-title data-hidden={revealOnScroll ? '' : undefined} aria-hidden={revealOnScroll ? 'true' : undefined}>
+    {back && <div class="flex min-w-[78px] items-center">
+      <a href={back.href} class="-ml-1 flex items-center gap-0.5 text-[1.05em] font-[450] text-primary hover:underline"><Icon name="ArrowLeft01Icon" class="size-5" strokeWidth={2} />{back.label}</a>
+    </div>}
+    <div class={`nav-fade flex min-w-0 flex-1 items-center ${back ? 'justify-center' : 'justify-start'} gap-1.5 font-semibold`} data-nav-title data-hidden={revealOnScroll ? '' : undefined} aria-hidden={revealOnScroll ? 'true' : undefined}>
       {icon && <img src={icon} alt="" width="28" height="28" class="app-icon size-7 rounded-lg" />}
       {Astro.slots.has('title') ? <slot name="title" /> : <p class="truncate">{title}</p>}
     </div>
-    <div class="nav-fade flex min-w-[78px] items-center justify-end gap-2" data-nav-trailing data-hidden={revealOnScroll && hasTrailing ? '' : undefined}>
+    <div class={`nav-fade flex ${back ? 'min-w-[78px]' : 'shrink-0'} items-center justify-end gap-2`} data-nav-trailing data-hidden={revealOnScroll && hasTrailing ? '' : undefined}>
       <slot name="trailing" />
     </div>
   </nav>
@@ -22,6 +23,6 @@ const hasTrailing = Astro.slots.has('trailing');
   const sentinel = document.querySelector('[data-nav-sentinel]');
   if (bar && sentinel && 'IntersectionObserver' in window) {
     const parts = bar.querySelectorAll('[data-nav-title], [data-nav-trailing]');
-    new IntersectionObserver(([e]) => { for (const p of parts) { p.toggleAttribute('data-hidden', e.isIntersecting); p.setAttribute('aria-hidden', e.isIntersecting ? 'true' : 'false'); } }, { rootMargin: '-44px 0px 0px 0px' }).observe(sentinel);
+    new IntersectionObserver(([e]) => { bar.toggleAttribute('data-scrolled', !e.isIntersecting); for (const p of parts) { p.toggleAttribute('data-hidden', e.isIntersecting); p.setAttribute('aria-hidden', e.isIntersecting ? 'true' : 'false'); } }, { rootMargin: '-44px 0px 0px 0px' }).observe(sentinel);
   }
 </script>
