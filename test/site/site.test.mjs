@@ -215,3 +215,16 @@ test('home: hero ribbon, Add and Share, a Today card for the featured app, shelv
   assert.match(html, /<a href="https:\/\/example\.org\/repo" rel="noopener"[^>]*>example\.org\/repo<span aria-hidden="true">↗<\/span><\/a>/, 'website link');
   assert.match(html, /class="hero-tile/, 'hero icon tile');
 });
+
+test('app page CSS: sheets slide on the iOS curve, the hero blurs its artwork, cards and grids carry the App Store numbers, pages morph the icon', async () => {
+  const css = await allCss();
+  assert.match(css, /\.sheet\{[^}]*translate:0 100%/, 'sheet starts below the screen');
+  assert.match(css, /@starting-style\{\.sheet\[open\]\{translate:0 100%\}\}/, 'enter animation');
+  assert.match(css, /\.sheet\{[^}]*cubic-bezier\(\.32,\s*\.72,\s*0,\s*1\)/, 'iOS sheet curve');
+  assert.match(css, /\.sheet-grabber\{[^}]*width:36px;height:5px/, 'grabber');
+  assert.match(css, /\.apphero-art\{[^}]*blur\(100px\)\s*saturate\(1\.5\)/, 'hero artwork blur');
+  assert.match(css, /\.apphero-icon\{[^}]*border:2px solid #ffffff4d/, 'hero icon border');
+  assert.match(css, /\.permcard\{[^}]*border-radius:10px/, 'privacy card radius');
+  assert.match(css, /\.permcard\{[^}]*padding:30px/, 'privacy card padding');
+  assert.match(css, /@view-transition\{navigation:auto\}/, 'cross-document view transitions');
+});

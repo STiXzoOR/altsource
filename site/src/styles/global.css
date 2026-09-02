@@ -319,3 +319,86 @@ html:not([data-store="sidestore"]) [data-store-only="sidestore"] { display: none
 /* Hero icon tile (App Store hero icon treatment) */
 .hero-tile { border-radius: 25%; border: 2px solid rgba(255, 255, 255, 0.3); box-shadow: 0 0 30px rgba(0, 0, 0, 0.33); }
 }
+
+/* ==================== App page and sheets (M8c) ==================== */
+@view-transition { navigation: auto; }
+
+@layer components {
+  /* Sheets: bottom sheet on phones, centred card from 640px. Opened with showModal(); [data-sheet="<id>"] triggers. */
+  .sheet {
+    position: fixed; inset: auto 0 0 0; margin: 0; width: 100%; max-width: none;
+    max-height: calc(100dvh - env(safe-area-inset-top) - 24px);
+    padding: 8px 16px calc(16px + env(safe-area-inset-bottom));
+    border: 0; border-radius: 20px 20px 0 0;
+    background: light-dark(#ffffff, #1c1c1e); color: var(--label);
+    overflow-y: auto; overscroll-behavior: contain;
+    translate: 0 100%;
+    transition: translate 0.4s cubic-bezier(0.32, 0.72, 0, 1), display 0.4s allow-discrete, overlay 0.4s allow-discrete;
+  }
+  .sheet[open] { translate: 0 0; }
+  @starting-style { .sheet[open] { translate: 0 100%; } }
+  .sheet::backdrop { background: rgb(0 0 0 / 0); transition: background 0.4s, display 0.4s allow-discrete, overlay 0.4s allow-discrete; }
+  .sheet[open]::backdrop { background: rgb(0 0 0 / 0.4); }
+  @starting-style { .sheet[open]::backdrop { background: rgb(0 0 0 / 0); } }
+  .sheet-grabber { width: 36px; height: 5px; border-radius: 3px; margin: 0 auto 12px; background: var(--fill); }
+  .sheet-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+  .sheet-close { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 9999px; background: var(--fill-2); color: var(--label-2); }
+  .sheet-body { min-height: 0; }
+  .sheet-group { overflow: hidden; border-radius: 14px; background: light-dark(rgba(0, 0, 0, 0.04), rgba(255, 255, 255, 0.08)); }
+  .sheet-action { display: flex; align-items: center; justify-content: center; min-height: 56px; padding: 0 16px; font-size: calc(17 * var(--u)); line-height: 1.3; color: var(--key); text-align: center; text-decoration: none; }
+  .sheet-action + .sheet-action { border-top: 0.5px solid var(--separator); }
+  .sheet-action:active { background: var(--fill-2); }
+  .sheet-cancel { display: flex; align-items: center; justify-content: center; width: 100%; min-height: 56px; margin-top: 8px; border-radius: 14px; font-size: calc(17 * var(--u)); font-weight: 600; color: var(--key); background: light-dark(#ffffff, #2c2c2e); }
+  .sheet-title { padding: 6px 16px 10px; text-align: center; font-size: calc(13 * var(--u)); font-weight: 600; color: var(--label-2); }
+  .sheet-title p { font-weight: 400; margin-top: 2px; }
+  .sheet-actions { background: transparent; padding-inline: 8px; }
+  .sheet-actions .sheet-grabber { display: none; }
+  :root:has(dialog.sheet[open]) { overflow: hidden; }
+  @media (min-width: 640px) {
+    .sheet { inset: 0; margin: auto; width: min(28rem, 90vw); height: fit-content; max-height: 85dvh; border-radius: 16px; padding: 20px 24px 24px; translate: 0; scale: 0.96; opacity: 0; transition: scale 0.2s ease-out, opacity 0.2s ease-out, display 0.2s allow-discrete, overlay 0.2s allow-discrete; }
+    .sheet[open] { scale: 1; opacity: 1; }
+    @starting-style { .sheet[open] { scale: 0.96; opacity: 0; } }
+    .sheet-grabber { display: none; }
+    .sheet-wide { width: min(691px, 80vw); border-radius: 10px; }
+    .sheet-actions { background: light-dark(#ffffff, #1c1c1e); padding: 8px; }
+    .sheet-group { background: transparent; }
+    .sheet-cancel { background: transparent; margin-top: 0; border-top: 0.5px solid var(--separator); border-radius: 0; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .sheet { translate: 0 0; scale: 1; transition: opacity 0.15s ease-out, display 0.15s allow-discrete, overlay 0.15s allow-discrete; opacity: 0; }
+    .sheet[open] { opacity: 1; }
+  }
+
+  /* Desktop app hero: blurred artwork under a dark gradient, App Store icon treatment */
+  .apphero { position: relative; overflow: hidden; min-height: 286px; color: #fff; background: #000; }
+  .apphero-art { position: absolute; inset: -60px; background: var(--hero-art) center / cover no-repeat; filter: blur(100px) saturate(1.5); transform: scale(1.15); }
+  .apphero-shade { position: absolute; inset: 0; background: linear-gradient(to bottom, transparent 20%, rgba(0, 0, 0, 0.8) 100%); }
+  .apphero-icon { border-radius: 25%; border: 2px solid rgba(255, 255, 255, 0.3); box-shadow: 0 0 30px rgba(0, 0, 0, 0.33); }
+  .apphero h1 { text-shadow: 0 0 5px rgba(0, 0, 0, 0.2); }
+
+  /* Phone app hero: AltStore tint header with a soft glow and a translucent card */
+  .apphero-phone { position: relative; color: var(--on-tint, #fff); background: radial-gradient(60% 55% at 50% 0%, rgba(255, 255, 255, 0.35), rgba(255, 255, 255, 0) 70%), var(--tint); }
+  .apphero-card { display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-radius: 20px; background: var(--card-tint, rgba(255, 255, 255, 0.35)); }
+
+  /* App Privacy-style permission cards */
+  .permcard { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 30px; border-radius: 10px; background: var(--surface); }
+  .permcard-items { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; margin-top: 16px; text-align: left; }
+
+  /* Information: inset grouped rows on phones, App Store dl grid from 1000px */
+  .info { display: flex; flex-direction: column; border-radius: 12px; background: var(--surface); padding: 0 16px; }
+  .info-row { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; min-height: 44px; padding: 10px 0; }
+  .info-row + .info-row { border-top: 0.5px solid var(--separator); }
+  .info-row dt { color: var(--label-2); flex: none; }
+  .info-row dd { min-width: 0; text-align: right; overflow-wrap: anywhere; }
+  @media (min-width: 1000px) {
+    .info { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px 20px; padding: 0; border-radius: 0; background: transparent; }
+    .info-row { display: block; min-height: 0; padding: 0; }
+    .info-row + .info-row { border-top: 0; }
+    .info-row dt { margin-bottom: 4px; }
+    .info-row dd { text-align: left; }
+  }
+  @media (min-width: 1260px) { .info { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+
+  /* Back chevron over a tinted header: white in a translucent circle until the bar collapses */
+  .navbar[data-tinted]:not([data-collapsed]) .navbar-back { color: #fff; background: rgba(0, 0, 0, 0.25); }
+}
