@@ -1,0 +1,88 @@
+---
+import Base from '../../layouts/Base.astro';
+import { getSite } from '../../lib/data.mjs';
+const site = await getSite();
+---
+<Base title="Status" description="Build status, upstream freshness and link health." noindex>
+  <h1 class="mt-8 text-2xl font-bold">Status</h1>
+  <p id="meta" class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">Loading…</p>
+
+  <div id="tiles" class="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-7"></div>
+
+  <h2 class="mt-8 mb-3 text-lg font-semibold">Sources</h2>
+  <div id="sources" class="grid gap-3 sm:grid-cols-2"></div>
+
+  <h2 class="mt-8 mb-3 text-lg font-semibold">Apps</h2>
+  <div class="overflow-x-auto rounded-2xl border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900">
+    <table id="apps" class="w-full text-sm">
+      <thead class="text-left text-xs tracking-wide text-zinc-500 uppercase dark:text-zinc-400"><tr><th class="p-3">App</th><th class="p-3">Kinds</th><th class="p-3">Local</th><th class="p-3">Upstream</th><th class="p-3">State</th><th class="p-3">Checked</th></tr></thead>
+      <tbody class="divide-y divide-zinc-100 dark:divide-zinc-800"></tbody>
+    </table>
+  </div>
+  <p id="no-apps" class="mt-2 text-sm text-zinc-500" hidden>No apps yet.</p>
+
+  <h2 class="mt-8 mb-3 text-lg font-semibold">Recent activity</h2>
+  <div class="overflow-x-auto rounded-2xl border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900">
+    <table id="recent" class="w-full text-sm">
+      <thead class="text-left text-xs tracking-wide text-zinc-500 uppercase dark:text-zinc-400"><tr><th class="p-3">When</th><th class="p-3">App</th><th class="p-3">Action</th><th class="p-3">Version</th><th class="p-3">Message</th></tr></thead>
+      <tbody class="divide-y divide-zinc-100 dark:divide-zinc-800"></tbody>
+    </table>
+  </div>
+  <p id="no-recent" class="mt-2 text-sm text-zinc-500" hidden>No sync activity recorded.</p>
+
+  <h2 class="mt-8 mb-3 text-lg font-semibold">Links</h2>
+  <p id="links" class="text-sm text-zinc-500 dark:text-zinc-400"></p>
+  <div class="mt-2 overflow-x-auto rounded-2xl border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900" id="broken-wrap" hidden>
+    <table id="broken" class="w-full text-sm"><thead class="text-left text-xs tracking-wide text-zinc-500 uppercase dark:text-zinc-400"><tr><th class="p-3">URL</th><th class="p-3">Status</th><th class="p-3">Where</th></tr></thead><tbody class="divide-y divide-zinc-100 dark:divide-zinc-800"></tbody></table>
+  </div>
+</Base>
+<script>
+  const $ = (id) => document.getElementById(id);
+  const here = new URL('..', location.href);
+  const load = async (f) => { try { const r = await fetch(new URL(f, here), { cache: 'no-store' }); return r.ok ? await r.json() : null; } catch { return null; } };
+  const fmt = (iso) => (iso ? iso.replace('T', ' ').replace(/:\d\d(\.\d+)?Z$/, ' UTC') : '-');
+  const label = (l) => (l ? `${l.version}${l.buildVersion ? ` (${l.buildVersion})` : ''}` : '-');
+  const badge = (state) => { const tone = { 'in-sync': 'bg-green-600', behind: 'bg-amber-600', ahead: 'bg-blue-600', unknown: 'bg-red-600' }[state] ?? 'bg-zinc-500'; return `<span class="inline-block rounded-full px-2 py-0.5 text-[11px] font-bold text-white ${tone}">${state}</span>`; };
+  const cell = (cls = 'p-3 align-top') => { const td = document.createElement('td'); td.className = cls; return td; };
+  const row = (values) => { const tr = document.createElement('tr'); for (const v of values) { const td = cell(); if (v instanceof Node) td.appendChild(v); else if (typeof v === 'object' && v?.html) td.innerHTML = v.html; else td.textContent = v ?? ''; tr.appendChild(td); } return tr; };
+
+  (async () => {
+    const [status, pal, classic] = await Promise.all([load('status.json'), load('source.pal.json'), load('source.json')]);
+    const universal = (url) => 'https://altstore.io/source/' + url.replace(/^https?:\/\//, '');
+    if (!status) {
+      $('meta').textContent = 'No status.json next to the sources (it is generated on deploy). Showing the sources only.';
+      const seen = new Map();
+      for (const [kind, src] of [['adp', pal], ['ipa', classic]]) for (const a of src?.apps ?? []) { const e = seen.get(a.bundleIdentifier) ?? { app: a, kinds: [] }; e.kinds.push(kind); seen.set(a.bundleIdentifier, e); }
+      for (const { app, kinds } of seen.values()) $('apps').tBodies[0].appendChild(row([app.name, kinds.join(', '), label(app.versions?.[0]), '-', { html: badge('n/a') }, '-']));
+      $('no-apps').hidden = seen.size > 0; $('no-recent').hidden = false; $('links').textContent = 'No link check recorded.';
+      return;
+    }
+    $('meta').textContent = `generated ${fmt(status.generatedAt)}${status.commit ? ` · commit ${status.commit.slice(0, 7)}` : ''}`;
+    const c = status.counts;
+    const behind = status.apps.filter((a) => a.upstream?.state === 'behind').length;
+    const unknown = status.apps.filter((a) => a.upstream?.state === 'unknown').length;
+    $('tiles').innerHTML = [['Apps', c.apps], ['PAL', c.pal], ['Classic', c.classic], ['News', c.news], ['Behind', behind], ['Unknown', unknown], ['Broken links', status.linkCheck ? status.linkCheck.broken.length : '-']]
+      .map(([t, v]) => `<div class="rounded-2xl border border-zinc-200 bg-white p-3 dark:border-zinc-800 dark:bg-zinc-900"><div class="text-xs text-zinc-500 dark:text-zinc-400">${t}</div><div class="text-2xl font-bold">${v}</div></div>`).join('');
+    for (const [key, title] of [['pal', 'AltStore PAL'], ['classic', 'AltStore Classic / SideStore']]) {
+      const url = status.sourceURLs[key];
+      const div = document.createElement('div');
+      div.className = 'flex items-center gap-4 rounded-2xl border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900';
+      div.innerHTML = `<div class="size-28 shrink-0 rounded-lg bg-white p-1 [&>svg]:h-full [&>svg]:w-full">${status.qr[key]}</div><div class="min-w-0"><div class="font-semibold">${title}</div><div class="truncate font-mono text-xs text-zinc-500"></div><a class="mt-1 inline-block text-sm font-semibold text-accent" href="${universal(url)}">Add link</a></div>`;
+      div.querySelector('.font-mono').textContent = url;
+      $('sources').appendChild(div);
+    }
+    for (const a of status.apps) {
+      const up = a.upstream;
+      const name = document.createElement('div'); name.innerHTML = '<b></b><div class="font-mono text-xs text-zinc-500"></div>'; name.querySelector('b').textContent = a.name; name.querySelector('div').textContent = a.bundleIdentifier;
+      $('apps').tBodies[0].appendChild(row([name, a.kinds.join(', '), label(a.latest) + (a.latest?.date ? ` · ${a.latest.date.slice(0, 10)}` : ''), up ? { html: `<a class="text-accent" href="${up.ref}">${up.type}</a> ${label(up.latest)}${up.latest?.tag ? ` <span class="text-zinc-500">${up.latest.tag}</span>` : ''}${up.error ? `<div class="text-xs text-zinc-500">${up.error}</div>` : ''}` } : 'none', { html: up ? badge(up.state) : badge('manual') }, up ? fmt(up.checkedAt) : '-']));
+    }
+    $('no-apps').hidden = status.apps.length > 0;
+    for (const e of status.recent ?? []) $('recent').tBodies[0].appendChild(row([fmt(e.at), e.id, e.action, e.version ?? '-', e.message ?? '']));
+    $('no-recent').hidden = (status.recent ?? []).length > 0;
+    if (status.linkCheck) {
+      const lc = status.linkCheck;
+      $('links').textContent = `${lc.broken.length} broken of ${lc.total} URL(s), checked ${fmt(lc.checkedAt)}`;
+      if (lc.broken.length) { $('broken-wrap').hidden = false; for (const b of lc.broken) $('broken').tBodies[0].appendChild(row([b.url, b.status || 'network error', b.where])); }
+    } else $('links').textContent = 'No link check recorded yet.';
+  })();
+</script>
