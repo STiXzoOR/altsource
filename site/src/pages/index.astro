@@ -7,70 +7,115 @@ import SectionHeader from '../components/SectionHeader.astro';
 import SourceURLChip from '../components/SourceURLChip.astro';
 import AppRow from '../components/AppRow.astro';
 import NewsCard from '../components/NewsCard.astro';
+import FeatureCard from '../components/FeatureCard.astro';
+import Shelf from '../components/Shelf.astro';
+import Ribbon from '../components/Ribbon.astro';
 import Text from '../components/Text.astro';
 import ActionSheet from '../components/ActionSheet.astro';
 import Wordmark from '../components/Wordmark.astro';
 import StoreSwitch from '../components/StoreSwitch.astro';
-import { getSite, universalLink } from '../lib/data.mjs';
+import { getSite, universalLink, formatDate } from '../lib/data.mjs';
 const site = await getSite();
 const base = import.meta.env.BASE_URL;
 const { meta, apps, featured, news, counts } = site;
 const rows = featured.length ? featured : apps.slice(0, 6);
-const addActions = [
-  { label: 'Add to AltStore PAL', href: universalLink(site.urls.pal), primary: true },
-  { label: 'Add to AltStore Classic', href: universalLink(site.urls.classic) },
-  { label: 'Add to SideStore', href: `sidestore://source?url=${encodeURIComponent(site.urls.classic)}` },
+const river = (featured.length ? featured : apps).slice(0, 12);
+const latest = [...apps.map((e) => e.latest.date), ...news.map((n) => n.date)].filter(Boolean).sort().at(-1);
+const facts = [
+  { label: 'Apps', value: String(apps.length), sub: 'in this source', href: `${base}apps/` },
+  { label: 'AltStore PAL', value: String(counts.pal), sub: 'notarized' },
+  { label: 'Sideload', value: String(counts.classic), sub: 'Classic · SideStore' },
+  { label: 'News', value: String(news.length), sub: news.length === 1 ? 'post' : 'posts', href: `${base}news/` },
+  ...(latest ? [{ label: 'Updated', value: formatDate(latest).replace(/ \d{4}$/, ''), sub: latest.slice(0, 4) }] : []),
 ];
+const addLinks = [
+  { store: 'pal', label: 'Add to AltStore PAL', href: universalLink(site.urls.pal), primary: true },
+  { store: 'classic', label: 'Add to AltStore Classic', href: universalLink(site.urls.classic) },
+  { store: 'sidestore', label: 'Add to SideStore', href: `sidestore://source?url=${encodeURIComponent(site.urls.classic)}` },
+];
+const addActions = addLinks.map(({ store, ...a }) => a);
+const empty = { all: 'No apps yet. Add the source now and they will appear as they are published.', pal: 'Nothing for AltStore PAL yet.', classic: 'Nothing for AltStore Classic yet.', sidestore: 'Nothing for SideStore yet.' };
+const emptyAttrs = { 'data-empty': '', 'data-empty-pal': empty.pal, 'data-empty-classic': empty.classic, 'data-empty-sidestore': empty.sidestore };
+const website = meta.website ? meta.website.replace(/^https?:\/\//, '').replace(/\/$/, '') : null;
 ---
 <Base width="wide" flush>
   <NavBar slot="nav" icon={meta.iconURL}>
     <Wordmark slot="title" name={meta.name} class="truncate text-[1.05em]" />
-    <Pill slot="trailing" label="Add" data-sheet="add-source" />
+    <span slot="trailing" class="contents">
+      <Pill label="Add" data-store-only="all" data-sheet="add-source" />
+      {addLinks.map((l) => <Pill label="Add" href={l.href} data-store-only={l.store} />)}
+    </span>
   </NavBar>
-  <section class="hero-midnight relative -mx-4 overflow-hidden px-5 pt-[calc(1.75rem+env(safe-area-inset-top,0px))] pb-7 sm:px-6 lg:mx-0 lg:mt-2 lg:rounded-[var(--radius)] lg:px-12 lg:py-14" aria-labelledby="source-title">
-    <div class="flex items-center gap-5 sm:gap-8 lg:gap-12">
+
+  <section class="hero-midnight relative -mx-4 overflow-hidden px-4 pt-[calc(60px+env(safe-area-inset-top,0px))] pb-6 xs:-mx-[25px] xs:px-[25px] lg:mx-0 lg:mt-2 lg:min-h-[286px] lg:rounded-card lg:px-10 lg:py-10" aria-labelledby="source-title">
+    <div class="flex items-start gap-5 sm:gap-8 lg:items-center lg:gap-12">
       <div class="min-w-0 flex-1">
-        <h1 id="source-title" class="leading-none tracking-tight"><Wordmark name={meta.name} stacked class="text-[2.75rem] sm:text-[3.5rem] lg:text-[6rem]" /></h1>
-        {meta.subtitle && <p class="mt-3 text-[0.95em] text-white/70 lg:mt-4 lg:text-lg">{meta.subtitle}</p>}
-        <p class="mt-1 text-[0.8em] font-medium uppercase text-white/55">{apps.length} {apps.length === 1 ? 'app' : 'apps'} · {counts.pal} PAL · {counts.classic} sideload</p>
-        <div class="mt-4 lg:mt-6"><Pill label="Add" data-sheet="add-source" aria-haspopup="dialog" /></div>
+        <h1 id="source-title" class="leading-none tracking-tight"><Wordmark name={meta.name} stacked class="text-[2.75rem] sm:text-[3.25rem] lg:text-[4rem]" /></h1>
+        {meta.subtitle && <p class="mt-3 t-body text-white/70 lg:mt-4 lg:t-title-2-em lg:text-[rgba(246,246,246,.6)]">{meta.subtitle}</p>}
+        <Ribbon items={facts} onDark class="mt-4 lg:mt-5 lg:max-w-[600px]" />
+        <div class="mt-5 flex flex-wrap items-center gap-2.5 lg:mt-6">
+          <button type="button" class="get get-blue min-h-8" data-store-only="all" data-sheet="add-source" aria-haspopup="dialog">Add to AltStore</button>
+          {addLinks.map((l) => <a href={l.href} class="get get-blue min-h-8" data-store-only={l.store}>{l.label}</a>)}
+          <button type="button" class="get get-glass min-h-8 gap-2" data-share data-share-url={site.urls.pal} data-share-title={meta.name}><Icon name="Share01Icon" class="size-4" strokeWidth={2} />Share</button>
+          <span class="sr-only" aria-live="polite" data-share-status></span>
+        </div>
       </div>
-      <img src={meta.iconURL} alt="" width="96" height="96" class="app-icon size-24 shrink-0 rounded-[22%] shadow-2xl shadow-black/50 sm:size-36 lg:size-56" />
+      <img src={meta.iconURL} alt="" width="194" height="194" class="hero-tile size-24 shrink-0 sm:size-32 lg:size-[194px]" />
     </div>
   </section>
   <div data-nav-sentinel></div>
   <div class="mt-3 lg:hidden"><StoreSwitch class="w-full" /></div>
-  <div class="mt-3 grid gap-2 sm:grid-cols-2">
-    <SourceURLChip label="PAL" url={site.urls.pal} />
-    <SourceURLChip label="Classic" url={site.urls.classic} />
+  <div class="mt-3 grid gap-2 sm:grid-cols-2 lg:mt-4 lg:max-w-[840px]">
+    <div data-stores="pal"><SourceURLChip label="PAL" url={site.urls.pal} /></div>
+    <div data-stores="classic sidestore"><SourceURLChip label="Classic" url={site.urls.classic} /></div>
   </div>
+
+  {featured.length > 0 && (
+    <section class="mt-8 hidden lg:block" aria-labelledby="featured-h">
+      <SectionHeader id="featured-h" title="Featured" href={`${base}apps/`} />
+      <Shelf class="[--shelf-col-lg:407px]">{featured.map((entry) => <FeatureCard entry={entry} />)}</Shelf>
+    </section>
+  )}
 
   {news.length > 0 && (
     <section class="mt-8" aria-labelledby="news-h">
-      <SectionHeader id="news-h" title="News" href={`${base}news/`} />
-      <div class="snap-strip -mx-4 mt-3 flex snap-x gap-4 overflow-x-auto px-4 pb-2 lg:mx-0 lg:grid lg:grid-cols-3 lg:overflow-visible lg:px-0">
-        {news.slice(0, 6).map((item) => <div class="w-[88%] shrink-0 snap-start sm:w-[60%] lg:w-auto"><NewsCard item={item} apps={apps} minimal /></div>)}
-      </div>
+      <SectionHeader id="news-h" title="News" href={`${base}news/`} linkLabel="View All" />
+      <Shelf class="[--shelf-col:min(88vw,340px)] [--shelf-n:3]">{news.slice(0, 6).map((item) => <NewsCard item={item} apps={apps} minimal />)}</Shelf>
     </section>
   )}
 
   <section class="mt-8" aria-labelledby="apps-h">
     <SectionHeader id="apps-h" title={featured.length ? 'Featured Apps' : 'Apps'} href={`${base}apps/`} linkLabel="View All Apps" />
-    {rows.length === 0 ? (
-      <p class="mt-3 rounded-[var(--radius)] bg-card p-6 text-center text-[0.95em] text-muted-foreground">No apps yet. Add the source now and they will appear as they are published.</p>
-    ) : (
-      <div class="mt-3 grid gap-3 md:grid-cols-2 lg:grid-cols-3">{rows.map((entry) => <AppRow entry={entry} />)}</div>
-    )}
+    <div class="lg:hidden" data-app-list>
+      {rows.length === 0 ? <p class="rounded-[20px] bg-surface p-6 text-center t-body text-label-2">{empty.all}</p> : <div class="grid gap-2.5">{rows.map((entry) => <AppRow entry={entry} />)}</div>}
+      <p class="rounded-[20px] bg-surface p-6 text-center t-body text-label-2" hidden {...emptyAttrs}></p>
+    </div>
+    <div class="hidden lg:block" data-app-list>
+      {river.length === 0 ? <p class="rounded-box bg-surface p-6 text-center t-body text-label-2">{empty.all}</p> : <div class="grid gap-x-5 gap-y-6 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">{river.map((entry) => <AppRow entry={entry} />)}</div>}
+      <p class="rounded-box bg-surface p-6 text-center t-body text-label-2" hidden {...emptyAttrs}></p>
+    </div>
   </section>
 
   {(meta.description || meta.website) && (
     <section class="mt-8" aria-labelledby="about-h">
       <SectionHeader id="about-h" title="About" />
-      <div class="mt-2 px-1 lg:grid lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] lg:gap-8">
-        <div>{meta.description && <Text text={meta.description} clamp={5} />}</div>
-        {meta.website && <p class="mt-2 lg:mt-0"><a href={meta.website} rel="noopener" class="inline-flex items-center gap-1 text-primary hover:underline"><Icon name="Link01Icon" class="size-4" />{meta.website}</a></p>}
+      <div class="lg:grid lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] lg:gap-8">
+        <div class="t-body lg:t-body-tall">{meta.description && <Text text={meta.description} clamp={5} />}</div>
+        {meta.website && <p class="mt-3 lg:mt-0"><a href={meta.website} rel="noopener" class="inline-flex items-center gap-1 t-body text-key hover:underline lg:t-callout-em">{website}<span aria-hidden="true">↗</span></a></p>}
       </div>
     </section>
   )}
   <ActionSheet id="add-source" title={`Add "${meta.name}"`} message="Choose the app you use. The source keeps your apps updated." actions={addActions} />
 </Base>
+<script>
+  for (const b of document.querySelectorAll('[data-share]')) {
+    b.addEventListener('click', async () => {
+      const url = b.dataset.shareUrl, title = b.dataset.shareTitle;
+      const status = document.querySelector('[data-share-status]');
+      try {
+        if (navigator.share) await navigator.share({ title, url });
+        else { await navigator.clipboard.writeText(url); if (status) { status.textContent = 'Link copied'; setTimeout(() => { status.textContent = ''; }, 1500); } }
+      } catch {}
+    });
+  }
+</script>

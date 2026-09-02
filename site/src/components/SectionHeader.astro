@@ -1,8 +1,10 @@
 ---
-const { title, href, linkLabel = 'View All', as = 'h2', id } = Astro.props;
+import Icon from './Icon.astro';
+/** Section title row: AltStore large title on phones; App Store shelf title (22/700) with a chevron link from 1000px. */
+const { title, href, linkLabel = 'See All', as = 'h2', id } = Astro.props;
 const Tag = as;
 ---
-<div class="flex items-baseline justify-between gap-4 px-1">
-  <Tag id={id} class={as === 'h1' ? 'text-[1.9rem] font-bold tracking-tight' : 'text-[1.4rem] font-bold tracking-tight'}>{title}</Tag>
-  {href && <a href={href} class="shrink-0 text-[1.02em] font-[450] text-primary hover:underline">{linkLabel}</a>}
+<div class="mb-[13px] flex items-baseline justify-between gap-4">
+  <Tag id={id} class="t-large-title-em lg:t-title-1-em">{title}</Tag>
+  {href && <a href={href} class="group flex shrink-0 items-center t-body text-key lg:t-callout-em">{linkLabel}<Icon name="ArrowRight01Icon" class="ml-0.5 hidden size-3 transition-transform group-hover:translate-x-px lg:inline" strokeWidth={2.5} /></a>}
 </div>

@@ -11,7 +11,7 @@ const adp = (o = {}) => version({ downloadURL: 'https://h/adp/x/', ...o });
 const ipa = (o = {}) => version({ downloadURL: 'https://gh/d/a.ipa', ...o });
 
 const fixture = await root({
-  'source.meta.json': { name: 'Fixture Source', baseURL: BASE, subtitle: 'sub', description: 'Hello https://example.com', iconURL: 'assets/icon.png', headerURL: 'assets/header.png', tintColor: '#123456', featuredApps: ['com.both'] },
+  'source.meta.json': { name: 'Fixture Source', baseURL: BASE, subtitle: 'sub', description: 'Hello https://example.com', iconURL: 'assets/icon.png', headerURL: 'assets/header.png', website: 'https://example.org/repo', tintColor: '#123456', featuredApps: ['com.both'] },
   'apps/com.pal.json': app('com.pal', { name: 'Pal Only', marketplaceID: '1', versions: [adp()], appPermissions: { entitlements: ['com.apple.security.application-groups'], privacy: { NSCameraUsageDescription: 'Snap' } } }),
   'apps/com.both.json': app('com.both', { name: 'Both Kinds', marketplaceID: '2', screenshots: { iphone: ['assets/s.png'], ipad: [{ imageURL: 'https://x/i.png', width: 10, height: 20 }] }, versions: [adp({ version: '2.0' }), ipa({ version: '2.0', kind: 'ipa' }), ipa({ version: '1.0', date: '2026-01-01', localizedDescription: 'old notes' })] }),
   'news/a.json': news('a', { title: 'First post', date: '2026-01-01' }),
@@ -43,7 +43,6 @@ test('home page shows the source, both apps, news and the add sheet; accessible 
   assert.match(html, /sidestore:\/\/source\?url=/);
   assert.match(html, /First post/);
   assert.match(html, /href="https:\/\/example\.com"/, 'description URLs are linked');
-  assert.match(html, /2 apps · 2 PAL · 1 sideload/);
   assert.match(html, /data-sheet="add-source"/);
   assert.match(html, /<button[^>]*data-copy="[^"]*"[^>]*class="[^"]*\bmin-w-0\b/, 'source URL chips may shrink below their URL so they never overflow a phone screen');
   assert.match(html, /<dialog id="add-source"[^>]*aria-labelledby="add-source-title"/);
@@ -191,4 +190,28 @@ test('storefront component CSS: ribbon, shelf, Today card, Get pill and AltStore
   for (const prop of ['min-height:87px', 'padding:14px 16px', 'border-radius:20px']) assert.match(css, new RegExp(`\\.approw\\{[^}]*${prop}`), `AltStore row ${prop}`);
   assert.match(css, /\.pill\{[^}]*min-width:76px;height:30px/, 'AltStore pill');
   assert.match(css, /html:not\(\[data-store=\\?"?pal\\?"?\]\) \[data-store-only=\\?"?pal\\?"?\]/, 'store-only rule');
+});
+
+test('app rows carry both looks: the AltStore pill for phones and the App Store Get pill for desktop', async () => {
+  const apps = await page('apps/index.html');
+  assert.match(apps, /class="approw"[^>]*data-stores="pal classic sidestore"[\s\S]*?<span class="pill shrink-0 lg:hidden">Get<\/span><span class="get hidden shrink-0 lg:inline-flex">Get<\/span>/, 'row with both pills');
+  assert.match(apps, /class="approw"[^>]*data-app[^>]*>\s*<img[^>]*style="view-transition-name: icon-com-both"/, 'the Apps page rows name their icons for the morph');
+});
+
+test('home: hero ribbon, Add and Share, a Today card for the featured app, shelves, rows, per-store empty states and the website link', async () => {
+  const html = await page('index.html');
+  assert.match(html, /<span class="ribbon-label">Apps<\/span>\s*<span class="ribbon-value">2<\/span>/, 'ribbon counts apps');
+  assert.match(html, /<span class="ribbon-label">AltStore PAL<\/span>\s*<span class="ribbon-value">2<\/span>/, 'ribbon counts PAL');
+  assert.match(html, /<span class="ribbon-label">Sideload<\/span>\s*<span class="ribbon-value">1<\/span>/, 'ribbon counts sideload');
+  assert.match(html, /class="get get-blue[^"]*" data-store-only="all" data-sheet="add-source" aria-haspopup="dialog">Add to AltStore</, 'Add opens the sheet under All');
+  assert.match(html, /<a href="https:\/\/altstore\.io\/source\/stixzoor\.github\.io\/altsource\/source\.pal\.json" class="get get-blue[^"]*" data-store-only="pal">Add to AltStore PAL</, 'Add is a direct PAL link under PAL');
+  assert.match(html, /<a href="sidestore:\/\/source\?url=[^"]*" class="get get-blue[^"]*" data-store-only="sidestore">Add to SideStore</, 'Add is a direct SideStore link under SideStore');
+  assert.match(html, /<div data-stores="classic sidestore"><button type="button" data-copy="https:\/\/stixzoor\.github\.io\/altsource\/source\.json"/, 'the Classic chip belongs to Classic and SideStore');
+  assert.match(html, /data-share data-share-url="https:\/\/stixzoor\.github\.io\/altsource\/source\.pal\.json"/, 'Share carries the PAL URL');
+  assert.match(html, /<a href="\/altsource\/apps\/com\.both\/" class="today"[\s\S]*?<p class="today-eyebrow">utilities<\/p>\s*<h3 class="today-title">Both Kinds<\/h3>/, 'Today card for the featured app');
+  assert.match(html, /<div class="shelf-list" data-shelf-list>[\s\S]*?class="newscard"/, 'news shelf');
+  assert.match(html, /data-app-list>[\s\S]*?class="approw"/, 'rows inside an app list');
+  assert.match(html, /data-empty data-empty-pal="Nothing for AltStore PAL yet\." data-empty-classic="Nothing for AltStore Classic yet\." data-empty-sidestore="Nothing for SideStore yet\."/, 'per-store empty state');
+  assert.match(html, /<a href="https:\/\/example\.org\/repo" rel="noopener"[^>]*>example\.org\/repo<span aria-hidden="true">↗<\/span><\/a>/, 'website link');
+  assert.match(html, /class="hero-tile/, 'hero icon tile');
 });

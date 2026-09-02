@@ -2,6 +2,7 @@
 import AppRow from './AppRow.astro';
 import { formatDate } from '../lib/data.mjs';
 import { normalizeTint, onTint } from '../lib/tint.mjs';
+/** News card: solid tint (artwork on top when given) with a date eyebrow, title and caption. AltStore-sized on phones, App Store card from 1000px. */
 const { item, apps, minimal = false } = Astro.props;
 const app = item.appID && !minimal ? apps.find((a) => a.id === item.appID) : null;
 const tint = item.tintColor ? normalizeTint(item.tintColor) : null;
@@ -9,13 +10,13 @@ const style = tint ? `background-color: ${tint}; color: ${onTint(tint)}` : 'back
 const Wrapper = item.url ? 'a' : 'div';
 ---
 <div class="flex flex-col gap-3">
-  <Wrapper href={item.url} rel={item.url ? 'noopener' : undefined} class="block overflow-hidden rounded-[1.5em] transition hover:opacity-75" style={style}>
-    <div class="m-6 line-clamp-4">
-      <p class="mb-1 text-[0.8em] font-medium uppercase opacity-75">{formatDate(item.date)}</p>
-      <h3 class="mb-1 text-[1.1em] leading-snug font-bold">{item.title}</h3>
-      <p class="text-[0.9em]">{item.caption}</p>
+  <Wrapper href={item.url} rel={item.url ? 'noopener' : undefined} class="newscard" style={style}>
+    {item.imageURL && !minimal && <img src={item.imageURL} alt="" loading="lazy" class="block aspect-[3/2] w-full object-cover" />}
+    <div class="flex min-h-[140px] flex-col justify-end p-5 lg:min-h-[186px]">
+      <p class="t-caption-em uppercase opacity-75">{formatDate(item.date)}</p>
+      <h3 class="mt-1 t-title-2-em text-balance">{item.title}</h3>
+      <p class="mt-1 line-clamp-2 t-body opacity-85 lg:t-body-tall">{item.caption}</p>
     </div>
-    {item.imageURL && !minimal && <div class="max-h-[15em] overflow-hidden"><img src={item.imageURL} alt="" loading="lazy" class="block w-full" /></div>}
   </Wrapper>
   {app && <AppRow entry={app} />}
 </div>

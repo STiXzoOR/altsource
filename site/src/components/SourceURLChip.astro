@@ -2,7 +2,7 @@
 import Icon from './Icon.astro';
 const { label, url } = Astro.props;
 ---
-<button type="button" data-copy={url} class="flex w-full min-w-0 items-center gap-2 rounded-[10px] bg-black/[.08] px-3 py-2 text-left text-primary hover:opacity-75 dark:bg-white/[.12]" aria-label={`Copy ${label} source URL`}>
+<button type="button" data-copy={url} class="flex w-full min-w-0 items-center gap-2 rounded-full bg-key/6 px-3 py-1.5 text-left text-key transition hover:bg-key/10 active:bg-key/7 t-callout-em" aria-label={`Copy ${label} source URL`}>
   <span class="shrink-0 text-[0.75em] font-semibold uppercase opacity-60">{label}</span>
   <span class="min-w-0 flex-1 truncate text-[0.95em]">{url}</span>
   <span class="shrink-0" data-copy-icon><Icon name="Copy01Icon" class="size-4" /></span>

@@ -18,9 +18,20 @@ const { variant = 'segmented', class: cls = '' } = Astro.props;
 )}
 <script>
   const buttons = document.querySelectorAll('[data-store-set]');
+  const refreshEmpty = (store) => {
+    for (const list of document.querySelectorAll('[data-app-list]')) {
+      const empty = list.querySelector('[data-empty]');
+      const rows = [...list.querySelectorAll('[data-app]')];
+      if (!empty || rows.length === 0) continue;
+      const visible = store === 'all' || rows.some((r) => (r.dataset.stores || '').split(' ').includes(store));
+      empty.hidden = visible;
+      empty.textContent = visible ? '' : (empty.dataset[`empty${store[0].toUpperCase()}${store.slice(1)}`] ?? '');
+    }
+  };
   const apply = (value) => {
     document.documentElement.dataset.store = value;
     for (const b of buttons) b.setAttribute('aria-checked', String(b.dataset.storeSet === value));
+    refreshEmpty(value);
   };
   apply(document.documentElement.dataset.store || 'all');
   for (const b of buttons) b.addEventListener('click', () => {

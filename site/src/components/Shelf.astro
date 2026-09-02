@@ -1,0 +1,18 @@
+---
+import Icon from './Icon.astro';
+/** Horizontal, snapping shelf. Size columns through `class`: `[--shelf-col:…]` on phones, `[--shelf-n:3]` or `[--shelf-col-lg:407px]` from 1000px. */
+const { class: cls = '' } = Astro.props;
+---
+<div class={`shelf ${cls}`} data-shelf>
+  <button type="button" class="shelf-arrow" data-dir="prev" aria-label="Scroll back" tabindex="-1"><Icon name="ArrowLeft01Icon" class="size-5" strokeWidth={2} /></button>
+  <div class="shelf-list" data-shelf-list><slot /></div>
+  <button type="button" class="shelf-arrow" data-dir="next" aria-label="Scroll forward" tabindex="-1"><Icon name="ArrowRight01Icon" class="size-5" strokeWidth={2} /></button>
+</div>
+<script>
+  for (const shelf of document.querySelectorAll('[data-shelf]')) {
+    const list = shelf.querySelector('[data-shelf-list]');
+    for (const btn of shelf.querySelectorAll('.shelf-arrow')) {
+      btn.addEventListener('click', () => list.scrollBy({ left: (btn.dataset.dir === 'next' ? 1 : -1) * list.clientWidth, behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' }));
+    }
+  }
+</script>

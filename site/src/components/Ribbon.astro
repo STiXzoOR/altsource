@@ -1,0 +1,13 @@
+---
+/** App Store information ribbon: uppercase labels over big values. `items: [{ label, value, sub?, href?, stores? }]`. */
+const { items, onDark = false, class: cls = '' } = Astro.props;
+---
+<ul class={`ribbon ${cls}`} data-on-dark={onDark ? '' : undefined}>
+  {items.map((i) => { const Tag = i.href ? 'a' : 'div'; return (
+    <li class="contents" data-stores={i.stores}><Tag href={i.href} class="ribbon-item">
+      <span class="ribbon-label">{i.label}</span>
+      <span class="ribbon-value">{i.value}</span>
+      {i.sub && <span class="ribbon-sub">{i.sub}</span>}
+    </Tag></li>
+  ); })}
+</ul>
