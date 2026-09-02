@@ -645,8 +645,8 @@ const addActions = [
     <div class="flex items-center gap-4 lg:gap-6">
       <img src={meta.iconURL} alt="" width="64" height="64" class="app-icon size-16 shrink-0 rounded-full lg:size-32" />
       <div class="min-w-0 flex-1">
-        <h1 id="source-title" class="text-[1.9rem] leading-tight font-bold tracking-tight lg:text-5xl">{meta.name}</h1>
-        {meta.subtitle && <p class="text-[0.95em] text-muted-foreground lg:mt-1 lg:text-lg">{meta.subtitle}</p>}
+        <h1 id="source-title" class="text-[1.5rem] leading-tight font-bold tracking-tight sm:text-[1.9rem] lg:text-5xl">{meta.name}</h1>
+        {meta.subtitle && <p class="text-[0.9em] text-muted-foreground sm:text-[0.95em] lg:mt-1 lg:text-lg">{meta.subtitle}</p>}
         <p class="mt-1 text-[0.8em] font-medium uppercase text-muted-foreground">{apps.length} {apps.length === 1 ? 'app' : 'apps'} · {counts.pal} PAL · {counts.classic} sideload</p>
       </div>
       <Pill label="Add" data-sheet="add-source" aria-haspopup="dialog" />
