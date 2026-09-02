@@ -1,10 +1,52 @@
 ---
 import Base from '../../layouts/Base.astro';
-import AppGrid from '../../components/AppGrid.astro';
-import { getSite } from '../../lib/data.mjs';
+import NavBar from '../../components/NavBar.astro';
+import Icon from '../../components/Icon.astro';
+import AppRow from '../../components/AppRow.astro';
+import { getSite, screenshotsOf } from '../../lib/data.mjs';
 const { apps } = await getSite();
+const base = import.meta.env.BASE_URL;
 ---
-<Base title="Apps" description="Every app in this source.">
-  <h1 class="mt-8 mb-4 text-2xl font-bold">Apps</h1>
-  <AppGrid entries={apps} />
+<Base title="Apps" description="Every app in this source." width="wide">
+  <NavBar slot="nav" title="All Apps" back={{ href: base, label: 'Home' }} />
+  <h1 class="sr-only">All Apps</h1>
+  {apps.length > 0 && (
+    <label class="relative mt-2 block">
+      <span class="sr-only">Search apps</span>
+      <Icon name="Search01Icon" class="pointer-events-none absolute top-2.5 left-3 size-4 text-muted-foreground" />
+      <input type="search" placeholder="Search" data-search class="w-full rounded-[10px] bg-card py-2 pr-3 pl-9 text-[0.95em] outline-none focus:ring-2 focus:ring-primary" />
+    </label>
+  )}
+  {apps.length === 0 ? (
+    <p class="mt-4 rounded-[var(--radius)] bg-card p-6 text-center text-muted-foreground">No apps yet.</p>
+  ) : (
+    <div class="mt-4 grid gap-x-8 gap-y-10 lg:grid-cols-2" data-grid>
+      {apps.map((entry) => { const shots = screenshotsOf(entry.app).iphone.slice(0, 2); return (
+        <div data-block data-name={`${entry.app.name} ${entry.app.subtitle ?? ''} ${entry.app.developerName}`.toLowerCase()}>
+          <AppRow entry={entry} />
+          {entry.app.subtitle && <p class="mx-4 mt-3 text-center text-[0.9em]">{entry.app.subtitle}</p>}
+          {shots.length > 0 && (
+            <div class="mt-3 flex justify-between gap-3">
+              {shots.map((s, i) => <a href={`${base}apps/${encodeURIComponent(entry.id)}/`} class="block max-w-[48%]" aria-label={`${entry.app.name} screenshot ${i + 1}`}><img src={s.imageURL} alt="" loading="lazy" width={s.width} height={s.height} class="app-icon rounded-md bg-card" /></a>)}
+            </div>
+          )}
+        </div>
+      ); })}
+      <p class="hidden py-10 text-center text-muted-foreground lg:col-span-2" data-empty role="status">No apps match.</p>
+    </div>
+  )}
 </Base>
+<script>
+  const search = document.querySelector('[data-search]');
+  const grid = document.querySelector('[data-grid]');
+  if (search && grid) {
+    const blocks = [...grid.querySelectorAll('[data-block]')];
+    const empty = grid.querySelector('[data-empty]');
+    search.addEventListener('input', () => {
+      const q = search.value.trim().toLowerCase();
+      let shown = 0;
+      for (const b of blocks) { const ok = !q || b.dataset.name.includes(q); b.hidden = !ok; if (ok) shown++; }
+      empty.hidden = shown > 0;
+    });
+  }
+</script>
