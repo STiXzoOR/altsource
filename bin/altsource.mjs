@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-const COMMANDS = new Set(['validate', 'build', 'serve', 'app', 'version', 'news', 'sync', 'check-links', 'status']);
+const COMMANDS = new Set(['validate', 'build', 'serve', 'app', 'version', 'news', 'sync', 'check-links', 'status', 'adp', 'federate', 'release']);
 const USAGE = `usage: altsource <command> [options]
 
 commands:
@@ -12,6 +12,9 @@ commands:
   sync       pull new versions from each app's upstream (altsource sync --dry-run)
   check-links probe every URL in both outputs (--write stores state/link-check.json)
   status     local vs upstream versions (--write writes dist/status.json)
+  adp        status | process | download | register   (AltStore PAL REST API)
+  federate   list the PAL source on explore.alt.store
+  release    publish an ADP to GitHub Releases and add the version
 `;
 
 const [cmd, ...rest] = process.argv.slice(2);
