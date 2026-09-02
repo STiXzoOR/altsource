@@ -7,7 +7,7 @@ An [AltStore](https://altstore.io) source curated by STiX, built and validated a
 | AltStore PAL source | `https://stixzoor.github.io/altsource/source.pal.json` |
 | AltStore Classic / SideStore source | `https://stixzoor.github.io/altsource/source.json` |
 | Add to AltStore (universal link) | https://altstore.io/source/stixzoor.github.io/altsource/source.pal.json |
-| Landing page | https://stixzoor.github.io/altsource/ |
+| Website | https://stixzoor.github.io/altsource/ (apps, news, status) |
 
 AltStore PAL installs Apple-notarized apps (EU, Japan, Brazil). AltStore Classic and SideStore
 sideload plain IPAs anywhere. Both read the same JSON format, so this repo builds two files from
@@ -21,7 +21,7 @@ source.meta.json        source-level fields (name, description, icon, tint colou
 apps/<bundleId>.json    one app per file; the file name must equal bundleIdentifier
 news/<identifier>.json  one news item per file; the file name must equal identifier
 assets/                 icon.png, header.png, apps/<bundleId>/… (icons, screenshots)
-public/                 static files copied into the site as-is (landing page)
+site/                   the Astro + Tailwind website (pages, components, permission dictionaries)
 schema/                 JSON Schemas; every content file has a "$schema" for editor autocompletion
 dist/                   build output (ignored by git)
 ```
@@ -35,8 +35,9 @@ resolves it against `baseURL`. Screenshots that point at local PNG/JPEG files ge
 ```
 npm test                    unit tests
 npm run validate            check content; add -- --check-urls to probe every URL
-npm run build               write dist/
-npm run serve               build and preview at http://localhost:4173/
+npm run build               JSON + assets into .altsource/, then the Astro site into dist/
+npm run dev                 Astro dev server with hot reload (http://localhost:4321/altsource/)
+npm run serve               full build (site + offline status.json) served at http://localhost:4173/
 npm run assets:placeholder  regenerate the placeholder icon and header
 
 altsource app add …         create apps/<bundleId>.json (see below)
@@ -127,6 +128,15 @@ altsource news add --title "App 2.0" --caption "What changed" --app com.example.
 `version add` refuses a version/build that already exists unless `--force`, refreshes
 `appPermissions` from the IPA, and `--release BASE_URL` turns an ADP into `assetURLs` so the
 package can live on GitHub Releases.
+
+## Site
+
+`site/` is an [Astro](https://astro.build) 7 + [Tailwind CSS](https://tailwindcss.com) 4 project that renders the
+source as an App Store-like website at build time: home with featured apps, news and a searchable app grid;
+one page per app with install buttons matched to its kinds, screenshots (iPhone/iPad, lightbox), release notes,
+version history and plain-English permissions; a news page; the status dashboard. No runtime fetches except the
+status page reading `status.json`; light/dark themes; no UI framework. `site/src/data/*.mjs` (permission
+descriptions) come from altsource-viewer, see `THIRD_PARTY.md`.
 
 ## Automation
 

@@ -1,5 +1,8 @@
 import http from 'node:http';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { execFile as execFileCb } from 'node:child_process';
+import { promisify } from 'node:util';
 import { readFile } from 'node:fs/promises';
 import { parseArgs } from 'node:util';
 import { buildAll, BuildError } from '../lib/build.mjs';
@@ -8,9 +11,14 @@ import { formatIssues } from './format.mjs';
 import { buildStatus } from '../lib/status.mjs';
 import { writeStatus, detectRepo } from './status.mjs';
 
-/** Build dist/ and an offline status.json so the status page works locally. */
+const execFile = promisify(execFileCb);
+const REPO = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
+
+/** JSON build into .altsource, the Astro site into outDir, then an offline status.json. */
 export async function prepare({ cwd, outDir }) {
-  const result = await buildAll({ rootDir: cwd, outDir });
+  const staging = path.join(cwd, '.altsource');
+  const result = await buildAll({ rootDir: cwd, outDir: staging });
+  await execFile(path.join(REPO, 'node_modules', '.bin', 'astro'), ['build'], { cwd: REPO, env: { ...process.env, ALTSOURCE_ROOT: cwd, ALTSOURCE_PUBLIC: staging, ALTSOURCE_OUT: outDir, ALTSOURCE_VITE_CACHE: path.join(cwd, '.astro', 'vite') }, maxBuffer: 64 * 1024 * 1024 });
   await writeStatus(await buildStatus({ cwd, online: false, repo: detectRepo(cwd) }), outDir);
   return result;
 }
