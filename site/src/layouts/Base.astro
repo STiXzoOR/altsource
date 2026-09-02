@@ -1,0 +1,49 @@
+---
+import '../styles/global.css';
+import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
+import { getSite } from '../lib/data.mjs';
+const { title, description, image, noindex = false, accent } = Astro.props;
+const site = await getSite();
+const fullTitle = title ? `${title} · ${site.meta.name}` : site.meta.name;
+const desc = description ?? site.meta.subtitle ?? '';
+const tint = (accent ?? site.meta.tintColor ?? '#3b82f6').replace(/^#?/, '#');
+const canonical = new URL(Astro.url.pathname, Astro.site).href;
+---
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{fullTitle}</title>
+  <meta name="description" content={desc} />
+  {noindex && <meta name="robots" content="noindex" />}
+  <link rel="canonical" href={canonical} />
+  <link rel="icon" href={site.meta.iconURL} />
+  <link rel="apple-touch-icon" href={site.meta.iconURL} />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content={site.meta.name} />
+  <meta property="og:title" content={fullTitle} />
+  <meta property="og:description" content={desc} />
+  <meta property="og:image" content={image ?? site.meta.headerURL ?? site.meta.iconURL} />
+  <meta property="og:url" content={canonical} />
+  <meta name="twitter:card" content="summary" />
+  <meta name="theme-color" content={tint} />
+  <script is:inline>
+    (function () {
+      try {
+        var t = localStorage.getItem('theme');
+        var dark = t ? t === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+        document.documentElement.classList.toggle('dark', dark);
+      } catch (e) {}
+    })();
+  </script>
+</head>
+<body class="min-h-dvh bg-zinc-50 text-zinc-900 antialiased dark:bg-zinc-950 dark:text-zinc-100" style={`--accent: ${tint}`}>
+  <Nav />
+  <main class="mx-auto w-full max-w-6xl px-4 pb-12 sm:px-6">
+    <slot />
+  </main>
+  <Footer />
+</body>
+</html>

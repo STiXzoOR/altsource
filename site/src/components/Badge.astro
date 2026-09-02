@@ -1,0 +1,6 @@
+---
+const { kind, class: cls = '' } = Astro.props;
+const label = kind === 'adp' ? 'PAL' : kind === 'ipa' ? 'Sideload' : kind;
+const tone = kind === 'adp' ? 'bg-accent/15 text-accent' : 'bg-zinc-200 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300';
+---
+<span class={`inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide ${tone} ${cls}`}>{label}</span>

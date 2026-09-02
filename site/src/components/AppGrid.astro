@@ -1,0 +1,60 @@
+---
+import Icon from './Icon.astro';
+import AppCard from './AppCard.astro';
+const { entries, filters = true } = Astro.props;
+const categories = [...new Set(entries.map((e) => e.app.category ?? 'other'))].sort();
+const kinds = [...new Set(entries.flatMap((e) => e.kinds))];
+---
+{filters && entries.length > 0 && (
+  <div class="mb-4 flex flex-wrap gap-2" data-filters>
+    <label class="relative min-w-52 flex-1">
+      <Icon name="search" class="pointer-events-none absolute top-2.5 left-3 size-4 text-zinc-400" />
+      <input type="search" placeholder="Search apps" data-search class="w-full rounded-xl border border-zinc-200 bg-white py-2 pr-3 pl-9 text-sm dark:border-zinc-700 dark:bg-zinc-900" />
+    </label>
+    {categories.length > 1 && (
+      <select data-category class="rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900">
+        <option value="">All categories</option>
+        {categories.map((c) => <option value={c}>{c}</option>)}
+      </select>
+    )}
+    {kinds.length > 1 && (
+      <select data-kind class="rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900">
+        <option value="">PAL and sideload</option>
+        <option value="adp">AltStore PAL</option>
+        <option value="ipa">Sideload (Classic / SideStore)</option>
+      </select>
+    )}
+  </div>
+)}
+{entries.length === 0 ? (
+  <p class="rounded-2xl border border-dashed border-zinc-300 p-8 text-center text-zinc-500 dark:border-zinc-700 dark:text-zinc-400">No apps yet. Add the source now and they will appear as they are published.</p>
+) : (
+  <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3" data-grid>
+    {entries.map((entry) => <AppCard entry={entry} />)}
+    <p class="hidden rounded-2xl border border-dashed border-zinc-300 p-8 text-center text-zinc-500 sm:col-span-2 lg:col-span-3 dark:border-zinc-700 dark:text-zinc-400" data-empty>No apps match.</p>
+  </div>
+)}
+<script>
+  const filters = document.querySelector('[data-filters]');
+  const grid = document.querySelector('[data-grid]');
+  if (filters && grid) {
+    const search = filters.querySelector('[data-search]');
+    const category = filters.querySelector('[data-category]');
+    const kind = filters.querySelector('[data-kind]');
+    const cards = [...grid.querySelectorAll('[data-app]')];
+    const empty = grid.querySelector('[data-empty]');
+    const apply = () => {
+      const q = (search?.value ?? '').trim().toLowerCase();
+      const c = category?.value ?? '';
+      const k = kind?.value ?? '';
+      let shown = 0;
+      for (const card of cards) {
+        const ok = (!q || card.dataset.name.includes(q)) && (!c || card.dataset.category === c) && (!k || card.dataset.kinds.split(' ').includes(k));
+        card.hidden = !ok;
+        if (ok) shown++;
+      }
+      empty.hidden = shown > 0;
+    };
+    for (const el of [search, category, kind]) el?.addEventListener('input', apply);
+  }
+</script>

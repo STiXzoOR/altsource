@@ -1,0 +1,19 @@
+---
+import Badge from './Badge.astro';
+import { versionLabel } from '../lib/data.mjs';
+const { entry } = Astro.props;
+const { app, kinds, latest } = entry;
+const base = import.meta.env.BASE_URL;
+---
+<a href={`${base}apps/${encodeURIComponent(app.bundleIdentifier)}/`} data-app data-name={`${app.name} ${app.subtitle ?? ''} ${app.developerName}`.toLowerCase()} data-category={app.category ?? 'other'} data-kinds={kinds.join(' ')}
+   class="flex items-center gap-4 rounded-2xl border border-zinc-200 bg-white p-4 transition hover:-translate-y-0.5 hover:shadow-md dark:border-zinc-800 dark:bg-zinc-900">
+  <img src={app.iconURL} alt="" width="64" height="64" loading="lazy" class="size-16 shrink-0 rounded-[14px] bg-zinc-100 object-cover dark:bg-zinc-800" />
+  <div class="min-w-0 flex-1">
+    <div class="flex flex-wrap items-center gap-1.5">
+      <span class="truncate font-semibold">{app.name}</span>
+      {kinds.map((k) => <Badge kind={k} />)}
+    </div>
+    <p class="truncate text-sm text-zinc-500 dark:text-zinc-400">{app.subtitle ?? app.developerName}</p>
+    <p class="mt-0.5 text-xs text-zinc-400">v{versionLabel(latest)}{app.category ? ` · ${app.category}` : ''}</p>
+  </div>
+</a>
