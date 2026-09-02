@@ -384,6 +384,8 @@ html:not([data-store="sidestore"]) [data-store-only="sidestore"] { display: none
   /* App Privacy-style permission cards */
   .permcard { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 30px; border-radius: 10px; background: var(--surface); }
   .permcard-items { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; margin-top: 16px; text-align: left; }
+  .permcard-items span { overflow-wrap: anywhere; }
+  .sheet [autofocus]:focus-visible { outline: none; }
 
   /* Information: inset grouped rows on phones, App Store dl grid from 1000px */
   .info { display: flex; flex-direction: column; border-radius: 12px; background: var(--surface); padding: 0 16px; }
