@@ -44,6 +44,7 @@ test('home page shows the source, both apps, news and the add sheet; accessible 
   assert.match(html, /href="https:\/\/example\.com"/, 'description URLs are linked');
   assert.match(html, /2 apps · 2 PAL · 1 sideload/);
   assert.match(html, /data-sheet="add-source"/);
+  assert.match(html, /<button[^>]*data-copy="[^"]*"[^>]*class="[^"]*\bmin-w-0\b/, 'source URL chips may shrink below their URL so they never overflow a phone screen');
   assert.match(html, /<dialog id="add-source"[^>]*aria-labelledby="add-source-title"/);
   assert.match(html, /class="skip-link"/);
   assert.match(html, /<main id="main"/);
