@@ -132,16 +132,30 @@ package can live on GitHub Releases.
 ## Site
 
 `site/` is an [Astro](https://astro.build) 7 + [Tailwind CSS](https://tailwindcss.com) 4 project that renders the
-source as a website at build time. On phones it mirrors the AltStore app and
-[altsource-viewer](https://github.com/therealFoxster/altsource-viewer): tinted app rows with GET/VIEW pills, solid-tint
-news cards, a translucent nav bar whose title and GET button appear on scroll, a screenshot carousel, permission
-cards with plain-English explanations, iOS action sheets for install choices. On desktop it reads like an App Store
-product page: large header, wide gallery, description beside a sticky Information sidebar, grids for lists.
+source as a website at build time, following Apple's Human Interface Guidelines and the anatomy of the App Store web app.
+
+- **Desktop (from 1000 px)** is an App Store shell: a 260 px sidebar (lockup, Home / Apps / News / Status, the store
+  switch, appearance), the home hero with an information ribbon and Today-style featured cards, snapping shelves with
+  hover arrows, small-lockup app rivers, and product pages with the Store's anatomy (blurred-artwork hero with the
+  194 px icon, ribbon of facts, screenshot shelf, description with "more", What's New with a Version History sheet,
+  App Privacy-style permission cards, Information grid, links, "More by").
+- **Phones** feel like the AltStore app: a transparent bar that turns to glass as the large title scrolls under it,
+  a floating glass tab bar, tinted header cards, 87 px tinted app rows with uppercase pills, snapping strips, bottom
+  sheets that slide up on iOS's curve, Dynamic Type through the system font, safe-area padding.
+- **Store switch.** `html[data-store]` is `all | pal | classic | sidestore` (remembered in `localStorage.store`).
+  Elements with `data-stores="pal classic"` show when the chosen store is listed (always under All); elements with
+  `data-store-only="pal"` show in exactly that state. Rows, install pills, source URL chips and counts use it, so a
+  SideStore user only sees what SideStore can install and Add/Get become direct links.
+- **Tokens.** iOS semantic colours through `light-dark()`, two type scales (`t-large-title` … `t-caption`: iOS sizes on
+  phones, apps.apple.com sizes on desktop), App Store radii and shadows, `.get` / `.pill` / `.approw` / `.ribbon` /
+  `.shelf` / `.today` / `.sheet` component classes in `site/src/styles/global.css`.
+- **Brand.** `src/lib/brand.mjs` builds the Obsidian icon, wordmark and header image; `npm run assets:brand`
+  regenerates `assets/` (Chakra Petch is vendored in `brand/fonts/`, OFL).
 
 Stack: no UI framework (native `<dialog>`, ARIA tabs, small inline scripts), [Hugeicons](https://hugeicons.com)
-rendered at build time, shadcn-style design tokens (`--background`, `--card`, `--primary`, …) so shadcn components could
-be dropped in later, light/dark themes, tint colours corrected for contrast, skip link, focus rings, reduced-motion
-support. `site/src/data/*.mjs` (permission descriptions) come from altsource-viewer, see `THIRD_PARTY.md`.
+rendered at build time, light/dark themes with a three-state control, tint colours corrected for contrast, skip link,
+focus rings, reduced-motion and reduced-transparency support, cross-document view transitions that morph the app icon
+from list to page. `site/src/data/*.mjs` (permission descriptions) come from altsource-viewer, see `THIRD_PARTY.md`.
 
 ## Automation
 

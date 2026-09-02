@@ -1,6 +1,6 @@
 # M8 — Storefront: App Store shell on desktop, native feel on phones
 
-Status: approved by the user 2026-09-02 ("go do the recommended fully and make it super polished and pixel perfect"). Supersedes the page layout in `2026-09-02-site-design.md` and the M6 nav pattern where they conflict; everything else in those documents still holds (data layer, install semantics, accessibility rules, "no maintainer links on public pages").
+Status: shipped 2026-09-02 (M8a–M8d). Approved by the user 2026-09-02 ("go do the recommended fully and make it super polished and pixel perfect"). Supersedes the page layout in `2026-09-02-site-design.md` and the M6 nav pattern where they conflict; everything else in those documents still holds (data layer, install semantics, accessibility rules, "no maintainer links on public pages").
 
 Research the numbers come from (kept in the user's vault, `~/Vault/Resources/`): `apple-hig-web-reference.md`, `app-store-web-anatomy.md`, `native-feel-web-patterns.md`. Values below are those measured from apps.apple.com and the AltStore app unless marked "ours".
 
