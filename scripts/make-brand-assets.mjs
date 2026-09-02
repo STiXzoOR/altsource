@@ -1,6 +1,6 @@
 /**
  * Regenerate the brand assets in assets/ from src/lib/brand.mjs:
- *   logo.svg, icon.png (1024²), wordmark.svg, header.svg, header.png (1200×800).
+ *   logo.svg, icon.png (1024²), apple-touch-icon.png (180², opaque), wordmark.svg, header.svg, header.png (1200×800).
  * Text is outlined with opentype.js from the vendored Chakra Petch fonts (brand/fonts, OFL 1.1),
  * so nothing at build or run time depends on a font. The PNGs are committed; run this only after
  * changing the brand.
@@ -51,7 +51,9 @@ export async function generateBrandAssets({ outDir = 'assets', rootDir = process
   await sharp(Buffer.from(svgs['logo.svg'])).resize(ICON_SIZE, ICON_SIZE).png(PNG).toFile(icon);
   const header = path.join(outDir, 'header.png');
   await sharp(Buffer.from(svgs['header.svg'])).png(PNG).toFile(header);
-  written.push(icon, header);
+  const touch = path.join(outDir, 'apple-touch-icon.png');
+  await sharp(Buffer.from(svgs['logo.svg'])).resize(180, 180).flatten({ background: '#0b1220' }).png(PNG).toFile(touch);
+  written.push(icon, header, touch);
   return written;
 }
 
