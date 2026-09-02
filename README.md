@@ -41,6 +41,7 @@ npm run serve               full build (site + offline status.json) served at ht
 npm run assets:brand        regenerate assets/ (icon, header, wordmark) from src/lib/brand.mjs
 
 altsource app add …         create apps/<bundleId>.json (see below)
+altsource app assets <id> --icon URL --screenshot URL…   vendor the icon and screenshots into assets/apps/<id>/
 altsource app list          apps with kinds, latest version and upstream
 altsource app remove <id>   delete an app (and drop it from featuredApps)
 altsource version add …     prepend a release to an app
@@ -141,7 +142,13 @@ source as a website at build time, following Apple's Human Interface Guidelines 
   App Privacy-style permission cards, Information grid, links, "More by").
 - **Phones** feel like the AltStore app: a transparent bar that turns to glass as the large title scrolls under it,
   a floating glass tab bar, tinted header cards, 87 px tinted app rows with uppercase pills, snapping strips, bottom
-  sheets that slide up on iOS's curve, Dynamic Type through the system font, safe-area padding.
+  sheets that slide up on iOS's curve, Dynamic Type through the system font, safe-area padding, a Settings sheet
+  (appearance, project links) behind the gear in the home bar instead of a footer, and nothing technical on screen (no
+  identifiers, file names or build numbers).
+- **Content.** `altsource app assets <bundleId> --icon … --screenshot …` vendors icons (1024 px PNG, JPEG when heavy) and
+  screenshots (JPEG ≤ 1600 px tall) under `assets/apps/<bundleId>/` and writes them into the app JSON; release notes and
+  descriptions are Markdown rendered through an allowlist (`site/src/lib/notes.mjs`), with installation and issue
+  sections and tables dropped.
 - **Store switch.** `html[data-store]` is `all | pal | classic | sidestore` (remembered in `localStorage.store`).
   Elements with `data-stores="pal classic"` show when the chosen store is listed (always under All); elements with
   `data-store-only="pal"` show in exactly that state. Rows, install pills, source URL chips and counts use it, so a

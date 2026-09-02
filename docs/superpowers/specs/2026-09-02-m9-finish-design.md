@@ -1,6 +1,6 @@
 # M9 — Finish: real content, nothing technical, native feel
 
-Status: approved 2026-09-02. Follows M8 (`2026-09-02-m8-storefront-design.md`); the shell, tokens, store switch and page anatomy from M8 stay unless a section below changes them.
+Status: shipped 2026-09-02 (M9a–c). Follows M8 (`2026-09-02-m8-storefront-design.md`); the shell, tokens, store switch and page anatomy from M8 stay unless a section below changes them.
 
 ## 1. Goals
 
