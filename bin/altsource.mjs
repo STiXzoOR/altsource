@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-const COMMANDS = new Set(['validate', 'build', 'serve', 'app', 'version', 'news']);
+const COMMANDS = new Set(['validate', 'build', 'serve', 'app', 'version', 'news', 'sync', 'check-links', 'status']);
 const USAGE = `usage: altsource <command> [options]
 
 commands:
@@ -9,6 +9,9 @@ commands:
   app        add | list | remove apps   (altsource app --help)
   version    add a version to an app    (altsource version --help)
   news       add a news item            (altsource news --help)
+  sync       pull new versions from each app's upstream (altsource sync --dry-run)
+  check-links probe every URL in both outputs (--write stores state/link-check.json)
+  status     local vs upstream versions (--write writes dist/status.json)
 `;
 
 const [cmd, ...rest] = process.argv.slice(2);

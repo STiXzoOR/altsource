@@ -5,6 +5,15 @@ import { parseArgs } from 'node:util';
 import { buildAll, BuildError } from '../lib/build.mjs';
 import { LoadError } from '../lib/load.mjs';
 import { formatIssues } from './format.mjs';
+import { buildStatus } from '../lib/status.mjs';
+import { writeStatus, detectRepo } from './status.mjs';
+
+/** Build dist/ and an offline status.json so the status page works locally. */
+export async function prepare({ cwd, outDir }) {
+  const result = await buildAll({ rootDir: cwd, outDir });
+  await writeStatus(await buildStatus({ cwd, online: false, repo: detectRepo(cwd) }), outDir);
+  return result;
+}
 
 const TYPES = {
   '.html': 'text/html; charset=utf-8', '.json': 'application/json; charset=utf-8', '.png': 'image/png',
@@ -40,7 +49,7 @@ export async function run(argv, { cwd, stdout, stderr }) {
   const { values } = parseArgs({ args: argv, options: { port: { type: 'string', default: '4173' }, out: { type: 'string', default: 'dist' } } });
   const outDir = path.resolve(cwd, values.out);
   try {
-    await buildAll({ rootDir: cwd, outDir });
+    await prepare({ cwd, outDir });
   } catch (e) {
     if (e instanceof BuildError) { stderr.write(formatIssues(e.issues)); return 1; }
     if (e instanceof LoadError) { stderr.write(`✖ ${e.message}\n`); return 1; }
