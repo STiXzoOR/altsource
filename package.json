@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "STiX Apps — an AltStore PAL and AltStore Classic source",
+  "description": "STiX Apps \u2014 an AltStore PAL and AltStore Classic source",
   "bin": {
     "altsource": "bin/altsource.mjs"
   },
@@ -13,7 +13,9 @@
   "scripts": {
     "test": "node --test 'test/**/*.test.mjs'",
     "validate": "node bin/altsource.mjs validate",
-    "build": "node bin/altsource.mjs build",
+    "build": "node bin/altsource.mjs build --out .altsource && astro build",
+    "dev": "node bin/altsource.mjs build --out .altsource && astro dev",
+    "preview": "npm run build && astro preview",
     "serve": "node bin/altsource.mjs serve",
     "assets:placeholder": "node scripts/make-placeholder-assets.mjs"
   },
@@ -22,5 +24,10 @@
     "bplist-parser": "^0.3.2",
     "fflate": "^0.8.3",
     "qrcode-generator": "^2.0.4"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.3.3",
+    "astro": "^7.2.10",
+    "tailwindcss": "^4.3.3"
   }
 }

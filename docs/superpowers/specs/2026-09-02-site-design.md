@@ -54,7 +54,7 @@ persisted in `localStorage`; the source `tintColor` becomes the accent via a CSS
 
 ## 5. Ported material (attribution)
 
-`site/src/data/entitlements.json` and `privacy.json` come from altsource-viewer (MIT); a
+`site/src/data/entitlements.mjs` and `privacy.mjs` come from altsource-viewer (MIT); a
 `THIRD_PARTY.md` carries the licence text. No viewer code is copied; the design is re-implemented.
 
 ## 6. Testing
