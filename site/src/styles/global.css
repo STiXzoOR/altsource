@@ -4,7 +4,10 @@
 
 /* App Store web breakpoints: 484 / 1000 / 1260 / 1580 / 1940. sm (640) and md (768) stay for phone-to-tablet steps. */
 @theme {
+  /* all breakpoints in px: Tailwind cannot order mixed rem/px breakpoints, and the default sm/md are rem */
   --breakpoint-xs: 484px;
+  --breakpoint-sm: 640px;
+  --breakpoint-md: 768px;
   --breakpoint-lg: 1000px;
   --breakpoint-xl: 1260px;
   --breakpoint-2xl: 1580px;
@@ -192,6 +195,7 @@
 }
 .tabbar[data-hidden] { translate: 0 calc(100% + 24px); opacity: 0; }
 
+@layer components {
 /* ---------- iOS segmented control ---------- */
 .segmented { display: inline-flex; padding: 2px; border-radius: 9px; background: var(--fill); }
 .segment { flex: 1; height: 28px; padding: 0 10px; border-radius: 7px; font-size: 13px; font-weight: 500; color: var(--label); white-space: nowrap; transition: background-color 0.14s ease-out; }
@@ -226,6 +230,8 @@ html:not([data-store="sidestore"]) [data-store-only="sidestore"] { display: none
 .dark .app-icon { border-color: rgba(255, 255, 255, 0.12); }
 .snap-strip { scrollbar-width: thin; }
 
+}
+
 /* ---------- preferences ---------- */
 @media (prefers-reduced-transparency: reduce) {
   .navbar-material, .tabbar { background: var(--page); backdrop-filter: none; }
@@ -241,6 +247,7 @@ html:not([data-store="sidestore"]) [data-store-only="sidestore"] { display: none
 @media (min-width: 484px) { :root { --gutter: 25px; } }
 @media (min-width: 1000px) { :root { --gutter: 40px; } }
 
+@layer components {
 /* App Store information ribbon */
 .ribbon { display: grid; grid-auto-flow: column; grid-auto-columns: 144px; gap: 10px; overflow-x: auto; overscroll-behavior-x: contain; scroll-snap-type: x proximity; scrollbar-width: none; margin-inline: calc(-1 * var(--gutter)); padding-inline: var(--gutter); }
 .ribbon::-webkit-scrollbar { display: none; }
@@ -272,7 +279,7 @@ html:not([data-store="sidestore"]) [data-store-only="sidestore"] { display: none
 
 /* App Store "Today" card */
 .today { position: relative; display: block; overflow: hidden; aspect-ratio: 3 / 4; border-radius: 17px; box-shadow: var(--shadow-sm); background: var(--today-accent, var(--tint)); color: #fff; text-decoration: none; }
-.today-art { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: top; transition: filter 0.21s ease-out; }
+.today-art { position: absolute; inset: -1px; width: 100%; height: 100%; object-fit: cover; object-position: top; transition: filter 0.21s ease-out; }
 .today-icon-art { position: absolute; inset: -20%; width: 140%; height: 140%; object-fit: cover; filter: blur(40px) saturate(1.4); opacity: 0.9; }
 .today-protect { position: absolute; inset: 0; background: rgba(0, 0, 0, 0.18); backdrop-filter: blur(34px) brightness(0.95) saturate(1.6) contrast(1.1); mask-image: linear-gradient(to top, #000 30%, transparent 100%); }
 .today-text { position: absolute; inset-inline: 0; bottom: 80px; padding: 16px; }
@@ -311,3 +318,4 @@ html:not([data-store="sidestore"]) [data-store-only="sidestore"] { display: none
 
 /* Hero icon tile (App Store hero icon treatment) */
 .hero-tile { border-radius: 25%; border: 2px solid rgba(255, 255, 255, 0.3); box-shadow: 0 0 30px rgba(0, 0, 0, 0.33); }
+}

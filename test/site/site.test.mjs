@@ -206,7 +206,7 @@ test('home: hero ribbon, Add and Share, a Today card for the featured app, shelv
   assert.match(html, /class="get get-blue[^"]*" data-store-only="all" data-sheet="add-source" aria-haspopup="dialog">Add to AltStore</, 'Add opens the sheet under All');
   assert.match(html, /<a href="https:\/\/altstore\.io\/source\/stixzoor\.github\.io\/altsource\/source\.pal\.json" class="get get-blue[^"]*" data-store-only="pal">Add to AltStore PAL</, 'Add is a direct PAL link under PAL');
   assert.match(html, /<a href="sidestore:\/\/source\?url=[^"]*" class="get get-blue[^"]*" data-store-only="sidestore">Add to SideStore</, 'Add is a direct SideStore link under SideStore');
-  assert.match(html, /<div data-stores="classic sidestore"><button type="button" data-copy="https:\/\/stixzoor\.github\.io\/altsource\/source\.json"/, 'the Classic chip belongs to Classic and SideStore');
+  assert.match(html, /<div class="min-w-0" data-stores="classic sidestore"><button type="button" data-copy="https:\/\/stixzoor\.github\.io\/altsource\/source\.json"/, 'the Classic chip belongs to Classic and SideStore');
   assert.match(html, /data-share data-share-url="https:\/\/stixzoor\.github\.io\/altsource\/source\.pal\.json"/, 'Share carries the PAL URL');
   assert.match(html, /<a href="\/altsource\/apps\/com\.both\/" class="today"[\s\S]*?<p class="today-eyebrow">utilities<\/p>\s*<h3 class="today-title">Both Kinds<\/h3>/, 'Today card for the featured app');
   assert.match(html, /<div class="shelf-list" data-shelf-list>[\s\S]*?class="newscard"/, 'news shelf');

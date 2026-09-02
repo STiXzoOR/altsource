@@ -1,5 +1,4 @@
 ---
-import Badge from './Badge.astro';
 import { normalizeTint } from '../lib/tint.mjs';
 import { storesFor } from '../lib/stores.mjs';
 /** One app: an AltStore-style tinted row on phones, an App Store small lockup from 1000px. `morph` names the icon for the view transition (one per page). */
@@ -17,7 +16,7 @@ const iconStyle = morph ? `view-transition-name: icon-${app.bundleIdentifier.rep
   <img src={app.iconURL} alt="" width="64" height="64" loading="lazy" class="app-icon relative size-[59px] shrink-0 rounded-[13px] bg-surface object-cover lg:size-16 lg:rounded-[25%]" style={iconStyle} />
   <div class="relative flex min-w-0 flex-1 items-center justify-between gap-3">
     <div class="min-w-0">
-      <NameTag class="truncate t-body font-bold lg:t-title-3-em">{app.name}<span class="lg:hidden">{kinds.map((k) => <Badge kind={k} class="ml-1.5" />)}</span></NameTag>
+      <NameTag class="truncate t-body font-bold lg:t-title-3-em">{app.name}</NameTag>
       <p class="truncate t-subhead text-label-2 lg:t-callout">{app.subtitle ?? app.developerName}</p>
     </div>
     <slot name="button"><span class="pill shrink-0 lg:hidden">{label}</span><span class="get hidden shrink-0 lg:inline-flex">{label}</span></slot>
