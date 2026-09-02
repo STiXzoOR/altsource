@@ -4,7 +4,7 @@
   "bundleIdentifier": "org.provenance-emu.provenance",
   "developerName": "Provenance EMU",
   "subtitle": "Multi-system emulator",
-  "localizedDescription": "iOS & tvOS multi-emulator frontend, supporting various Atari, Bandai, NEC, Nintendo, Sega, SNK and Sony console systems… Get Started:  https://wiki.provenance-emu.com  | ",
+  "localizedDescription": "Multi-emulator frontend for iOS and tvOS, supporting Atari, Bandai, NEC, Nintendo, Sega, SNK and Sony console systems.\n\nGet started: https://wiki.provenance-emu.com",
   "iconURL": "assets/apps/org.provenance-emu.provenance/icon.png",
   "tintColor": "#5856D6",
   "category": "games",
