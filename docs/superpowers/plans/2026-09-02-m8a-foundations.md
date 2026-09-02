@@ -882,7 +882,7 @@ const mainTop = flush ? '' : 'pt-[calc(44px+env(safe-area-inset-top))] lg:pt-0';
   <meta name="description" content={desc} />
   {noindex && <meta name="robots" content="noindex" />}
   <link rel="canonical" href={canonical} />
-  <link rel="icon" href={site.meta.iconURL} />
+  <link rel="icon" type="image/png" sizes="180x180" href={touchIcon} />
   <link rel="apple-touch-icon" sizes="180x180" href={touchIcon} />
   <link rel="manifest" href={`${base}manifest.webmanifest`} />
   <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />

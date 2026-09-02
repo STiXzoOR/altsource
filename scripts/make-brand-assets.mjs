@@ -12,7 +12,7 @@ import opentype from 'opentype.js';
 import sharp from 'sharp';
 import { iconSVG, wordmarkSVG, headerSVG, ICON_SIZE } from '../src/lib/brand.mjs';
 
-const PNG = { compressionLevel: 9, effort: 10 }; // lossless, smallest
+const PNG = { compressionLevel: 9, adaptiveFiltering: true, palette: false }; // lossless RGB (sharp's `effort` would silently quantize to a palette)
 const FONTS = { bold: 'brand/fonts/ChakraPetch-Bold.ttf', medium: 'brand/fonts/ChakraPetch-Medium.ttf' };
 
 async function loadFont(file) {
@@ -48,11 +48,11 @@ export async function generateBrandAssets({ outDir = 'assets', rootDir = process
     written.push(file);
   }
   const icon = path.join(outDir, 'icon.png');
-  await sharp(Buffer.from(svgs['logo.svg'])).resize(ICON_SIZE, ICON_SIZE).png(PNG).toFile(icon);
+  await sharp(Buffer.from(svgs['logo.svg'])).resize(ICON_SIZE, ICON_SIZE).removeAlpha().png(PNG).toFile(icon);
   const header = path.join(outDir, 'header.png');
-  await sharp(Buffer.from(svgs['header.svg'])).png(PNG).toFile(header);
+  await sharp(Buffer.from(svgs['header.svg'])).removeAlpha().png(PNG).toFile(header);
   const touch = path.join(outDir, 'apple-touch-icon.png');
-  await sharp(Buffer.from(svgs['logo.svg'])).resize(180, 180).flatten({ background: '#0b1220' }).png(PNG).toFile(touch);
+  await sharp(Buffer.from(svgs['logo.svg'])).resize(180, 180).removeAlpha().png(PNG).toFile(touch);
   written.push(icon, header, touch);
   return written;
 }

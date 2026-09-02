@@ -33,9 +33,12 @@ test('wordmark.svg is a tight, colourable "STiX"', async () => {
   assert.match(svg, /aria-label="STiX"/);
 });
 
-test('the PNGs are encoded small enough to serve as favicon and link preview', async () => {
-  assert.ok((await read('icon.png')).length < 160_000, 'icon.png under 160 KB');
-  assert.ok((await read('header.png')).length < 160_000, 'header.png under 160 KB');
+test('the PNGs are lossless RGB masters, and small enough to fetch once', async () => {
+  const icon = await read('icon.png'), header = await read('header.png');
+  assert.equal(pngSize(icon).colorType, 2, 'icon.png is RGB, not a quantized palette');
+  assert.equal(pngSize(header).colorType, 2, 'header.png is RGB, not a quantized palette');
+  assert.ok(icon.length < 260_000, 'icon.png under 260 KB');
+  assert.ok(header.length < 200_000, 'header.png under 200 KB');
 });
 
 test('apple-touch-icon.png is 180 square and opaque, as iOS wants it', async () => {
