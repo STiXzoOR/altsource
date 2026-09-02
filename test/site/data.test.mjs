@@ -31,6 +31,8 @@ test('getSite merges kinds, keeps base meta (not overrides), sorts apps and news
   assert.deepEqual(s.counts, { pal: 2, classic: 1 });
   assert.deepEqual(s.apps[0].project, { label: 'Project on GitHub', href: 'https://github.com/o/r' });
   assert.equal(s.apps[1].project, undefined);
+  assert.match(s.qr.pal, /^<svg/, 'QR for the PAL universal link');
+  assert.match(s.qr.classic, /^<svg/);
   assert.equal(await getSite(), s, 'memoised');
 });
 

@@ -3,6 +3,7 @@ import { loadContent } from '../../../src/lib/load.mjs';
 import { resolveContent } from '../../../src/lib/resolve.mjs';
 import { buildOutput, OUTPUTS } from '../../../src/lib/build.mjs';
 import { inferKind } from '../../../src/lib/kinds.mjs';
+import { qrSVG } from '../../../src/lib/status.mjs';
 
 export const ROOT = path.resolve(process.env.ALTSOURCE_ROOT ?? process.cwd());
 let cache = null;
@@ -37,7 +38,7 @@ export async function getSite() {
     .map((n) => { const { $schema, ...item } = n.data; return item; })
     .sort((a, b) => (Date.parse(b.date) || 0) - (Date.parse(a.date) || 0));
   const { $schema, baseURL, overrides, ...meta } = content.meta;
-  cache = { meta, base, urls, apps, featured, news, counts: { pal: pal.apps.length, classic: classic.apps.length } };
+  cache = { meta, base, urls, apps, featured, news, counts: { pal: pal.apps.length, classic: classic.apps.length }, qr: { pal: qrSVG(universalLink(urls.pal)), classic: qrSVG(universalLink(urls.classic)) } };
   return cache;
 }
 

@@ -9,16 +9,3 @@ const { label, url } = Astro.props;
   <span class="hidden shrink-0" data-copied-icon><Icon name="Tick02Icon" class="size-4" strokeWidth={2.5} /></span>
   <span class="sr-only" aria-live="polite" data-copy-status></span>
 </button>
-<script>
-  for (const b of document.querySelectorAll('[data-copy]')) {
-    b.addEventListener('click', async () => {
-      try {
-        await navigator.clipboard.writeText(b.dataset.copy);
-        b.querySelector('[data-copy-icon]').classList.add('hidden');
-        b.querySelector('[data-copied-icon]').classList.remove('hidden');
-        b.querySelector('[data-copy-status]').textContent = 'Copied';
-        setTimeout(() => { b.querySelector('[data-copy-icon]').classList.remove('hidden'); b.querySelector('[data-copied-icon]').classList.add('hidden'); b.querySelector('[data-copy-status]').textContent = ''; }, 1500);
-      } catch {}
-    });
-  }
-</script>

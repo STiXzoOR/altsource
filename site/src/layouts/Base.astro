@@ -83,6 +83,17 @@ const mainTop = flush ? '' : 'pt-[calc(44px+env(safe-area-inset-top))] lg:pt-0';
       for (const b of d.querySelectorAll('[data-close]')) b.addEventListener('click', () => d.close());
       d.addEventListener('click', (e) => { if (e.target === d) d.close(); });
     }
+    for (const b of document.querySelectorAll('[data-copy]')) {
+      b.addEventListener('click', async () => {
+        try { await navigator.clipboard.writeText(b.dataset.copy); } catch { return; }
+        const label = b.querySelector('[data-copy-label]'), icon = b.querySelector('[data-copy-icon]'), done = b.querySelector('[data-copied-icon]'), status = b.querySelector('[data-copy-status]');
+        const was = label?.textContent;
+        if (label) label.textContent = 'Copied';
+        icon?.classList.add('hidden'); done?.classList.remove('hidden');
+        if (status) status.textContent = 'Copied';
+        setTimeout(() => { if (label) label.textContent = was; icon?.classList.remove('hidden'); done?.classList.add('hidden'); if (status) status.textContent = ''; }, 1500);
+      });
+    }
   </script>
 </body>
 </html>

@@ -206,7 +206,10 @@ test('home: hero ribbon, Add and Share, a Today card for the featured app, shelv
   assert.match(html, /<span class="ribbon-label">AltStore PAL<\/span>\s*<span class="ribbon-value">2<\/span>/, 'ribbon counts PAL');
   assert.match(html, /<span class="ribbon-label">Sideload<\/span>\s*<span class="ribbon-value">1<\/span>/, 'ribbon counts sideload');
   assert.match(html, /class="get get-blue[^"]*" data-store-only="all" data-sheet="add-source" aria-haspopup="dialog">Add to AltStore</, 'Add opens the sheet under All');
-  assert.match(html, /<a href="https:\/\/altstore\.io\/source\/stixzoor\.github\.io\/altsource\/source\.pal\.json" class="get get-blue[^"]*" data-store-only="pal">Add to AltStore PAL</, 'Add is a direct PAL link under PAL');
+  assert.match(html, /<a href="https:\/\/altstore\.io\/source\/stixzoor\.github\.io\/altsource\/source\.pal\.json" class="get get-blue[^"]*" data-store-only="pal">Add to AltStore</, 'Add is a direct PAL link under PAL');
+  assert.match(html, /class="get get-blue[^"]*" data-store-only="classic">Add to AltStore</, 'Classic label is store-neutral too');
+  assert.match(html, /<button type="button" class="get get-glass min-h-8 px-\[7px\] lg:gap-2 lg:px-4" data-share[^>]*aria-label="Share">\s*<svg[\s\S]*?<span class="hidden lg:inline">Share<\/span>/, 'icon-only share on phones');
+  assert.match(html, /<div class="mt-4 hidden max-w-\[840px\] gap-2 lg:grid lg:grid-cols-2">/, 'URL chips only from 1000px');
   assert.match(html, /<a href="sidestore:\/\/source\?url=[^"]*" class="get get-blue[^"]*" data-store-only="sidestore">Add to SideStore</, 'Add is a direct SideStore link under SideStore');
   assert.match(html, /<div class="min-w-0" data-stores="classic sidestore"><button type="button" data-copy="https:\/\/stixzoor\.github\.io\/altsource\/source\.json"/, 'the Classic chip belongs to Classic and SideStore');
   assert.match(html, /data-share data-share-url="https:\/\/stixzoor\.github\.io\/altsource\/source\.pal\.json"/, 'Share carries the PAL URL');
@@ -237,6 +240,10 @@ test('sheets: the add-source action sheet is a bottom sheet with grouped actions
   assert.match(html, /<div class="sheet-group">\s*<div class="sheet-title">[\s\S]*?<a href="https:\/\/altstore\.io\/source\/[^"]*" class="sheet-action[^"]*">Add to AltStore PAL<\/a>/, 'grouped actions');
   assert.match(html, /<button type="button" data-close class="sheet-cancel">Cancel<\/button>/, 'cancel row');
   assert.equal((html.match(/dataset\.sheet\b/g) ?? []).length, 1, 'one trigger script');
+  assert.match(html, /<button type="button" data-copy="https:\/\/stixzoor\.github\.io\/altsource\/source\.pal\.json" class="sheet-action" data-stores="pal"><span data-copy-label>Copy PAL link<\/span><\/button>/, 'copy PAL row');
+  assert.match(html, /data-copy="https:\/\/stixzoor\.github\.io\/altsource\/source\.json" class="sheet-action" data-stores="classic sidestore"><span data-copy-label>Copy Classic link<\/span>/, 'copy Classic row');
+  assert.match(html, /<div class="sheet-qr hidden sm:grid">\s*<div class="sheet-qr-item" data-stores="pal"><div class="sheet-qr-tile"><svg/, 'QR tiles from 640px');
+  assert.equal((html.match(/dataset\.copy\b/g) ?? []).length, 1, 'one copy script for chips and rows');
 });
 
 test('app page pieces: screenshots ride the shelf, permissions are App Privacy cards, the back chevron knows it sits on a tinted header', async () => {

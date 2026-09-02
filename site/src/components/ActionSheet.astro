@@ -1,14 +1,23 @@
 ---
-/** iOS action sheet: grouped actions and a Cancel row. `actions: [{ label, href, download?, primary?, stores? }]`. */
-const { id, title, message, actions = [] } = Astro.props;
+/**
+ * iOS action sheet: grouped actions and a Cancel row. `actions: [{ label, href, download?, primary?, stores?, copy? }]`;
+ * a `copy` row copies that text instead of navigating. `qr: [{ label, svg, stores? }]` shows QR tiles from 640px.
+ */
+const { id, title, message, actions = [], qr = [] } = Astro.props;
 ---
 <dialog id={id} class="sheet sheet-actions" aria-labelledby={`${id}-title`}>
   <div class="sheet-grabber" aria-hidden="true"></div>
   <div class="sheet-group">
     <div class="sheet-title"><span id={`${id}-title`} tabindex="-1" autofocus>{title}</span>{message && <p>{message}</p>}</div>
-    {actions.map((a) => (
-      <a href={a.href} download={a.download ? '' : undefined} class={`sheet-action ${a.primary ? 'font-semibold' : ''}`} data-stores={a.stores}>{a.label}</a>
-    ))}
+    {qr.length > 0 && (
+      <div class="sheet-qr hidden sm:grid">
+        {qr.map((q) => <div class="sheet-qr-item" data-stores={q.stores}><div class="sheet-qr-tile" set:html={q.svg}></div><p>{q.label}</p></div>)}
+      </div>
+    )}
+    {actions.map((a) => a.copy
+      ? <button type="button" data-copy={a.copy} class="sheet-action" data-stores={a.stores}><span data-copy-label>{a.label}</span></button>
+      : <a href={a.href} download={a.download ? '' : undefined} class={`sheet-action ${a.primary ? 'font-semibold' : ''}`} data-stores={a.stores}>{a.label}</a>
+    )}
   </div>
   <button type="button" data-close class="sheet-cancel">Cancel</button>
 </dialog>

@@ -28,13 +28,21 @@ const facts = [
   { label: 'Sideload', value: String(counts.classic), sub: 'Classic · SideStore' },
   { label: 'News', value: String(news.length), sub: news.length === 1 ? 'post' : 'posts', href: `${base}news/` },
   ...(latest ? [{ label: 'Updated', value: formatDate(latest).replace(/ \d{4}$/, ''), sub: latest.slice(0, 4) }] : []),
-];
+].filter((f) => f.value !== '0');
 const addLinks = [
-  { store: 'pal', label: 'Add to AltStore PAL', href: universalLink(site.urls.pal), primary: true },
-  { store: 'classic', label: 'Add to AltStore Classic', href: universalLink(site.urls.classic) },
-  { store: 'sidestore', label: 'Add to SideStore', href: `sidestore://source?url=${encodeURIComponent(site.urls.classic)}` },
+  { store: 'pal', cta: 'Add to AltStore', label: 'Add to AltStore PAL', href: universalLink(site.urls.pal), primary: true },
+  { store: 'classic', cta: 'Add to AltStore', label: 'Add to AltStore Classic', href: universalLink(site.urls.classic) },
+  { store: 'sidestore', cta: 'Add to SideStore', label: 'Add to SideStore', href: `sidestore://source?url=${encodeURIComponent(site.urls.classic)}` },
 ];
-const addActions = addLinks.map(({ store, ...a }) => a);
+const addActions = [
+  ...addLinks.map(({ store, cta, ...a }) => a),
+  { label: 'Copy PAL link', copy: site.urls.pal, stores: 'pal' },
+  { label: 'Copy Classic link', copy: site.urls.classic, stores: 'classic sidestore' },
+];
+const qrs = [
+  { label: 'AltStore PAL', svg: site.qr.pal, stores: 'pal' },
+  { label: 'AltStore Classic · SideStore', svg: site.qr.classic, stores: 'classic sidestore' },
+];
 const empty = { all: 'No apps yet. Add the source now and they will appear as they are published.', pal: 'Nothing for AltStore PAL yet.', classic: 'Nothing for AltStore Classic yet.', sidestore: 'Nothing for SideStore yet.' };
 const emptyAttrs = { 'data-empty': '', 'data-empty-pal': empty.pal, 'data-empty-classic': empty.classic, 'data-empty-sidestore': empty.sidestore };
 const website = meta.website ? meta.website.replace(/^https?:\/\//, '').replace(/\/$/, '') : null;
@@ -57,8 +65,8 @@ const website = meta.website ? meta.website.replace(/^https?:\/\//, '').replace(
         <Ribbon items={facts} onDark class="mt-4 lg:mt-5 lg:max-w-[600px]" />
         <div class="mt-5 flex flex-wrap items-center gap-2.5 lg:mt-6">
           <button type="button" class="get get-blue min-h-8" data-store-only="all" data-sheet="add-source" aria-haspopup="dialog">Add to AltStore</button>
-          {addLinks.map((l) => <a href={l.href} class="get get-blue min-h-8" data-store-only={l.store}>{l.label}</a>)}
-          <button type="button" class="get get-glass min-h-8 gap-2" data-share data-share-url={site.urls.pal} data-share-title={meta.name}><Icon name="Share01Icon" class="size-4" strokeWidth={2} />Share</button>
+          {addLinks.map((l) => <a href={l.href} class="get get-blue min-h-8" data-store-only={l.store}>{l.cta}</a>)}
+          <button type="button" class="get get-glass min-h-8 px-[7px] lg:gap-2 lg:px-4" data-share data-share-url={site.urls.pal} data-share-title={meta.name} aria-label="Share"><Icon name="Share01Icon" class="size-4" strokeWidth={2} /><span class="hidden lg:inline">Share</span></button>
           <span class="sr-only" aria-live="polite" data-share-status></span>
         </div>
       </div>
@@ -67,7 +75,7 @@ const website = meta.website ? meta.website.replace(/^https?:\/\//, '').replace(
   </section>
   <div data-nav-sentinel></div>
   <div class="mt-3 lg:hidden"><StoreSwitch class="w-full" /></div>
-  <div class="mt-3 grid gap-2 sm:grid-cols-2 lg:mt-4 lg:max-w-[840px]">
+  <div class="mt-4 hidden max-w-[840px] gap-2 lg:grid lg:grid-cols-2">
     <div class="min-w-0" data-stores="pal"><SourceURLChip label="PAL" url={site.urls.pal} /></div>
     <div class="min-w-0" data-stores="classic sidestore"><SourceURLChip label="Classic" url={site.urls.classic} /></div>
   </div>
@@ -108,7 +116,7 @@ const website = meta.website ? meta.website.replace(/^https?:\/\//, '').replace(
     </section>
   )}
   <SettingsSheet />
-  <ActionSheet id="add-source" title={`Add "${meta.name}"`} message="Choose the app you use. The source keeps your apps updated." actions={addActions} />
+  <ActionSheet id="add-source" title={`Add "${meta.name}"`} message="Choose the app you use. The source keeps your apps updated." actions={addActions} qr={qrs} />
 </Base>
 <script>
   for (const b of document.querySelectorAll('[data-share]')) {

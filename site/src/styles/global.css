@@ -345,6 +345,10 @@ html:not([data-store="sidestore"]) [data-store-only="sidestore"] { display: none
   .sheet-title p { font-weight: 400; margin-top: 2px; }
   .sheet-actions { background: transparent; padding-inline: 8px; }
   .sheet-actions .sheet-grabber { display: none; }
+  .sheet-qr { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; padding: 4px 8px 12px; }
+  .sheet-qr-tile { width: 120px; margin: 0 auto; padding: 6px; border-radius: 12px; background: #fff; }
+  .sheet-qr-tile svg { display: block; width: 100%; height: auto; }
+  .sheet-qr-item p { margin-top: 6px; text-align: center; font-size: calc(12 * var(--u)); line-height: 1.33; color: var(--label-2); }
   :root:has(dialog.sheet[open]) { overflow: hidden; }
   @media (min-width: 640px) {
     .sheet { inset: 0; margin: auto; width: min(28rem, 90vw); height: fit-content; max-height: 85dvh; border-radius: 16px; padding: 20px 24px 24px; translate: 0; scale: 0.96; opacity: 0; transition: scale 0.2s ease-out, opacity 0.2s ease-out, display 0.2s allow-discrete, overlay 0.2s allow-discrete; }
