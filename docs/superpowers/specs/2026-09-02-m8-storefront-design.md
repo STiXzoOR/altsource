@@ -123,7 +123,7 @@ html[data-store="pal"] [data-stores]:not([data-stores~="pal"]) { display: none }
 
 Effects:
 - App rows and grids: an app with only ADP versions carries `data-stores="pal"`; only IPA versions `data-stores="classic sidestore"`; both, all three. Empty-state text per store ("Nothing for SideStore yet").
-- Install buttons: the "Get" pill in `all` mode opens the action sheet when there are two or more targets (existing). With a store chosen, the pill becomes a direct link to that store's deep link; implemented by rendering one link per target with `data-stores` and one sheet trigger with `data-stores="all"` (`all` is matched only in the `all` state via `html[data-store="all"] [data-stores="all"]`).
+- Install buttons: the "Get" pill in `all` mode opens the action sheet when there are two or more targets (existing). With a store chosen, the pill becomes a direct link to that store's deep link; implemented by rendering one link per store with `data-store-only="pal|classic|sidestore"` and one sheet trigger with `data-store-only="all"`; `data-store-only` shows an element in exactly one state, unlike `data-stores`, which always shows under All.
 - Counts in the ribbon: rendered per store with `data-stores`; "All" shows "N apps · P PAL · C sideload".
 - Sidebar rows and the phone segmented control both set the state; the control lives under the home hero on phones (iOS segmented control: 32 px, radius 9, fill `--fill`, selected segment `--page` with shadow sm, 13 px/600).
 - The switch never hides the source URLs or the Add action.

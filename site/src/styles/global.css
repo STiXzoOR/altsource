@@ -161,7 +161,7 @@
   p { text-wrap: pretty; }
 }
 
-*:focus-visible { outline: 2px solid var(--key); outline-offset: 2px; border-radius: 6px; }
+*:focus-visible { outline: 2px solid var(--key); outline-offset: 2px; }
 
 .skip-link { position: absolute; left: 1rem; top: -4rem; z-index: 100; padding: 0.5rem 0.75rem; border-radius: 9999px; background: var(--key); color: #fff; font-weight: 600; }
 .skip-link:focus { top: 1rem; }
@@ -201,7 +201,10 @@
 html[data-store="pal"] [data-stores]:not([data-stores~="pal"]),
 html[data-store="classic"] [data-stores]:not([data-stores~="classic"]),
 html[data-store="sidestore"] [data-stores]:not([data-stores~="sidestore"]),
-html:not([data-store="all"]) [data-stores="all"] { display: none !important; }
+html:not([data-store="all"]) [data-store-only="all"],
+html:not([data-store="pal"]) [data-store-only="pal"],
+html:not([data-store="classic"]) [data-store-only="classic"],
+html:not([data-store="sidestore"]) [data-store-only="sidestore"] { display: none !important; }
 
 /* ---------- M6 pieces still in use ---------- */
 .hero-midnight {
@@ -212,8 +215,8 @@ html:not([data-store="all"]) [data-stores="all"] { display: none !important; }
 }
 .pill {
   display: inline-flex; align-items: center; justify-content: center;
-  min-width: 78px; height: 32px; padding: 0 12px; border-radius: 9999px;
-  font-size: 15px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.01em;
+  min-width: 76px; height: 30px; padding: 0 12px; border-radius: 9999px;
+  font-size: calc(15 * var(--u)); font-weight: 700; text-transform: uppercase; letter-spacing: 0.01em;
   color: var(--pill-fg, #fff); background-color: var(--pill-bg, var(--tint)); white-space: nowrap; cursor: pointer;
   transition: opacity 0.15s ease;
 }
@@ -231,3 +234,80 @@ html:not([data-store="all"]) [data-stores="all"] { display: none !important; }
   *, *::before, *::after { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; scroll-behavior: auto !important; }
   .tabbar[data-hidden] { translate: 0 0; opacity: 1; }
 }
+
+
+/* ==================== Storefront components (M8b) ==================== */
+:root { --gutter: 16px; }
+@media (min-width: 484px) { :root { --gutter: 25px; } }
+@media (min-width: 1000px) { :root { --gutter: 40px; } }
+
+/* App Store information ribbon */
+.ribbon { display: grid; grid-auto-flow: column; grid-auto-columns: 144px; gap: 10px; overflow-x: auto; overscroll-behavior-x: contain; scroll-snap-type: x proximity; scrollbar-width: none; margin-inline: calc(-1 * var(--gutter)); padding-inline: var(--gutter); }
+.ribbon::-webkit-scrollbar { display: none; }
+.ribbon-item { display: flex; flex-direction: column; align-items: center; text-align: center; scroll-snap-align: start; color: inherit; text-decoration: none; }
+.ribbon-label { font-size: calc(11 * var(--u)); line-height: 1.27; font-weight: 600; text-transform: uppercase; color: var(--label-2); margin-bottom: 4px; white-space: nowrap; }
+.ribbon-value { display: flex; align-items: center; gap: 4px; height: 25px; margin: 4px 0 2px; font-size: calc(22 * var(--u)); line-height: 25px; font-weight: 700; color: var(--ribbon-value); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.ribbon-sub { font-size: calc(11 * var(--u)); line-height: 1.27; color: var(--ribbon-value); white-space: nowrap; }
+.ribbon[data-on-dark] .ribbon-label { color: rgba(246, 246, 246, 0.6); }
+.ribbon[data-on-dark] :is(.ribbon-value, .ribbon-sub) { color: #fff; }
+@media (min-width: 1000px) {
+  .ribbon { display: flex; justify-content: space-between; overflow: visible; margin-inline: 0; padding-inline: 0; }
+  .ribbon-item { flex: 0 1 auto; min-width: 0; }
+}
+
+/* Horizontal shelf: snapping strip on phones, faded edges and hover arrows from 1000px */
+.shelf { position: relative; margin-inline: calc(-1 * var(--gutter)); }
+.shelf-list { display: grid; grid-auto-flow: column; grid-auto-columns: var(--shelf-col, 298px); gap: var(--shelf-gap, 10px); overflow-x: auto; overscroll-behavior-x: contain; scroll-snap-type: x mandatory; scroll-padding-inline: var(--gutter); padding: 15px var(--gutter); scrollbar-width: none; scroll-behavior: smooth; }
+.shelf-list::-webkit-scrollbar { display: none; }
+.shelf-list > * { scroll-snap-align: start; min-width: 0; }
+.shelf-arrow { position: absolute; top: 50%; translate: 0 -50%; z-index: 2; width: 28px; height: 64px; border-radius: 6px; display: none; place-items: center; background: light-dark(rgba(246, 246, 246, 0.48), rgba(40, 40, 40, 0.5)); backdrop-filter: saturate(190%) blur(60px); color: var(--label-2); opacity: 0; transition: opacity 0.25s ease; }
+.shelf-arrow[data-dir="prev"] { left: -6px; }
+.shelf-arrow[data-dir="next"] { right: -6px; }
+@media (min-width: 1000px) {
+  .shelf { margin-inline: 0; }
+  .shelf-list { gap: 20px; padding-inline: 0; scroll-padding-inline: 0; grid-auto-columns: var(--shelf-col-lg, calc((100% - (var(--shelf-n, 3) - 1) * 20px) / var(--shelf-n, 3))); mask-image: linear-gradient(90deg, transparent 0, #000 15px, #000 calc(100% - 15px), transparent); }
+  .shelf-arrow { display: grid; }
+  @media (hover: hover) { .shelf:hover .shelf-arrow { opacity: 1; } }
+}
+
+/* App Store "Today" card */
+.today { position: relative; display: block; overflow: hidden; aspect-ratio: 3 / 4; border-radius: 17px; box-shadow: var(--shadow-sm); background: var(--today-accent, var(--tint)); color: #fff; text-decoration: none; }
+.today-art { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: top; transition: filter 0.21s ease-out; }
+.today-icon-art { position: absolute; inset: -20%; width: 140%; height: 140%; object-fit: cover; filter: blur(40px) saturate(1.4); opacity: 0.9; }
+.today-protect { position: absolute; inset: 0; background: rgba(0, 0, 0, 0.18); backdrop-filter: blur(34px) brightness(0.95) saturate(1.6) contrast(1.1); mask-image: linear-gradient(to top, #000 30%, transparent 100%); }
+.today-text { position: absolute; inset-inline: 0; bottom: 80px; padding: 16px; }
+.today-eyebrow { font-size: calc(12 * var(--u)); line-height: 1.25; font-weight: 600; text-transform: uppercase; color: rgba(255, 255, 255, 0.56); margin-bottom: 4px; }
+.today-title { font-size: calc(34 * var(--u)); line-height: 1.176; font-weight: 700; text-wrap: balance; }
+.today-blurb { padding-top: 8px; font-size: calc(13 * var(--u)); line-height: 1.385; color: rgba(255, 255, 255, 0.92); }
+.today-row { position: absolute; inset-inline: 0; bottom: 0; display: flex; align-items: center; gap: 12px; padding: 16px; background: rgba(0, 0, 0, 0.15); backdrop-filter: blur(50px); }
+@media (hover: hover) { .today:hover .today-art { filter: brightness(0.93); } }
+
+/* App Store Get pill (and its filled and translucent variants) */
+.get { display: inline-flex; align-items: center; justify-content: center; border-radius: 1000px; padding: 7px 16px; font-size: calc(13 * var(--u)); line-height: 1.3846; font-weight: 700; white-space: nowrap; cursor: pointer; color: var(--key); background: color-mix(in srgb, var(--key) 6%, transparent); transition: background-color 0.21s ease-out, color 0.21s ease-out; text-decoration: none; }
+.get:hover { background: color-mix(in srgb, var(--key) 10%, transparent); transition-duration: 0.14s; }
+.get:active { background: color-mix(in srgb, var(--key) 7%, transparent); }
+.get-blue { color: #fff; background: var(--key); }
+.get-blue:hover { background: color-mix(in srgb, var(--key), #000 3%); }
+.get-blue:active { background: color-mix(in srgb, var(--key), #000 6%); }
+.get-glass { color: #fff; background: rgba(255, 255, 255, 0.25); backdrop-filter: saturate(180%) blur(10px); }
+.get-glass:hover { background: rgba(255, 255, 255, 0.35); }
+.get-glass:active { background: rgba(255, 255, 255, 0.2); }
+
+/* AltStore-style tinted app row on phones; plain App Store lockup from 1000px */
+.approw { position: relative; display: flex; align-items: center; gap: 12px; min-height: 87px; padding: 14px 16px; border-radius: 20px; overflow: hidden; color: inherit; text-decoration: none; transition: opacity 0.12s ease-out; }
+.approw::before { content: ""; position: absolute; inset: 0; background: var(--tint); opacity: 0.15; transition: opacity 0.21s ease-out; }
+.approw:active { opacity: 0.8; }
+@media (hover: hover) { .approw:hover::before { opacity: 0.22; } }
+@media (min-width: 1000px) {
+  .approw { min-height: 0; padding: 0; border-radius: 0; overflow: visible; gap: 16px; }
+  .approw::before { display: none; }
+  .approw:active { opacity: 1; }
+}
+
+/* News card */
+.newscard { display: block; overflow: hidden; border-radius: 24px; text-decoration: none; transition: filter 0.21s ease-out, transform 0.12s ease-out; }
+.newscard:active { transform: scale(0.98); }
+@media (hover: hover) { .newscard:hover { filter: brightness(0.93); } }
+
+/* Hero icon tile (App Store hero icon treatment) */
+.hero-tile { border-radius: 25%; border: 2px solid rgba(255, 255, 255, 0.3); box-shadow: 0 0 30px rgba(0, 0, 0, 0.33); }

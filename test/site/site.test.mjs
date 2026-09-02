@@ -180,3 +180,15 @@ test('app rows say which stores can install them, so the store switch can filter
   assert.match(apps, /data-app[^>]*data-stores="pal"/, 'ADP-only app is PAL only');
   assert.match(apps, /data-app[^>]*data-stores="pal classic sidestore"/, 'ADP + IPA app installs everywhere');
 });
+
+test('storefront component CSS: ribbon, shelf, Today card, Get pill and AltStore row measurements', async () => {
+  const css = await allCss();
+  assert.match(css, /\.ribbon\{[^}]*grid-auto-columns:144px/, 'ribbon phone columns');
+  assert.match(css, /\.shelf-list\{[^}]*scroll-snap-type:x mandatory/, 'shelf snaps');
+  assert.match(css, /\.shelf-arrow\{[^}]*width:28px;height:64px/, 'shelf arrows');
+  assert.match(css, /\.today\{[^}]*border-radius:17px/, 'Today card radius');
+  for (const prop of ['border-radius:1000px', 'padding:7px 16px', 'font-weight:700']) assert.match(css, new RegExp(`\\.get\\{[^}]*${prop}`), `Get pill ${prop}`);
+  for (const prop of ['min-height:87px', 'padding:14px 16px', 'border-radius:20px']) assert.match(css, new RegExp(`\\.approw\\{[^}]*${prop}`), `AltStore row ${prop}`);
+  assert.match(css, /\.pill\{[^}]*min-width:76px;height:30px/, 'AltStore pill');
+  assert.match(css, /html:not\(\[data-store=\\?"?pal\\?"?\]\) \[data-store-only=\\?"?pal\\?"?\]/, 'store-only rule');
+});
