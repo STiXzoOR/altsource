@@ -66,6 +66,10 @@ test('formatting helpers', () => {
 test('permission lookups fall back gracefully', () => {
   assert.equal(entitlementInfo('com.apple.security.application-groups').name, 'App Groups');
   assert.equal(entitlementInfo('com.example.custom').name, 'com.example.custom');
+  assert.equal(entitlementInfo('com.apple.security.application-groups').known, true);
+  assert.equal(entitlementInfo('com.example.custom').known, false);
+  assert.equal(entitlementInfo('com.apple.developer.kernel.increased-memory-limit').name, 'Increased Memory Limit');
+  assert.equal(entitlementInfo('dynamic-codesigning').name, 'Just-In-Time Compilation');
   assert.equal(privacyInfo('NSCameraUsageDescription', 'Takes photos').description, 'Takes photos');
   assert.equal(privacyInfo('NSCameraUsageDescription', 'x').name, 'Camera');
   assert.equal(privacyInfo('NSFooBarUsageDescription', 'x').name, 'Foo Bar');

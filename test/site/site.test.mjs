@@ -13,7 +13,7 @@ const ipa = (o = {}) => version({ downloadURL: 'https://gh/d/a.ipa', ...o });
 const fixture = await root({
   'source.meta.json': { name: 'Fixture Source', baseURL: BASE, subtitle: 'sub', description: 'Hello https://example.com', iconURL: 'assets/icon.png', headerURL: 'assets/header.png', website: 'https://example.org/repo', tintColor: '#123456', featuredApps: ['com.both'] },
   'apps/com.pal.json': app('com.pal', { name: 'Pal Only', marketplaceID: '1', versions: [adp()], appPermissions: { entitlements: ['com.apple.security.application-groups'], privacy: { NSCameraUsageDescription: 'Snap' } } }),
-  'apps/com.both.json': app('com.both', { name: 'Both Kinds', marketplaceID: '2', screenshots: { iphone: ['assets/s.png'], ipad: [{ imageURL: 'https://x/i.png', width: 10, height: 20 }] }, versions: [adp({ version: '2.0', localizedDescription: '## Highlights\n* **Faster** sync\n\n| a | b |\n|---|---|\n| 1 | 2 |\n\n## Installation\nsee docs' }), ipa({ version: '2.0', kind: 'ipa' }), ipa({ version: '1.0', date: '2026-01-01', localizedDescription: 'old notes' })] }),
+  'apps/com.both.json': app('com.both', { name: 'Both Kinds', marketplaceID: '2', appPermissions: { entitlements: ['get-task-allow', 'com.apple.private.foo', 'com.apple.private.bar'], privacy: {} }, screenshots: { iphone: ['assets/s.png'], ipad: [{ imageURL: 'https://x/i.png', width: 10, height: 20 }] }, versions: [adp({ version: '2.0', localizedDescription: '## Highlights\n* **Faster** sync\n\n| a | b |\n|---|---|\n| 1 | 2 |\n\n## Installation\nsee docs' }), ipa({ version: '2.0', kind: 'ipa' }), ipa({ version: '1.0', date: '2026-01-01', localizedDescription: 'old notes' })] }),
   'news/a.json': news('a', { title: 'First post', date: '2026-01-01' }),
   'news/b.json': news('b', { title: 'Both updated', date: '2026-02-01', appID: 'com.both' }),
   'assets/icon.png': 'png:4x4', 'assets/header.png': 'png:6x4', 'assets/s.png': 'png:1179x2556',
@@ -297,4 +297,13 @@ test('release notes and descriptions render as Markdown through the allowlist', 
   assert.match(both, /<div class="line-clamp-3 notes break-words[^"]*" data-clamp-body>/, 'clamped Markdown body');
   const versions = await page('apps/com.both/versions/index.html');
   assert.match(versions, /<strong>Faster<\/strong> sync/, 'version history rows render Markdown too');
+});
+
+test('entitlements without a friendly name collapse into one row that lists them on tap', async () => {
+  const both = await page('apps/com.both/index.html');
+  assert.match(both, /Debuggable/, 'known entitlement listed by name');
+  assert.match(both, /data-alert-title="System entitlements" data-alert-message="com\.apple\.private\.foo\ncom\.apple\.private\.bar" data-alert-mono/, 'unknown keys live in the alert');
+  assert.match(both, /2 more system entitlements/, 'collapsed row');
+  const body = both.match(/<div class="permcard">[\s\S]*?Entitlements[\s\S]*?<\/div>\s*<\/div>/)[0].replace(/data-alert-message="[^"]*"/g, '');
+  assert.doesNotMatch(body, /com\.apple\.private/, 'raw keys are not printed in the card');
 });

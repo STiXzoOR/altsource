@@ -74,5 +74,60 @@ export default {
     "name": "Weather Data",
     "description": "Allows app to use WeatherKit.",
     "icon": "SunCloud01Icon"
+  },
+  "com.apple.developer.kernel.increased-memory-limit": {
+    "name": "Increased Memory Limit",
+    "description": "Lets the app use more memory than iOS normally allows, for large workloads such as virtual machines, games and emulators.",
+    "icon": "CpuIcon"
+  },
+  "com.apple.developer.kernel.extended-virtual-addressing": {
+    "name": "Extended Virtual Addressing",
+    "description": "Lets the app address more virtual memory. Used together with the increased memory limit by emulators and virtual machines.",
+    "icon": "CpuIcon"
+  },
+  "dynamic-codesigning": {
+    "name": "Just-In-Time Compilation",
+    "description": "Lets the app generate and run code at runtime (JIT). Emulators and virtual machines are much faster with it; it only works when JIT is enabled on the device.",
+    "icon": "FlashIcon"
+  },
+  "com.apple.private.hypervisor": {
+    "name": "Hypervisor",
+    "description": "Access to the hardware hypervisor to run virtual machines natively. Only available on some devices and when the app is installed in a way that keeps this entitlement.",
+    "icon": "ComputerIcon"
+  },
+  "com.apple.vm.device-access": {
+    "name": "Virtual Machine Device Access",
+    "description": "Lets a virtual machine talk to device hardware such as USB and networking.",
+    "icon": "UsbIcon"
+  },
+  "com.apple.security.exception.iokit-user-client-class": {
+    "name": "Hardware Access",
+    "description": "Allows the app to talk to selected hardware drivers directly.",
+    "icon": "ChipIcon"
+  },
+  "com.apple.security.iokit-user-client-class": {
+    "name": "Hardware Access",
+    "description": "Allows the app to talk to selected hardware drivers directly.",
+    "icon": "ChipIcon"
+  },
+  "com.apple.private.memorystatus": {
+    "name": "Memory Status",
+    "description": "Lets the app read and adjust its own memory pressure status so large workloads are not terminated early.",
+    "icon": "CpuIcon"
+  },
+  "com.apple.system.diagnostics.iokit-properties": {
+    "name": "Hardware Diagnostics",
+    "description": "Lets the app read hardware diagnostic properties.",
+    "icon": "Stethoscope02Icon"
+  },
+  "com.apple.private.iokit.IOServiceSetAuthorizationID": {
+    "name": "Hardware Authorization",
+    "description": "Lets the app authorise its own connection to hardware services.",
+    "icon": "Key01Icon"
+  },
+  "platform-application": {
+    "name": "Platform Application",
+    "description": "Marks the app as a system-level application, which lifts some sandbox restrictions when the installer keeps this entitlement.",
+    "icon": "Shield01Icon"
   }
 };

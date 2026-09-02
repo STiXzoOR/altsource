@@ -5,7 +5,7 @@ const humanize = (key) => key.replace(/^NS/, '').replace(/UsageDescription$/, ''
 
 export function entitlementInfo(key) {
   const e = ENTITLEMENTS[key];
-  return { key, name: e?.name ?? key, description: e?.description ?? 'No description is available for this entitlement.', icon: e?.icon ?? 'shield' };
+  return { key, name: e?.name ?? key, description: e?.description ?? 'No description is available for this entitlement.', icon: e?.icon ?? 'shield', known: Boolean(e) };
 }
 
 export function privacyInfo(key, text) {

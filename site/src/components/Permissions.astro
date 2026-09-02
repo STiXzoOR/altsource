@@ -1,9 +1,16 @@
 ---
 import Icon from './Icon.astro';
 import { entitlementInfo, privacyInfo } from '../lib/permissions.mjs';
-/** App Privacy-style cards: what the app may access, and its entitlements. Items open a small alert with the developer's explanation. */
+/**
+ * App Privacy-style cards: what the app may access, and its entitlements. Items open a small alert with the developer's
+ * explanation. Entitlements without a friendly name collapse into one "system entitlements" row that lists the keys.
+ */
 const { app } = Astro.props;
-const ents = (app.appPermissions?.entitlements ?? []).map(entitlementInfo);
+const all = (app.appPermissions?.entitlements ?? []).map(entitlementInfo);
+const known = all.filter((e) => e.known);
+const unknown = all.filter((e) => !e.known);
+const ents = [...known];
+if (unknown.length) ents.push({ key: 'system', name: `${unknown.length} ${known.length ? 'more ' : ''}system entitlement${unknown.length > 1 ? 's' : ''}`, description: unknown.map((e) => e.key).join('\n'), icon: 'Shield01Icon', mono: true });
 const priv = Object.entries(app.appPermissions?.privacy ?? {}).map(([k, v]) => privacyInfo(k, v));
 const cards = [
   priv.length
@@ -21,7 +28,7 @@ const cards = [
       {c.items.length > 0 && (
         <div class="permcard-items">
           {c.items.map((p) => (
-            <button type="button" data-alert-title={p.name} data-alert-message={p.description} class="flex min-h-11 w-full items-center gap-2 text-left t-callout hover:underline">
+            <button type="button" data-alert-title={p.mono ? 'System entitlements' : p.name} data-alert-message={p.description} data-alert-mono={p.mono ? '' : undefined} class="flex min-h-11 w-full items-center gap-2 text-left t-callout hover:underline">
               <Icon name={p.icon} class="size-5 shrink-0 text-label-2" /><span class="min-w-0">{p.name}</span>
             </button>
           ))}
@@ -31,14 +38,20 @@ const cards = [
   ))}
 </div>
 <dialog data-alert aria-labelledby="perm-alert-title" class="sheet !w-[17rem] text-center sm:!p-0">
-  <div class="px-4 pt-5 pb-4"><p id="perm-alert-title" class="t-headline" data-alert-heading></p><p class="mt-1 t-footnote text-label-2" data-alert-body></p></div>
+  <div class="px-4 pt-5 pb-4"><p id="perm-alert-title" class="t-headline" data-alert-heading></p><p class="mt-1 t-footnote text-label-2 whitespace-pre-line break-all" data-alert-body></p></div>
   <button type="button" data-close class="block w-full border-t border-separator py-3 t-body text-key">OK</button>
 </dialog>
 <script>
   const alert = document.querySelector('[data-alert]');
   if (alert) {
     for (const b of document.querySelectorAll('[data-alert-title]')) {
-      b.addEventListener('click', () => { alert.querySelector('[data-alert-heading]').textContent = b.dataset.alertTitle; alert.querySelector('[data-alert-body]').textContent = b.dataset.alertMessage; alert.showModal(); });
+      b.addEventListener('click', () => {
+        const body = alert.querySelector('[data-alert-body]');
+        alert.querySelector('[data-alert-heading]').textContent = b.dataset.alertTitle;
+        body.textContent = b.dataset.alertMessage;
+        body.classList.toggle('font-mono', 'alertMono' in b.dataset);
+        alert.showModal();
+      });
     }
   }
 </script>
