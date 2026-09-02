@@ -27,7 +27,8 @@ export async function getSite() {
     .filter((a) => kinds.has(a.data.bundleIdentifier))
     .map((a) => {
       const { upstream, $schema, ...app } = a.data;
-      return { id: app.bundleIdentifier, app, kinds: kinds.get(app.bundleIdentifier), latest: app.versions[0] };
+      const project = upstream?.type === 'github' && upstream.repo ? { label: 'Project on GitHub', href: `https://github.com/${upstream.repo}` } : undefined;
+      return { id: app.bundleIdentifier, app, kinds: kinds.get(app.bundleIdentifier), latest: app.versions[0], project };
     })
     .sort((x, y) => x.app.name.localeCompare(y.app.name, 'en', { sensitivity: 'base' }));
   const byId = new Map(apps.map((e) => [e.id, e]));
@@ -70,7 +71,15 @@ export function formatDate(iso) {
   return new Date(t).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' });
 }
 
-export const versionLabel = (v) => v.marketingVersion ?? (v.buildVersion ? `${v.version} (${v.buildVersion})` : v.version);
+/** Version as people see it: the marketing version when the app has one, never the build number. */
+export const versionLabel = (v) => v.marketingVersion ?? v.version;
+
+const CATEGORY_LABELS = { developer: 'Developer Tools', 'photo-video': 'Photo & Video' };
+/** Title-case label for an AltStore category id. */
+export function categoryLabel(id) {
+  if (!id) return 'Other';
+  return CATEGORY_LABELS[id] ?? id.split('-').map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+}
 
 export function screenshotsOf(app) {
   const s = app?.screenshots;

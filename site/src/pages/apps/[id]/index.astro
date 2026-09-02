@@ -11,7 +11,7 @@ import Permissions from '../../../components/Permissions.astro';
 import Ribbon from '../../../components/Ribbon.astro';
 import Sheet from '../../../components/Sheet.astro';
 import ActionSheet from '../../../components/ActionSheet.astro';
-import { getSite, installLinks, formatBytes, formatDate, versionLabel, screenshotsOf, universalLink, inferKind } from '../../../lib/data.mjs';
+import { getSite, installLinks, formatBytes, formatDate, versionLabel, categoryLabel, screenshotsOf, universalLink, inferKind } from '../../../lib/data.mjs';
 import { normalizeTint, onTint } from '../../../lib/tint.mjs';
 import { STORES } from '../../../lib/stores.mjs';
 
@@ -44,13 +44,13 @@ const facts = [
   { label: 'Version', value: latest.marketingVersion ?? latest.version, sub: formatDate(latest.date) },
   ...(latest.minOSVersion ? [{ label: 'Requires', value: `iOS ${latest.minOSVersion}`, sub: 'or later' }] : []),
   { label: 'Developer', value: app.developerName, sub: 'developer' },
-  { label: 'Category', value: (app.category ?? 'other').replace('-', ' & '), sub: 'category' },
+  { label: 'Category', value: categoryLabel(app.category), sub: 'category' },
   { label: 'Store', value: kinds.length === 2 ? 'Both' : kinds[0] === 'adp' ? 'PAL' : 'Classic', sub: kinds.length === 2 ? 'PAL · Classic' : 'AltStore' },
 ];
 const info = [
   ['Developer', app.developerName],
   ['Size', latest.size ? formatBytes(latest.size) : null],
-  ['Category', (app.category ?? 'other').replace('-', ' & ')],
+  ['Category', categoryLabel(app.category)],
   ['Compatibility', latest.minOSVersion ? `Requires iOS ${latest.minOSVersion} or later.` : null],
   ['Bundle ID', app.bundleIdentifier],
   ['Available on', stores.join(', ')],

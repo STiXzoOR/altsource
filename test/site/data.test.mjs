@@ -14,7 +14,7 @@ const fixture = await root({
   'assets/s.png': 'png:1179x2556',
 });
 process.env.ALTSOURCE_ROOT = fixture;
-const { getSite, installLinks, universalLink, formatBytes, formatDate, versionLabel, screenshotsOf, linkify } = await import('../../site/src/lib/data.mjs');
+const { getSite, installLinks, universalLink, formatBytes, formatDate, versionLabel, categoryLabel, screenshotsOf, linkify } = await import('../../site/src/lib/data.mjs');
 const { entitlementInfo, privacyInfo } = await import('../../site/src/lib/permissions.mjs');
 
 test('getSite merges kinds, keeps base meta (not overrides), sorts apps and news', async () => {
@@ -29,6 +29,8 @@ test('getSite merges kinds, keeps base meta (not overrides), sorts apps and news
   assert.deepEqual(s.featured.map((a) => a.id), ['com.both']);
   assert.deepEqual(s.news.map((n) => n.identifier), ['b', 'a']);
   assert.deepEqual(s.counts, { pal: 2, classic: 1 });
+  assert.deepEqual(s.apps[0].project, { label: 'Project on GitHub', href: 'https://github.com/o/r' });
+  assert.equal(s.apps[1].project, undefined);
   assert.equal(await getSite(), s, 'memoised');
 });
 
@@ -50,8 +52,12 @@ test('formatting helpers', () => {
   assert.equal(formatBytes(999), '999 B');
   assert.equal(formatDate('2026-09-02T10:00:00Z'), '2 Sept 2026');
   assert.equal(formatDate('2026-2-17'), '17 Feb 2026');
-  assert.equal(versionLabel({ version: '1.0', buildVersion: '3' }), '1.0 (3)');
+  assert.equal(versionLabel({ version: '1.0', buildVersion: '3' }), '1.0', 'no build numbers on the site');
   assert.equal(versionLabel({ version: '1.0', marketingVersion: 'One' }), 'One');
+  assert.equal(categoryLabel('utilities'), 'Utilities');
+  assert.equal(categoryLabel('photo-video'), 'Photo & Video');
+  assert.equal(categoryLabel('developer'), 'Developer Tools');
+  assert.equal(categoryLabel(undefined), 'Other');
   assert.deepEqual(screenshotsOf({ screenshots: ['https://a', { imageURL: 'https://b', width: 1, height: 2 }] }), { iphone: [{ imageURL: 'https://a' }, { imageURL: 'https://b', width: 1, height: 2 }], ipad: [] });
   assert.deepEqual(screenshotsOf({}), { iphone: [], ipad: [] });
   assert.equal(linkify('see https://x.y/a?b=1 & <b>'), 'see <a href="https://x.y/a?b=1" rel="noopener" target="_blank">https://x.y/a?b=1</a> &amp; &lt;b&gt;');

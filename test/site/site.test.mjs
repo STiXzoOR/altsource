@@ -208,7 +208,7 @@ test('home: hero ribbon, Add and Share, a Today card for the featured app, shelv
   assert.match(html, /<a href="sidestore:\/\/source\?url=[^"]*" class="get get-blue[^"]*" data-store-only="sidestore">Add to SideStore</, 'Add is a direct SideStore link under SideStore');
   assert.match(html, /<div class="min-w-0" data-stores="classic sidestore"><button type="button" data-copy="https:\/\/stixzoor\.github\.io\/altsource\/source\.json"/, 'the Classic chip belongs to Classic and SideStore');
   assert.match(html, /data-share data-share-url="https:\/\/stixzoor\.github\.io\/altsource\/source\.pal\.json"/, 'Share carries the PAL URL');
-  assert.match(html, /<a href="\/altsource\/apps\/com\.both\/" class="today"[\s\S]*?<p class="today-eyebrow">utilities<\/p>\s*<h3 class="today-title">Both Kinds<\/h3>/, 'Today card for the featured app');
+  assert.match(html, /<a href="\/altsource\/apps\/com\.both\/" class="today"[\s\S]*?<p class="today-eyebrow">Utilities<\/p>\s*<h3 class="today-title">Both Kinds<\/h3>/, 'Today card for the featured app');
   assert.match(html, /<div class="shelf-list" data-shelf-list>[\s\S]*?class="newscard"/, 'news shelf');
   assert.match(html, /data-app-list>[\s\S]*?class="approw"/, 'rows inside an app list');
   assert.match(html, /data-empty data-empty-pal="Nothing for AltStore PAL yet\." data-empty-classic="Nothing for AltStore Classic yet\." data-empty-sidestore="Nothing for SideStore yet\."/, 'per-store empty state');
@@ -259,6 +259,8 @@ test('app page: two heroes, ribbon facts, store-aware Get, description, What’s
   assert.match(both, /<a href="https:\/\/altstore\.io\/source\/[^"]*\?app=com\.both" class="get get-blue[^"]*" data-store-only="pal">Get<\/a>/, 'direct PAL Get');
   assert.match(both, /<a href="sidestore:\/\/install\?url=[^"]*" class="get get-blue[^"]*" data-store-only="sidestore">Get<\/a>/, 'direct SideStore Get');
   assert.match(both, /data-sheet="versions"/, 'Version History opens the sheet');
+  assert.match(both, /<p>Version 2\.0<\/p>/, 'What’s New shows the marketing version only');
+  assert.doesNotMatch(both, /2\.0 \(1\)/, 'no build numbers');
   assert.match(both, /<dialog id="versions" class="sheet sheet-wide"/, 'version history is the wide sheet');
   assert.equal((both.match(/data-version-row/g) ?? []).length, 3, 'three versions listed');
   assert.match(both, /<dl class="info">[\s\S]*?<dt>Bundle ID<\/dt>\s*<dd>com\.both<\/dd>/, 'information rows');
