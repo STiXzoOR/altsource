@@ -128,6 +128,32 @@ altsource news add --title "App 2.0" --caption "What changed" --app com.example.
 `appPermissions` from the IPA, and `--release BASE_URL` turns an ADP into `assetURLs` so the
 package can live on GitHub Releases.
 
+## Automation
+
+| Workflow | When | What it does |
+|---|---|---|
+| `sync.yml` | every 6 hours, or `gh workflow run Sync` | For every app with an `upstream` block: fetch the newest version, download and inspect IPAs, prepend the version, create a news item, validate, build, commit as `github-actions[bot]`, redeploy. Per-app failures become warnings in the job summary; nothing invalid can ship. |
+| `links.yml` | Mondays 06:00 UTC, or `gh workflow run "Link check"` | HEAD-checks every URL in both outputs, records `state/link-check.json`, opens (or updates, or closes) an issue labelled `link-check`, redeploys the status page. |
+| `deploy.yml` | every push to `main`, and after the two above | Tests, build, `status.json`, GitHub Pages. |
+
+The status dashboard lives at https://stixzoor.github.io/altsource/status/ (also `npm run serve` → `/status/`): counts,
+QR codes that add the source when scanned, local vs upstream version per app, recent sync activity, broken links, and
+buttons that open the workflow pages.
+
+`upstream` keys inside an app file:
+
+| Key | Types | Meaning |
+|---|---|---|
+| `type` | all | `altstore` (another source JSON), `github` (release assets), `adp` (hosted manifest) |
+| `url` | altstore, adp | source URL or ADP directory/manifest URL |
+| `repo`, `asset`, `prerelease` | github | `owner/name`, asset glob (default `*.ipa`), include prereleases |
+| `notes` | github | `body` (default) uses the release notes; `none` leaves them out |
+| `sync` | altstore | keys to copy from upstream, default `["versions"]`; `"*"` copies everything except the bundle id |
+| `news` | all | `false` to skip the automatic news item |
+| `notify` | all | `true` to push-notify users about each update (off by default) |
+
+`state/` holds bot-written files (`sync-log.json`, `link-check.json`); commit them but do not edit them.
+
 ## Publishing your own notarized app (later)
 
 1. Request the [Alternative EU Terms Addendum](https://developer.apple.com/contact/request/alternative-eu-terms-addendum/).
