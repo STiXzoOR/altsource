@@ -7,7 +7,7 @@ An [AltStore](https://altstore.io) source curated by STiX, built and validated a
 | AltStore PAL source | `https://stixzoor.github.io/altsource/source.pal.json` |
 | AltStore Classic / SideStore source | `https://stixzoor.github.io/altsource/source.json` |
 | Add to AltStore (universal link) | https://altstore.io/source/stixzoor.github.io/altsource/source.pal.json |
-| Website | https://stixzoor.github.io/altsource/ (apps, news, status) |
+| Website | https://stixzoor.github.io/altsource/ (apps, news) |
 
 AltStore PAL installs Apple-notarized apps (EU, Japan, Brazil). AltStore Classic and SideStore
 sideload plain IPAs anywhere. Both read the same JSON format, so this repo builds two files from
@@ -134,7 +134,7 @@ package can live on GitHub Releases.
 `site/` is an [Astro](https://astro.build) 7 + [Tailwind CSS](https://tailwindcss.com) 4 project that renders the
 source as a website at build time, following Apple's Human Interface Guidelines and the anatomy of the App Store web app.
 
-- **Desktop (from 1000 px)** is an App Store shell: a 260 px sidebar (lockup, Home / Apps / News / Status, the store
+- **Desktop (from 1000 px)** is an App Store shell: a 260 px sidebar (lockup, Home / Apps / News, the store
   switch, appearance), the home hero with an information ribbon and Today-style featured cards, snapping shelves with
   hover arrows, small-lockup app rivers, and product pages with the Store's anatomy (blurred-artwork hero with the
   194 px icon, ribbon of facts, screenshot shelf, description with "more", What's New with a Version History sheet,
@@ -162,12 +162,12 @@ from list to page. `site/src/data/*.mjs` (permission descriptions) come from alt
 | Workflow | When | What it does |
 |---|---|---|
 | `sync.yml` | every 6 hours, or `gh workflow run Sync` | For every app with an `upstream` block: fetch the newest version, download and inspect IPAs, prepend the version, create a news item, validate, build, commit as `github-actions[bot]`, redeploy. Per-app failures become warnings in the job summary; nothing invalid can ship. |
-| `links.yml` | Mondays 06:00 UTC, or `gh workflow run "Link check"` | HEAD-checks every URL in both outputs, records `state/link-check.json`, opens (or updates, or closes) an issue labelled `link-check`, redeploys the status page. |
+| `links.yml` | Mondays 06:00 UTC, or `gh workflow run "Link check"` | HEAD-checks every URL in both outputs, records `state/link-check.json`, opens (or updates, or closes) an issue labelled `link-check`, redeploys. |
 | `deploy.yml` | every push to `main`, and after the two above | Tests, build, `status.json`, GitHub Pages. |
 
-The status dashboard lives at https://stixzoor.github.io/altsource/status/ (also `npm run serve` → `/status/`): counts,
-QR codes that add the source when scanned, local vs upstream version per app, recent sync activity, and broken links.
-It is public and read-only; maintainer actions live in the GitHub Actions tab, not on the page.
+`altsource status` prints the maintainer report (counts, local vs upstream version per app, recent sync activity, broken
+links); the deploy job writes the same data to `status.json` next to the sources and to the Actions step summary. There is
+no status page on the site.
 
 `upstream` keys inside an app file:
 

@@ -28,9 +28,10 @@ const allCss = async () => (await Promise.all((await readdir(path.join(out, '_as
 
 test('astro build succeeds and writes every page, the JSON and the assets', async () => {
   assert.equal(build.status, 0, build.stdout + build.stderr);
-  for (const f of ['index.html', 'apps/index.html', 'apps/com.pal/index.html', 'apps/com.both/index.html', 'apps/com.both/versions/index.html', 'apps/com.pal/versions/index.html', 'news/index.html', 'status/index.html', '404.html', 'source.json', 'source.pal.json', 'assets/icon.png', '.nojekyll']) {
+  for (const f of ['index.html', 'apps/index.html', 'apps/com.pal/index.html', 'apps/com.both/index.html', 'apps/com.both/versions/index.html', 'apps/com.pal/versions/index.html', 'news/index.html', '404.html', 'source.json', 'source.pal.json', 'assets/icon.png', '.nojekyll']) {
     assert.ok(await exists(f), `${f} missing`);
   }
+  assert.equal(await exists('status/index.html'), false, 'the Status page is gone');
 });
 
 test('home page shows the source, both apps, news and the add sheet; accessible landmarks', async () => {
@@ -134,7 +135,7 @@ test('app pages: GET follows the kinds, permissions are explained, screenshots, 
 });
 
 test('every internal link resolves to a built file and nothing points at GitHub Actions', async () => {
-  const pages = ['index.html', 'apps/index.html', 'apps/com.both/index.html', 'apps/com.both/versions/index.html', 'news/index.html', 'status/index.html', '404.html'];
+  const pages = ['index.html', 'apps/index.html', 'apps/com.both/index.html', 'apps/com.both/versions/index.html', 'news/index.html', '404.html'];
   for (const p of pages) {
     const html = await page(p);
     assert.doesNotMatch(html, /\/actions\/|workflows\//, `${p} links to GitHub Actions`);
@@ -151,7 +152,8 @@ test('shell: sidebar with the current row, floating tab bar, store switch, three
   assert.match(html, /<aside class="[^"]*" aria-label="Site">/, 'sidebar');
   assert.match(html, /<a href="\/altsource\/" aria-current="page"/, 'Home is current in the sidebar');
   assert.match(html, /<nav class="tabbar[^"]*" aria-label="Primary" data-tabbar>/, 'tab bar');
-  assert.equal((html.match(/data-tabbar>[\s\S]*?<\/nav>/)[0].match(/<a /g) ?? []).length, 4, 'four tabs');
+  assert.equal((html.match(/data-tabbar>[\s\S]*?<\/nav>/)[0].match(/<a /g) ?? []).length, 3, 'three tabs');
+  assert.equal((html.match(/<aside[\s\S]*?<\/aside>/)[0].match(/aria-label="Primary"[\s\S]*?<\/ul>/)[0].match(/<li>/g) ?? []).length, 3, 'three sidebar rows');
   assert.match(html, /role="radiogroup" aria-label="Store"/, 'store switch');
   for (const s of ['all', 'pal', 'classic', 'sidestore']) assert.match(html, new RegExp(`data-store-set="${s}"`), `${s} option`);
   assert.match(html, /<div role="radiogroup" aria-label="Store" data-store-switch class="segmented/, 'phone segmented control on the home page');
@@ -285,7 +287,7 @@ test('remaining pages: Apps search and rows with per-store empty states, News gr
   assert.match(nf, /<a href="\/altsource\/" class="get get-blue">Home<\/a>/, '404 home pill');
   const versions = await page('apps/com.both/versions/index.html');
   assert.equal((versions.match(/data-version-row/g) ?? []).length, 3, 'version rows');
-  for (const p of ['index.html', 'apps/index.html', 'apps/com.both/index.html', 'news/index.html', 'status/index.html', '404.html', 'apps/com.both/versions/index.html']) {
+  for (const p of ['index.html', 'apps/index.html', 'apps/com.both/index.html', 'news/index.html', '404.html', 'apps/com.both/versions/index.html']) {
     assert.doesNotMatch(await page(p), /\b(bg-card|text-muted-foreground|bg-glass|text-primary|border-border|bg-background|text-foreground)\b|var\(--radius\)|snap-strip/, `${p} uses no retired names`);
   }
 });

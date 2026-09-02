@@ -5,8 +5,8 @@ import { STORES, storesFor } from '../../site/src/lib/stores.mjs';
 
 const base = '/altsource/';
 
-test('navItems are Home, Apps, News, Status under the base path with a Hugeicon each', () => {
-  assert.deepEqual(navItems(base).map((i) => [i.label, i.href]), [['Home', '/altsource/'], ['Apps', '/altsource/apps/'], ['News', '/altsource/news/'], ['Status', '/altsource/status/']]);
+test('navItems are Home, Apps, News under the base path with a Hugeicon each', () => {
+  assert.deepEqual(navItems(base).map((i) => [i.label, i.href]), [['Home', '/altsource/'], ['Apps', '/altsource/apps/'], ['News', '/altsource/news/']]);
   for (const i of navItems(base)) assert.match(i.icon, /Icon$/);
 });
 
