@@ -1,0 +1,8 @@
+{
+  "$schema": "../schema/news.schema.json",
+  "title": "UTM 5.0.7",
+  "identifier": "update-com-utmapp-utm-5-0-7-127",
+  "caption": "Version 5.0.7 (127) is now available.",
+  "date": "2026-10-16T06:25:45Z",
+  "appID": "com.utmapp.UTM"
+}
