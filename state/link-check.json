@@ -1,11 +1,5 @@
 {
-  "checkedAt": "2026-10-12T13:44:53Z",
-  "total": 23,
-  "broken": [
-    {
-      "url": "https://github.com/illuminati945/NuvioMobile-iOS/releases/download/v0.4.18/Nuvio-v0.4.18-Enhanced.ipa",
-      "where": "classic#/apps/0/versions/0/downloadURL",
-      "status": 500
-    }
-  ]
+  "checkedAt": "2026-10-19T11:26:24Z",
+  "total": 25,
+  "broken": []
 }
