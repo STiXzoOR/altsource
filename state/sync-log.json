@@ -1,5 +1,23 @@
 [
   {
+    "at": "2026-10-22T16:54:12Z",
+    "id": "com.nuvio.enhanced",
+    "action": "error",
+    "message": "no stable release found in illuminati945/NuvioMobile-iOS"
+  },
+  {
+    "at": "2026-10-22T16:54:12Z",
+    "id": "com.utmapp.UTM",
+    "action": "error",
+    "message": "no stable release found in utmapp/UTM"
+  },
+  {
+    "at": "2026-10-22T16:54:12Z",
+    "id": "net.kdt.pojavlauncher",
+    "action": "error",
+    "message": "no stable release found in PojavLauncherTeam/PojavLauncher_iOS"
+  },
+  {
     "at": "2026-10-17T03:43:37Z",
     "id": "com.utmapp.UTM",
     "action": "added",
