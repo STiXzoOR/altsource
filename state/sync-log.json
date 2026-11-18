@@ -1,5 +1,11 @@
 [
   {
+    "at": "2026-11-18T15:23:43Z",
+    "id": "com.utmapp.UTM",
+    "action": "added",
+    "version": "5.0.9"
+  },
+  {
     "at": "2026-11-17T01:45:27Z",
     "id": "com.utmapp.UTM",
     "action": "added",
